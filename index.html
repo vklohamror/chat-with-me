@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat With Me</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#eef2f7;font-family:Arial,sans-serif;color:#172033}
+header{background:#087e70;color:white;padding:17px;text-align:center}
+header h2{margin:0}
+header p{margin:5px 0 0;font-size:13px}
+.container{max-width:600px;margin:20px auto;padding:12px}
+.card{background:white;padding:20px;border-radius:14px;box-shadow:0 3px 14px #0001}
+input,button{width:100%;padding:13px;margin:7px 0;border-radius:8px;border:1px solid #ccd4df;font-size:16px}
+button{background:#087e70;color:white;border:0;font-weight:bold;cursor:pointer}
+button.secondary{background:#e8f2f0;color:#087e70}
+.hidden{display:none}
+#users button{background:white;color:#172033;border:1px solid #ddd;text-align:left}
+#messages{height:340px;overflow-y:auto;background:#f4f7fa;padding:10px;border-radius:10px;margin:10px 0}
+.msg{background:white;padding:10px;border-radius:10px;margin:7px 0;max-width:85%;overflow-wrap:anywhere}
+.mine{background:#d5f8e8;margin-left:auto}
+.small{font-size:12px;color:#687386}
+.row{display:flex;gap:7px}
+.row input{flex:1;min-width:0}
+.row button{width:90px}
+#status{font-size:13px;color:#b42318;min-height:20px}
+</style>
+</head>
+<body>
+<header>
+<h2>💬 Chat With Me</h2>
+<p>Connect • Chat • Share</p>
+</header>
+
+<div class="container">
+<div id="authBox" class="card">
+<h3 id="authTitle">Login करें</h3>
+<div id="nameField" class="hidden">
+<input id="displayName" placeholder="आपका नाम">
+</div>
+<input id="email" type="email" placeholder="ईमेल पता">
+<input id="password" type="password" placeholder="पासवर्ड">
+<button id="authBtn" onclick="login()">Login</button>
+<button class="secondary" id="switchBtn" onclick="toggleAuth()">नया अकाउंट बनाएँ</button>
+<div id="status"></div>
+</div>
+
+<div id="homeBox" class="card hidden">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div><b id="welcome"></b><div class="small">Chat With Me पर आपका स्वागत है</div></div>
+<button style="width:auto;padding:10px" onclick="logout()">Logout</button>
+</div>
+<hr>
+<h3>👥 लोग खोजें</h3>
+<input id="searchUser" placeholder="नाम या Username खोजें" oninput="filterUsers()">
+<div id="users">यूज़र्स लोड हो रहे हैं...</div>
+<div id="status"></div>
+</div>
+
+<div id="chatBox" class="card hidden" style="margin-top:15px">
+<button class="secondary" onclick="backToUsers()">← वापस जाएँ</button>
+<h3 id="chatTitle">निजी चैट</h3>
+<div id="messages"></div>
+<div class="row">
+<input id="messageInput" placeholder="मैसेज लिखें..." onkeydown="if(event.key==='Enter')sendMessage()">
+<button onclick="sendMessage()">Send</button>
+</div>
+<div id="chatStatus" class="small"></div>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://drvrqgfsakuhzbzklafx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_3wHhdUS0kDgI6OuPTmfiUA_XdPWrR3H";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let allUsers = [];
+let activeConversation = null;
+let activeChannel = null;
+let signupMode = false;
+
+function showStatus(message){
+ document.getElementById("status").textContent = message;
+}
+
+function toggleAuth(){
+ signupMode = !signupMode;
+ document.getElementById("authTitle").textContent = signupMode ? "नया अकाउंट बनाएँ" : "Login करें";
+ document.getElementById("nameField").classList.toggle("hidden",!signupMode);
+ document.getElementById("authBtn").textContent = signupMode ? "Sign Up" : "Login";
+ document.getElementById("switchBtn").textContent = signupMode ? "पहले से अकाउंट है? Login करें" : "नया अकाउंट बनाएँ";
+ showStatus("");
+}
+
+async function login(){
+ const email = document.getElementById("email").value.trim();
+ const password = document.getElementById("password").value;
+ if(!email || !password){showStatus("ईमेल और पासवर्ड भरें।");return;}
+ showStatus("कृपया प्रतीक्षा करें...");
+ let result;
+ if(signupMode){
+  const name = document.getElementById("displayName").value.trim();
+  if(!name){showStatus("अपना नाम लिखें।");return;}
+  result = await db.auth.signUp({
+   email,password,
+   options:{data:{display_name:name}}
+  });
+ }else{
+  result = await db.auth.signInWithPassword({email,password});
+ }
+ if(result.error){showStatus(result.error.message);return;}
+ if(!result.data.session){
+  showStatus("अकाउंट बन गया। ईमेल की पुष्टि करके Login करें।");
+  return;
+ }
+ await checkSession();
+}
+
+async function logout(){
+ await db.auth.signOut();
+ currentUser = null;
+ activeConversation = null;
+ if(activeChannel) await db.removeChannel(activeChannel);
+ document.getElementById("authBox").classList.remove("hidden");
+ document.getElementById("homeBox").classList.add("hidden");
+ document.getElementById("chatBox").classList.add("hidden");
+}
+
+async function checkSession(){
+ const {data} = await db.auth.getSession();
+ if(data.session){
+  currentUser = data.session.user;
+  document.getElementById("authBox").classList.add("hidden");
+  document.getElementById("homeBox").classList.remove("hidden");
+  document.getElementById("welcome").textContent = "नमस्ते, "+(currentUser.user_metadata.display_name || currentUser.email);
+  await loadUsers();
+ }
+}
+
+async function loadUsers(){
+ const box = document.getElementById("users");
+ box.textContent = "यूज़र्स लोड हो रहे हैं...";
+ const {data,error} = await db.from("profiles")
+  .select("id,display_name,username")
+  .neq("id",currentUser.id)
+  .order("display_name");
+ if(error){box.textContent="यूज़र्स लोड नहीं हुए: "+error.message;return;}
+ allUsers = data || [];
+ filterUsers();
+}
+
+function filterUsers(){
+ const q = document.getElementById("searchUser").value.toLowerCase();
+ const box = document.getElementById("users");
+ box.innerHTML = "";
+ const found = allUsers.filter(u =>
+  (u.display_name || "").toLowerCase().includes(q) ||
+  (u.username || "").toLowerCase().includes(q)
+ );
+ if(!found.length){box.textContent="अभी कोई दूसरा यूज़र नहीं मिला।";return;}
+ found.forEach(u=>{
+  const b=document.createElement("button");
+  b.textContent="👤 "+(u.display_name || u.username || "यूज़र");
+  b.onclick=()=>startChat(u);
+  box.appendChild(b);
+ });
+}
+
+async function startChat(otherUser){
+ showStatus("चैट तैयार हो रही है...");
+ const {data:conversation,error:convError} = await db.from("conversations")
+  .insert({created_by:currentUser.id,is_group:false})
+  .select("id").single();
+ if(convError){showStatus("चैट नहीं बन पाई: "+convError.message);return;}
+ const {error:memberError} = await db.from("conversation_members").insert([
+  {conversation_id:conversation.id,user_id:currentUser.id},
+  {conversation_id:conversation.id,user_id:otherUser.id}
+ ]);
+ if(memberError){showStatus("सदस्य जोड़ने में समस्या: "+memberError.message);return;}
+ activeConversation=conversation.id;
+ document.getElementById("chatTitle").textContent="💬 "+(otherUser.display_name || "निजी चैट");
+ document.getElementById("chatBox").classList.remove("hidden");
+ document.getElementById("chatStatus").textContent="";
+ await loadMessages();
+ listenMessages();
+}
+
+async function loadMessages(){
+ const box=document.getElementById("messages");
+ box.innerHTML="मैसेज लोड हो रहे हैं...";
+ const {data,error}=await db.from("messages")
+  .select("id,sender_id,content,created_at")
+  .eq("conversation_id",activeConversation)
+  .order("created_at",{ascending:true});
+ if(error){box.textContent="मैसेज लोड नहीं हुए: "+error.message;return;}
+ box.innerHTML="";
+ (data||[]).forEach(addMessage);
+ box.scrollTop=box.scrollHeight;
+}
+
+function addMessage(m){
+ const box=document.getElementById("messages");
+ const div=document.createElement("div");
+ div.className="msg "+(m.sender_id===currentUser.id?"mine":"");
+ const content=document.createElement("div");
+ content.textContent=m.content;
+ const time=document.createElement("div");
+ time.className="small";
+ time.textContent=new Date(m.created_at).toLocaleString();
+ div.append(content,time);
+ box.appendChild(div);
+}
+
+function listenMessages(){
+ if(activeChannel) db.removeChannel(activeChannel);
+ activeChannel=db.channel("chat-"+activeConversation)
+ .on("postgres_changes",{
+  event:"INSERT",schema:"public",table:"messages",
+  filter:"conversation_id=eq."+activeConversation
+ },payload=>{
+  if(payload.new.sender_id!==currentUser.id)addMessage(payload.new);
+  const box=document.getElementById("messages");
+  box.scrollTop=box.scrollHeight;
+ })
+ .subscribe();
+}
+
+async function sendMessage(){
+ const input=document.getElementById("messageInput");
+ const content=input.value.trim();
+ if(!content || !activeConversation)return;
+ input.value="";
+ const {data,error}=await db.from("messages").insert({
+  conversation_id:activeConversation,
+  sender_id:currentUser.id,
+  content:content,
+  message_type:"text"
+ }).select("id,sender_id,content,created_at").single();
+ if(error){
+  document.getElementById("chatStatus").textContent="मैसेज नहीं भेजा गया: "+error.message;
+  input.value=content;
+  return;
+ }
+ addMessage(data);
+ const box=document.getElementById("messages");
+ box.scrollTop=box.scrollHeight;
+}
+
+function backToUsers(){
+ document.getElementById("chatBox").classList.add("hidden");
+ activeConversation=null;
+ if(activeChannel){db.removeChannel(activeChannel);activeChannel=null;}
+}
+
+db.auth.onAuthStateChange((event,session)=>{
+ if(session && !currentUser){
+  currentUser=session.user;
+  setTimeout(checkSession,0);
+ }
+});
+
+checkSession();
+</script>
+</body>
+</html>
