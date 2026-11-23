@@ -1,879 +1,733 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b1422">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#E87916">
 <title>Chat With Me</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
+:root{
+ --orange:#E87916;
+ --deep:#C45C0B;
+ --light:#FFF1DF;
+ --bg:#FFF8F0;
+ --white:#fff;
+ --text:#30251B;
+ --muted:#88796B;
+ --border:#F0E2D3;
+}
 *{box-sizing:border-box}
 body{
- margin:0;font-family:Arial,sans-serif;background:#0b1422;
- color:#fff;min-height:100vh
+ margin:0;font-family:Arial,Helvetica,sans-serif;
+ background:var(--bg);color:var(--text);
 }
-header{
- background:#12243a;padding:16px;text-align:center;
- border-bottom:1px solid #263b55
-}
-header h1{margin:0;font-size:24px}
-header p{margin:6px 0 0;color:#a9bfd5;font-size:13px}
-.container{max-width:600px;margin:auto;padding:15px}
-.card{
- background:#17263a;border:1px solid #2b4058;border-radius:14px;
- padding:16px;margin-bottom:15px
-}
-h2{margin:0 0 15px;font-size:20px}
-h3{margin:0 0 12px;font-size:17px}
-input,button{
- width:100%;padding:13px;border-radius:10px;
- font-size:16px;margin:6px 0
-}
-input{
- background:#0c1929;color:white;border:1px solid #344b63;
- outline:none
-}
-button{
- border:none;background:#1684e8;color:white;font-weight:bold;
- cursor:pointer
-}
-button.secondary{background:#344b63}
-button.danger{background:#b83232}
-button:disabled{opacity:.6}
-.status{font-size:14px;color:#ffc96b;min-height:20px;margin:5px 0}
-.small{font-size:13px;color:#a9bfd5}
+button,input{font:inherit}
+button{cursor:pointer}
+.page{min-height:100vh}
 .hidden{display:none!important}
-.user-item,.chat-item{
+.header{
+ background:linear-gradient(135deg,var(--orange),var(--deep));
+ color:white;padding:18px 16px;
  display:flex;align-items:center;gap:12px;
- background:#102035;padding:12px;border-radius:12px;
- margin:8px 0;border:1px solid #263e58
+ position:sticky;top:0;z-index:5;
+ box-shadow:0 3px 12px #c45c0b22;
 }
+.logo{
+ width:43px;height:43px;border-radius:50%;
+ background:#fff3e3;color:var(--deep);
+ display:grid;place-items:center;font-size:22px;font-weight:bold;
+}
+.headerTitle{font-size:20px;font-weight:bold}
+.headerSub{font-size:12px;opacity:.9;margin-top:3px}
+.headerRight{margin-left:auto;display:flex;gap:8px}
+.iconBtn{
+ border:0;background:#ffffff25;color:white;
+ border-radius:12px;padding:10px;font-size:18px;
+}
+.panel{
+ background:white;border:1px solid var(--border);
+ border-radius:18px;padding:18px;margin:14px;
+ box-shadow:0 4px 15px #5b35100a;
+}
+.authWrap{
+ max-width:440px;margin:40px auto;padding:14px;
+}
+.authLogo{
+ text-align:center;margin:10px auto 25px;
+}
+.authLogo .logo{
+ width:75px;height:75px;font-size:36px;margin:auto;
+ background:var(--orange);color:white;
+}
+.authLogo h1{margin:12px 0 5px}
+.authLogo p{color:var(--muted);margin:0}
+input{
+ width:100%;padding:14px;border-radius:12px;
+ border:1px solid var(--border);outline:none;
+ background:#fff;font-size:15px;margin:6px 0;
+}
+input:focus{border-color:var(--orange);box-shadow:0 0 0 3px #e8791618}
+.primary{
+ border:0;border-radius:12px;padding:14px;
+ background:var(--orange);color:white;font-weight:bold;
+ width:100%;margin-top:10px;
+}
+.primary:active{background:var(--deep)}
+.secondary{
+ border:1px solid var(--border);background:white;
+ color:var(--deep);border-radius:12px;padding:10px;
+}
+.authToggle{
+ text-align:center;margin-top:15px;color:var(--muted);
+}
+.authToggle button{
+ border:0;background:none;color:var(--deep);font-weight:bold;
+}
+.status{font-size:13px;margin:10px 0;color:var(--deep)}
+.main{max-width:700px;margin:auto;padding-bottom:30px}
+.searchBox{padding:12px 14px 0}
+.searchBox input{background:#fff9f3}
+.sectionTitle{
+ font-weight:bold;color:var(--deep);padding:15px 16px 8px;
+ display:flex;align-items:center;justify-content:space-between;
+}
+.userRow{
+ display:flex;align-items:center;gap:12px;
+ padding:12px 15px;border-bottom:1px solid #f7eee5;
+ cursor:pointer;background:white;
+}
+.userRow:hover{background:#fffaf5}
 .avatar{
- width:44px;height:44px;border-radius:50%;
- display:flex;align-items:center;justify-content:center;
- background:#1676cf;font-size:18px;font-weight:bold;flex-shrink:0
+ width:48px;height:48px;flex-shrink:0;border-radius:50%;
+ background:#FFE3C2;color:var(--deep);
+ display:grid;place-items:center;font-weight:bold;font-size:18px;
 }
-.user-info{flex:1;min-width:0}
-.user-info strong{display:block;overflow:hidden;text-overflow:ellipsis}
-.user-info small{color:#9eb4ca}
-.user-item button,.chat-item button{
- width:auto;margin:0;padding:10px 14px
+.userInfo{flex:1;min-width:0}
+.userName{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview{font-size:13px;color:var(--muted);margin-top:5px;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.time{font-size:11px;color:var(--muted)}
+.badge{
+ background:var(--orange);color:white;border-radius:30px;
+ font-size:12px;padding:4px 8px;
 }
-#messages{
- height:55vh;min-height:300px;max-height:600px;
- overflow-y:auto;background:#091523;border-radius:12px;
- padding:12px;margin:10px 0
+.empty{text-align:center;padding:35px 20px;color:var(--muted)}
+.chatHeader{position:sticky;top:0}
+.chatHeader .back{font-size:23px}
+.chatArea{
+ height:calc(100dvh - 148px);min-height:300px;
+ overflow-y:auto;padding:15px;
+ background:
+ linear-gradient(#fff8f0e8,#fff8f0e8),
+ radial-gradient(circle at 10% 20%,#e8791615 1px,transparent 2px);
 }
-.message{
- max-width:85%;padding:10px 12px;border-radius:12px;
- margin:8px 0;word-break:break-word;white-space:pre-wrap
+.msg{
+ max-width:82%;padding:10px 12px;margin:8px 0;
+ border-radius:15px;word-break:break-word;
+ box-shadow:0 1px 3px #00000008;
 }
-.message.mine{background:#1267a8;margin-left:auto}
-.message.other{background:#26394f;margin-right:auto}
-.message small{
- display:block;font-size:10px;color:#c3d5e7;margin-top:5px
+.msg.mine{
+ margin-left:auto;background:#FFE2BE;
+ border-bottom-right-radius:4px;
 }
-.chat-input-row{display:flex;gap:8px;align-items:center}
-.chat-input-row input{flex:1;margin:0}
-.chat-input-row button{width:90px;margin:0}
-#chatTitle{font-size:18px;margin:0}
-.top-row{display:flex;align-items:center;gap:10px}
-.top-row button{width:auto;margin:0;padding:10px 14px}
-.empty{text-align:center;color:#91a8bf;padding:20px}
-.footer{text-align:center;color:#71879e;font-size:12px;padding:20px}
+.msg.theirs{
+ margin-right:auto;background:white;
+ border:1px solid #f2e8dd;border-bottom-left-radius:4px;
+}
+.msgTime{text-align:right;font-size:10px;color:#9c826a;margin-top:5px}
+.chatInputBar{
+ display:flex;gap:8px;align-items:center;padding:10px;
+ background:white;border-top:1px solid var(--border);
+ position:sticky;bottom:0;
+}
+.chatInputBar input{margin:0;border-radius:25px;padding:13px}
+.sendBtn{
+ border:0;background:var(--orange);color:white;
+ width:48px;height:48px;border-radius:50%;font-size:20px;
+ flex-shrink:0;
+}
+.tabs{
+ display:flex;gap:8px;padding:12px;
+}
+.tab{
+ flex:1;padding:11px;border:1px solid var(--border);
+ background:white;border-radius:12px;color:var(--deep);
+ font-weight:bold;
+}
+.tab.active{background:var(--orange);color:white;border-color:var(--orange)}
+.small{font-size:12px;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--border)}
+@media(min-width:700px){
+ .panel{margin:20px}
+ .authWrap{margin-top:60px}
+}
 </style>
 </head>
 
 <body>
 
-<header>
-<h1>💬 Chat With Me</h1>
-<p>Connect • Chat • Share</p>
-</header>
-
-<div class="container">
-
 <!-- LOGIN / SIGNUP -->
-<div id="authBox" class="card">
-<h2 id="authTitle">Login करें</h2>
+<div id="authPage" class="page">
+ <div class="authWrap">
+  <div class="authLogo">
+   <div class="logo">💬</div>
+   <h1>Chat With Me</h1>
+   <p>Connect • Chat • Share</p>
+  </div>
 
-<input id="nameField" placeholder="आपका नाम" class="hidden">
-<input id="email" type="email" placeholder="Email address">
-<input id="password" type="password" placeholder="Password">
+  <div class="panel">
+   <h2 id="authTitle">Login करें</h2>
 
-<button id="authButton" onclick="login()">Login</button>
-<button class="secondary" onclick="toggleAuth()" id="toggleButton">
-नया अकाउंट बनाएँ
-</button>
+   <div id="nameBox" class="hidden">
+    <input id="nameInput" placeholder="आपका नाम" autocomplete="name">
+   </div>
 
-<div id="authStatus" class="status"></div>
-<p class="small">
-नया अकाउंट बनाने के लिए अपना नाम, Email और Password भरें।
-</p>
+   <input id="emailInput" type="email" placeholder="Email Address" autocomplete="email">
+   <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password">
+
+   <button class="primary" id="authBtn" onclick="handleAuth()">Login करें</button>
+   <div id="authStatus" class="status"></div>
+
+   <div class="authToggle">
+    <span id="toggleText">नया अकाउंट बनाना है?</span>
+    <button onclick="toggleAuth()" id="toggleBtn">Signup करें</button>
+   </div>
+  </div>
+ </div>
 </div>
 
 <!-- HOME -->
-<div id="homeBox" class="hidden">
+<div id="homePage" class="page hidden">
+ <div class="header">
+  <div class="logo">💬</div>
+  <div>
+   <div class="headerTitle">Chat With Me</div>
+   <div class="headerSub">Connect • Chat • Share</div>
+  </div>
+  <div class="headerRight">
+   <button class="iconBtn" onclick="loadHome()" title="Refresh">↻</button>
+   <button class="iconBtn" onclick="logout()" title="Logout">⏻</button>
+  </div>
+ </div>
 
-<div class="card">
-<h2 id="welcome">नमस्ते!</h2>
-<button class="danger" onclick="logout()">Logout</button>
-<div id="homeStatus" class="status"></div>
-</div>
+ <div class="main">
+  <div class="tabs">
+   <button class="tab active" id="chatsTab" onclick="showTab('chats')">💬 Chats</button>
+   <button class="tab" id="usersTab" onclick="showTab('users')">👥 Users</button>
+  </div>
 
-<div class="card">
-<h3>💬 मेरी Chats</h3>
-<div id="chatList">
-<div class="empty">Chats लोड हो रही हैं...</div>
-</div>
-</div>
+  <div class="searchBox">
+   <input id="searchInput" placeholder="🔎 नाम खोजें..." oninput="renderCurrentTab()">
+  </div>
 
-<div class="card">
-<h3>🔎 लोगों को खोजें</h3>
-<input id="search" placeholder="नाम या Email खोजें..." oninput="filterUsers()">
-<div id="usersList">
-<div class="empty">Users लोड हो रहे हैं...</div>
-</div>
-</div>
+  <div id="homeStatus" class="status" style="padding:0 15px"></div>
 
+  <div id="chatsSection">
+   <div class="sectionTitle">मेरी Chats <span class="small" id="chatCount"></span></div>
+   <div id="chatList"></div>
+  </div>
+
+  <div id="usersSection" class="hidden">
+   <div class="sectionTitle">नए लोग <span class="small" id="userCount"></span></div>
+   <div id="userList"></div>
+  </div>
+ </div>
 </div>
 
 <!-- CHAT -->
-<div id="chatBox" class="hidden">
+<div id="chatPage" class="page hidden">
+ <div class="header chatHeader">
+  <button class="iconBtn back" onclick="backHome()">‹</button>
+  <div class="avatar" id="chatAvatar">?</div>
+  <div style="min-width:0">
+   <div class="headerTitle" id="chatName">Chat</div>
+   <div class="headerSub" id="chatSub">Chat With Me</div>
+  </div>
+ </div>
 
-<div class="card">
-<div class="top-row">
-<button class="secondary" onclick="backToUsers()">← वापस</button>
-<div>
-<h2 id="chatTitle">Chat</h2>
-<div class="small">Private conversation</div>
+ <div id="chatMessages" class="chatArea"></div>
+
+ <div class="chatInputBar">
+  <input id="messageInput" placeholder="Message लिखें..." onkeydown="if(event.key==='Enter')sendMessage()">
+  <button class="sendBtn" onclick="sendMessage()" title="Send">➤</button>
+ </div>
+ <div id="chatStatus" class="status" style="padding:0 12px"></div>
 </div>
-</div>
-
-<div id="chatStatus" class="status"></div>
-
-<div id="messages">
-<div class="empty">Messages लोड हो रहे हैं...</div>
-</div>
-
-<div class="chat-input-row">
-<input id="messageInput" placeholder="मैसेज लिखें..."
-onkeydown="if(event.key==='Enter')sendMessage()">
-<button onclick="sendMessage()">Send</button>
-</div>
-</div>
-
-</div>
-
-<div class="footer">Chat With Me • Connect with people</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-/* ==============================
-   SUPABASE CONFIG
-============================== */
+const SUPABASE_URL="https://drvrqgfsakuhzbzklafx.supabase.co";
+const SUPABASE_KEY="sb_publishable_3wHhdUS0kDgI6OuPTmfiUA_XdPWrR3H";
 
-const SUPABASE_URL =
-"https://drvrqgfsakuhzbzklafx.supabase.co";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const SUPABASE_KEY =
-"sb_publishable_3wHhdUS0kDgI6OuPTmfiUA_XdPWrR3H";
+let currentUser=null;
+let profiles=[];
+let myChats=[];
+let currentTab="chats";
+let activeChat=null;
+let activeConversation=null;
+let messageChannel=null;
+let isSignup=false;
+let sending=false;
 
-const db = window.supabase.createClient(
- SUPABASE_URL,
- SUPABASE_KEY
-);
+/* ---------- BASIC HELPERS ---------- */
 
-/* ==============================
-   APP STATE
-============================== */
-
-let currentUser = null;
-let allUsers = [];
-let currentChatUser = null;
-let currentConversationId = null;
-let realtimeChannel = null;
-let renderedMessageIds = new Set();
-let isSignup = false;
-let loadingSession = false;
-
-/* ==============================
-   HELPERS
-============================== */
-
-function status(id,text){
- const el=document.getElementById(id);
- if(el)el.textContent=text||"";
-}
+function $(id){return document.getElementById(id)}
 
 function escapeHTML(value){
  return String(value??"").replace(/[&<>"']/g,function(c){
-  return {
-   "&":"&amp;",
-   "<":"&lt;",
-   ">":"&gt;",
-   '"':"&quot;",
-   "'":"&#039;"
-  }[c];
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
  });
 }
 
-function displayName(user){
- return user.name ||
-        user.full_name ||
-        user.username ||
-        user.email ||
-        "User";
+function displayName(p){
+ return p?.full_name||p?.name||p?.username||p?.display_name||
+ p?.email||"User";
 }
 
-function getInitial(name){
- return (name||"U").trim().charAt(0).toUpperCase()||"U";
+function initials(name){
+ let s=String(name||"?").trim();
+ return s.substring(0,1).toUpperCase();
 }
 
-function showHome(){
- document.getElementById("authBox").classList.add("hidden");
- document.getElementById("chatBox").classList.add("hidden");
- document.getElementById("homeBox").classList.remove("hidden");
+function timeText(date){
+ if(!date)return "";
+ const d=new Date(date);
+ if(isNaN(d))return "";
+ const today=new Date();
+ if(d.toDateString()===today.toDateString()){
+  return d.toLocaleTimeString("hi-IN",{hour:"2-digit",minute:"2-digit"});
+ }
+ return d.toLocaleDateString("hi-IN",{day:"numeric",month:"short"});
 }
 
-function showAuth(){
- document.getElementById("authBox").classList.remove("hidden");
- document.getElementById("homeBox").classList.add("hidden");
- document.getElementById("chatBox").classList.add("hidden");
+function status(id,text){
+ $(id).textContent=text||"";
 }
 
-/* ==============================
-   LOGIN / SIGNUP
-============================== */
+function showPage(page){
+ ["authPage","homePage","chatPage"].forEach(id=>$(id).classList.add("hidden"));
+ $(page).classList.remove("hidden");
+}
 
 function toggleAuth(){
  isSignup=!isSignup;
-
- document.getElementById("authTitle").textContent=
-  isSignup?"नया अकाउंट बनाएँ":"Login करें";
-
- document.getElementById("authButton").textContent=
-  isSignup?"Signup":"Login";
-
- document.getElementById("toggleButton").textContent=
-  isSignup?"पहले से अकाउंट है? Login":"नया अकाउंट बनाएँ";
-
- document.getElementById("nameField").classList.toggle("hidden",!isSignup);
-
+ $("authTitle").textContent=isSignup?"नया अकाउंट बनाएँ":"Login करें";
+ $("authBtn").textContent=isSignup?"Signup करें":"Login करें";
+ $("nameBox").classList.toggle("hidden",!isSignup);
+ $("toggleText").textContent=isSignup?"पहले से अकाउंट है?":"नया अकाउंट बनाना है?";
+ $("toggleBtn").textContent=isSignup?"Login करें":"Signup करें";
  status("authStatus","");
 }
 
-async function login(){
- const email=document.getElementById("email").value.trim();
- const password=document.getElementById("password").value;
- const name=document.getElementById("nameField").value.trim();
+/* ---------- AUTH ---------- */
+
+async function handleAuth(){
+ const email=$("emailInput").value.trim();
+ const password=$("passwordInput").value;
+ const name=$("nameInput").value.trim();
 
  if(!email||!password){
-  status("authStatus","Email और Password भरें।");
+  status("authStatus","Email और Password भरें");
   return;
  }
-
  if(isSignup&&!name){
-  status("authStatus","अपना नाम भरें।");
+  status("authStatus","अपना नाम लिखें");
   return;
  }
 
- const btn=document.getElementById("authButton");
- btn.disabled=true;
- status("authStatus",isSignup?"Account बनाया जा रहा है...":"Login हो रहा है...");
+ $("authBtn").disabled=true;
+ status("authStatus","कृपया प्रतीक्षा करें...");
 
  try{
-  let result;
-
   if(isSignup){
-   result=await db.auth.signUp({
-    email:email,
-    password:password,
-    options:{
-     data:{name:name,full_name:name},
-     emailRedirectTo:"https://vklohamror.github.io/chat-with-me/"
-    }
+   const {data,error}=await sb.auth.signUp({
+    email,password,
+    options:{data:{name,full_name:name}}
    });
+   if(error)throw error;
+   if(data.session){
+    currentUser=data.user;
+    await saveProfile(name);
+    await loadHome();
+   }else{
+    status("authStatus","अकाउंट बन गया। अब Login करें।");
+    isSignup=false;
+    toggleAuth();
+   }
   }else{
-   result=await db.auth.signInWithPassword({
-    email:email,
-    password:password
-   });
+   const {data,error}=await sb.auth.signInWithPassword({email,password});
+   if(error)throw error;
+   currentUser=data.user;
+   await loadHome();
   }
-
-  if(result.error)throw result.error;
-
-  if(isSignup&&!result.data.session){
-   status("authStatus","Account बन गया। अब Login करें।");
-   isSignup=false;
-   toggleAuth();
-   return;
-  }
-
-  currentUser=result.data.user;
-  await afterLogin();
-
- }catch(error){
-  status("authStatus","Error: "+(error.message||error));
+ }catch(e){
+  status("authStatus","त्रुटि: "+(e.message||e));
  }finally{
-  btn.disabled=false;
+  $("authBtn").disabled=false;
+ }
+}
+
+async function saveProfile(name){
+ if(!currentUser)return;
+ // Existing profile row may already exist.
+ const {error}=await sb.from("profiles").upsert({
+  id:currentUser.id,
+  full_name:name
+ },{onConflict:"id"});
+ if(error){
+  // If the table uses name rather than full_name, signup is still retained.
+  console.warn("Profile update:",error.message);
  }
 }
 
 async function logout(){
- try{
-  if(realtimeChannel){
-   await db.removeChannel(realtimeChannel);
-   realtimeChannel=null;
-  }
-
-  await db.auth.signOut();
-  currentUser=null;
-  currentChatUser=null;
-  currentConversationId=null;
-  showAuth();
-  status("authStatus","Logout हो गया।");
- }catch(error){
-  status("homeStatus",error.message);
- }
+ await sb.auth.signOut();
+ currentUser=null;
+ profiles=[];
+ myChats=[];
+ activeChat=null;
+ activeConversation=null;
+ showPage("authPage");
+ status("authStatus","Logout हो गया");
 }
 
-/* ==============================
-   SESSION
-============================== */
+/* ---------- PROFILE / HOME ---------- */
 
-async function checkSession(){
- if(loadingSession)return;
- loadingSession=true;
-
- try{
-  const {data,error}=await db.auth.getSession();
-  if(error)throw error;
-
-  if(data.session){
-   currentUser=data.session.user;
-   await afterLogin();
-  }else{
-   showAuth();
-  }
- }catch(error){
-  showAuth();
-  status("authStatus",error.message);
- }finally{
-  loadingSession=false;
- }
+async function getProfiles(){
+ const {data,error}=await sb.from("profiles").select("*");
+ if(error)throw error;
+ profiles=data||[];
 }
 
-async function afterLogin(){
- if(!currentUser)return;
-
- showHome();
-
- const name=
-  currentUser.user_metadata?.name||
-  currentUser.user_metadata?.full_name||
-  currentUser.email;
-
- document.getElementById("welcome").textContent=
-  "नमस्ते, "+name+" 👋";
-
- status("homeStatus","");
-
- await Promise.allSettled([
-  loadUsers(),
-  loadMyChats()
- ]);
-}
-
-/* ==============================
-   PROFILE / USERS
-============================== */
-
-async function loadUsers(){
- const box=document.getElementById("usersList");
- box.innerHTML='<div class="empty">Users लोड हो रहे हैं...</div>';
-
- try{
-  const {data,error}=await db
-   .from("profiles")
-   .select("*")
-   .order("created_at",{ascending:false});
-
-  if(error)throw error;
-
-  allUsers=(data||[])
-   .filter(u=>u.id!==currentUser.id)
-   .map(u=>({
-    id:u.id,
-    name:u.name||u.full_name||u.username||u.email||"User",
-    email:u.email||""
-   }));
-
-  filterUsers();
-
- }catch(error){
-  box.innerHTML='<div class="empty">Users लोड नहीं हुए। '+escapeHTML(error.message)+'</div>';
- }
-}
-
-function filterUsers(){
- const q=(document.getElementById("search").value||"")
-  .toLowerCase().trim();
-
- const list=allUsers.filter(u=>
-  displayName(u).toLowerCase().includes(q)||
-  (u.email||"").toLowerCase().includes(q)
- );
-
- const box=document.getElementById("usersList");
-
- if(!list.length){
-  box.innerHTML='<div class="empty">कोई User नहीं मिला।</div>';
-  return;
- }
-
- box.innerHTML=list.map(u=>`
-  <div class="user-item">
-   <div class="avatar">${escapeHTML(getInitial(displayName(u)))}</div>
-   <div class="user-info">
-    <strong>${escapeHTML(displayName(u))}</strong>
-    <small>${escapeHTML(u.email||"")}</small>
-   </div>
-   <button onclick="startChat('${u.id}')">Chat</button>
-  </div>
- `).join("");
-}
-
-/* ==============================
-   FIND EXISTING CONVERSATIONS
-============================== */
-
-async function getMyConversationIds(){
- const {data,error}=await db
-  .from("conversation_members")
+async function getMyChatData(){
+ myChats=[];
+ const {data:members,error:mErr}=await sb.from("conversation_members")
   .select("conversation_id")
   .eq("user_id",currentUser.id);
+ if(mErr)throw mErr;
 
- if(error)throw error;
+ const ids=[...new Set((members||[]).map(x=>x.conversation_id))];
+ if(!ids.length)return;
 
- return [...new Set((data||[]).map(x=>x.conversation_id))];
+ const {data:convs,error:cErr}=await sb.from("conversations")
+  .select("*").in("id",ids);
+ if(cErr)throw cErr;
+
+ for(const conv of (convs||[])){
+  if(conv.is_group)continue;
+
+  const {data:allMembers,error:amErr}=await sb.from("conversation_members")
+   .select("user_id").eq("conversation_id",conv.id);
+  if(amErr)continue;
+
+  const otherId=(allMembers||[]).map(x=>x.user_id)
+   .find(id=>id!==currentUser.id);
+  if(!otherId)continue;
+
+  const peer=profiles.find(p=>p.id===otherId);
+  if(!peer)continue;
+
+  const {data:latest}=await sb.from("messages")
+   .select("*").eq("conversation_id",conv.id)
+   .order("created_at",{ascending:false}).limit(1);
+
+  myChats.push({
+   conversation:conv,
+   peer,
+   lastMessage:latest?.[0]||null
+  });
+ }
+
+ myChats.sort((a,b)=>{
+  const at=a.lastMessage?.created_at||a.conversation.created_at||0;
+  const bt=b.lastMessage?.created_at||b.conversation.created_at||0;
+  return new Date(bt)-new Date(at);
+ });
 }
 
-async function findExistingConversation(otherUserId){
- const myIds=await getMyConversationIds();
-
- if(!myIds.length)return null;
-
- const {data:members,error:memberError}=await db
-  .from("conversation_members")
-  .select("conversation_id,user_id")
-  .in("conversation_id",myIds);
-
- if(memberError)throw memberError;
-
- const memberMap={};
-
- (members||[]).forEach(m=>{
-  if(!memberMap[m.conversation_id]){
-   memberMap[m.conversation_id]=[];
-  }
-  memberMap[m.conversation_id].push(m.user_id);
- });
-
- const matchingIds=myIds.filter(id=>{
-  const arr=memberMap[id]||[];
-  return arr.includes(currentUser.id)&&arr.includes(otherUserId);
- });
-
- if(!matchingIds.length)return null;
-
- const {data:conversations,error}=await db
-  .from("conversations")
-  .select("id,is_group")
-  .in("id",matchingIds);
-
- if(error)throw error;
-
- const direct=(conversations||[]).find(c=>!c.is_group);
-
- return direct?direct.id:null;
-}
-
-/* ==============================
-   MY CHATS LIST
-============================== */
-
-async function loadMyChats(){
- const box=document.getElementById("chatList");
- box.innerHTML='<div class="empty">Chats लोड हो रही हैं...</div>';
+async function loadHome(){
+ if(!currentUser)return;
+ showPage("homePage");
+ status("homeStatus","डेटा लोड हो रहा है...");
 
  try{
-  const myIds=await getMyConversationIds();
-
-  if(!myIds.length){
-   box.innerHTML='<div class="empty">अभी कोई Chat नहीं है। किसी User से Chat शुरू करें।</div>';
-   return;
-  }
-
-  const {data:conversations,error:convError}=await db
-   .from("conversations")
-   .select("id,is_group,created_at")
-   .in("id",myIds);
-
-  if(convError)throw convError;
-
-  const directChats=(conversations||[]).filter(c=>!c.is_group);
-
-  if(!directChats.length){
-   box.innerHTML='<div class="empty">अभी कोई Direct Chat नहीं है।</div>';
-   return;
-  }
-
-  const chatIds=directChats.map(c=>c.id);
-
-  const {data:members,error:memberError}=await db
-   .from("conversation_members")
-   .select("conversation_id,user_id")
-   .in("conversation_id",chatIds);
-
-  if(memberError)throw memberError;
-
-  const otherIds=[...new Set(
-   (members||[])
-    .filter(m=>m.user_id!==currentUser.id)
-    .map(m=>m.user_id)
-  )];
-
-  if(!otherIds.length){
-   box.innerHTML='<div class="empty">Chat सदस्य उपलब्ध नहीं हैं।</div>';
-   return;
-  }
-
-  const {data:profiles,error:profileError}=await db
-   .from("profiles")
-   .select("*")
-   .in("id",otherIds);
-
-  if(profileError)throw profileError;
-
-  const profileMap={};
-  (profiles||[]).forEach(p=>{
-   profileMap[p.id]=p;
-  });
-
-  const uniqueChats=[];
-
-  directChats.forEach(c=>{
-   const userIds=(members||[])
-    .filter(m=>m.conversation_id===c.id)
-    .map(m=>m.user_id);
-
-   const otherId=userIds.find(id=>id!==currentUser.id);
-   if(!otherId)return;
-
-   // किसी एक व्यक्ति के डुप्लिकेट Chat में
-   // सबसे पुरानी Chat को लिस्ट में रखें।
-   if(uniqueChats.some(x=>x.otherId===otherId))return;
-
-   const profile=profileMap[otherId];
-   if(!profile)return;
-
-   uniqueChats.push({
-    conversationId:c.id,
-    otherId:otherId,
-    name:profile.name||profile.full_name||profile.username||profile.email||"User",
-    email:profile.email||""
-   });
-  });
-
-  if(!uniqueChats.length){
-   box.innerHTML='<div class="empty">Chat सूची खाली है।</div>';
-   return;
-  }
-
-  box.innerHTML=uniqueChats.map(c=>`
-   <div class="chat-item">
-    <div class="avatar">${escapeHTML(getInitial(c.name))}</div>
-    <div class="user-info">
-     <strong>${escapeHTML(c.name)}</strong>
-     <small>${escapeHTML(c.email)}</small>
-    </div>
-    <button onclick="openChatById('${c.otherId}','${c.conversationId}')">Open</button>
-   </div>
-  `).join("");
-
- }catch(error){
-  box.innerHTML='<div class="empty">Chats लोड नहीं हुईं: '+escapeHTML(error.message)+'</div>';
+  await getProfiles();
+  await getMyChatData();
+  status("homeStatus","");
+  renderCurrentTab();
+ }catch(e){
+  status("homeStatus","लोड नहीं हुआ: "+e.message);
  }
 }
 
-/* ==============================
-   OPEN / CREATE CHAT
-============================== */
+function showTab(tab){
+ currentTab=tab;
+ $("chatsTab").classList.toggle("active",tab==="chats");
+ $("usersTab").classList.toggle("active",tab==="users");
+ $("chatsSection").classList.toggle("hidden",tab!=="chats");
+ $("usersSection").classList.toggle("hidden",tab!=="users");
+ renderCurrentTab();
+}
 
-async function startChat(otherUserId){
- const user=allUsers.find(u=>u.id===otherUserId);
+function renderCurrentTab(){
+ if(currentTab==="chats")renderChats();
+ else renderUsers();
+}
 
- if(!user){
-  status("homeStatus","User नहीं मिला।");
+function renderChats(){
+ const q=$("searchInput").value.trim().toLowerCase();
+ const list=myChats.filter(c=>displayName(c.peer).toLowerCase().includes(q));
+ $("chatCount").textContent=list.length;
+ if(!list.length){
+  $("chatList").innerHTML=`<div class="empty">अभी कोई Chat नहीं है।<br>Users टैब से नया चैट शुरू करें।</div>`;
   return;
  }
 
- status("homeStatus","Chat खोली जा रही है...");
-
- try{
-  // पहले पुरानी Chat खोजें
-  let conversationId=
-   await findExistingConversation(otherUserId);
-
-  // पुरानी Chat नहीं मिली तो नई बनाएं
-  if(!conversationId){
-   const {data:conv,error:convError}=await db
-    .from("conversations")
-    .insert({
-     created_by:currentUser.id,
-     is_group:false
-    })
-    .select("id")
-    .single();
-
-   if(convError)throw convError;
-
-   conversationId=conv.id;
-
-   const {error:memberError}=await db
-    .from("conversation_members")
-    .insert([
-     {conversation_id:conversationId,user_id:currentUser.id},
-     {conversation_id:conversationId,user_id:otherUserId}
-    ]);
-
-   if(memberError){
-    status("homeStatus","Members जोड़ने में Error: "+memberError.message);
-    return;
-   }
-  }
-
-  await openChatById(otherUserId,conversationId);
-
-  await loadMyChats();
-
- }catch(error){
-  status("homeStatus","Chat Error: "+error.message);
- }
+ $("chatList").innerHTML=list.map(c=>{
+  const name=displayName(c.peer);
+  const preview=c.lastMessage?
+   (c.lastMessage.sender_id===currentUser.id?"आप: ":"")+c.lastMessage.content:
+   "चैट शुरू करें";
+  return `<div class="userRow" onclick="openChat('${c.peer.id}','${c.conversation.id}')">
+   <div class="avatar">${escapeHTML(initials(name))}</div>
+   <div class="userInfo">
+    <div class="userName">${escapeHTML(name)}</div>
+    <div class="preview">${escapeHTML(preview)}</div>
+   </div>
+   <div class="time">${timeText(c.lastMessage?.created_at||c.conversation.created_at)}</div>
+  </div>`;
+ }).join("");
 }
 
-async function openChatById(otherUserId,conversationId){
- const user=allUsers.find(u=>u.id===otherUserId);
+function renderUsers(){
+ const q=$("searchInput").value.trim().toLowerCase();
+ const list=profiles.filter(p=>p.id!==currentUser.id&&
+ displayName(p).toLowerCase().includes(q));
+ $("userCount").textContent=list.length;
 
- let chatUser=user;
+ if(!list.length){
+  $("userList").innerHTML=`<div class="empty">कोई User नहीं मिला</div>`;
+  return;
+ }
 
- if(!chatUser){
-  try{
-   const {data,error}=await db
-    .from("profiles")
-    .select("*")
-    .eq("id",otherUserId)
-    .single();
+ $("userList").innerHTML=list.map(p=>{
+  const name=displayName(p);
+  return `<div class="userRow" onclick="startChat('${p.id}')">
+   <div class="avatar">${escapeHTML(initials(name))}</div>
+   <div class="userInfo">
+    <div class="userName">${escapeHTML(name)}</div>
+    <div class="preview">नया Chat शुरू करें</div>
+   </div>
+   <div style="color:var(--orange)">›</div>
+  </div>`;
+ }).join("");
+}
 
-   if(error)throw error;
+/* ---------- START / REUSE CHAT ---------- */
 
-   chatUser={
-    id:data.id,
-    name:data.name||data.full_name||data.username||data.email||"User",
-    email:data.email||""
-   };
-  }catch(error){
-   status("homeStatus","User जानकारी नहीं मिली: "+error.message);
+async function startChat(peerId){
+ status("homeStatus","Chat खोल रहे हैं...");
+ try{
+  const convId=await findExistingChat(peerId);
+  if(convId){
+   await openChat(peerId,convId);
    return;
   }
- }
 
- currentChatUser=chatUser;
- currentConversationId=conversationId;
- renderedMessageIds=new Set();
-
- document.getElementById("chatTitle").textContent=
-  displayName(chatUser);
-
- document.getElementById("homeBox").classList.add("hidden");
- document.getElementById("chatBox").classList.remove("hidden");
-
- document.getElementById("messages").innerHTML=
-  '<div class="empty">Messages लोड हो रहे हैं...</div>';
-
- status("chatStatus","");
-
- await loadMessages();
- listenMessages();
-}
-
-/* ==============================
-   LOAD MESSAGES
-============================== */
-
-async function loadMessages(){
- if(!currentConversationId)return;
-
- const box=document.getElementById("messages");
- box.innerHTML="";
-
- try{
-  const {data,error}=await db
-   .from("messages")
-   .select("*")
-   .eq("conversation_id",currentConversationId)
-   .order("created_at",{ascending:true});
-
+  const {data:conv,error}=await sb.from("conversations")
+   .insert({created_by:currentUser.id,is_group:false})
+   .select().single();
   if(error)throw error;
 
-  (data||[]).forEach(m=>renderMessage(m));
+  const {error:memberError}=await sb.from("conversation_members")
+   .insert([
+    {conversation_id:conv.id,user_id:currentUser.id},
+    {conversation_id:conv.id,user_id:peerId}
+   ]);
+  if(memberError)throw memberError;
 
-  if(!data||!data.length){
-   box.innerHTML='<div class="empty">पहला मैसेज भेजें 👋</div>';
-  }
-
- }catch(error){
-  box.innerHTML='<div class="empty">Messages Error: '+escapeHTML(error.message)+'</div>';
+  await openChat(peerId,conv.id);
+ }catch(e){
+  status("homeStatus","Chat शुरू नहीं हुई: "+e.message);
  }
+}
+
+async function findExistingChat(peerId){
+ const {data:mine,error}=await sb.from("conversation_members")
+  .select("conversation_id").eq("user_id",currentUser.id);
+ if(error)throw error;
+
+ const ids=(mine||[]).map(x=>x.conversation_id);
+ if(!ids.length)return null;
+
+ const {data:convs,error:ce}=await sb.from("conversations")
+  .select("*").in("id",ids).eq("is_group",false);
+ if(ce)throw ce;
+
+ for(const c of (convs||[])){
+  const {data:m,error:me}=await sb.from("conversation_members")
+   .select("user_id").eq("conversation_id",c.id);
+  if(me)continue;
+  const people=(m||[]).map(x=>x.user_id);
+  if(people.includes(peerId)&&people.includes(currentUser.id)&&people.length===2){
+   return c.id;
+  }
+ }
+ return null;
+}
+
+/* ---------- CHAT VIEW ---------- */
+
+async function openChat(peerId,convId){
+ const peer=profiles.find(p=>p.id===peerId);
+ if(!peer)return;
+
+ activeChat=peer;
+ activeConversation=convId;
+
+ const name=displayName(peer);
+ $("chatName").textContent=name;
+ $("chatAvatar").textContent=initials(name);
+ $("chatSub").textContent="Chat With Me";
+ $("chatMessages").innerHTML="";
+ status("chatStatus","Messages लोड हो रहे हैं...");
+ showPage("chatPage");
+
+ await loadMessages();
+ subscribeMessages();
+ $("messageInput").focus();
+}
+
+async function loadMessages(){
+ if(!activeConversation)return;
+
+ const {data,error}=await sb.from("messages")
+  .select("*").eq("conversation_id",activeConversation)
+  .order("created_at",{ascending:true});
+ if(error){
+  status("chatStatus","Messages लोड नहीं हुए: "+error.message);
+  return;
+ }
+
+ $("chatMessages").innerHTML="";
+ (data||[]).forEach(renderMessage);
+ scrollBottom();
+ status("chatStatus","");
 }
 
 function renderMessage(m){
- if(m.id&&renderedMessageIds.has(m.id))return;
-
- if(m.id)renderedMessageIds.add(m.id);
-
- const box=document.getElementById("messages");
-
- const empty=box.querySelector(".empty");
- if(empty)empty.remove();
-
  const mine=m.sender_id===currentUser.id;
-
  const div=document.createElement("div");
- div.className="message "+(mine?"mine":"other");
-
- const content=m.content||m.message||"";
-
- const time=m.created_at
-  ?new Date(m.created_at).toLocaleString("hi-IN",{
-    hour:"2-digit",minute:"2-digit"
-   })
-  :"";
-
- div.innerHTML=
-  escapeHTML(content)+
-  "<small>"+(mine?"आप":"")+ " "+escapeHTML(time)+"</small>";
-
- box.appendChild(div);
- box.scrollTop=box.scrollHeight;
+ div.className="msg "+(mine?"mine":"theirs");
+ div.innerHTML=`
+  <div>${escapeHTML(m.content)}</div>
+  <div class="msgTime">${timeText(m.created_at)}${mine?" ✓":""}</div>`;
+ $("chatMessages").appendChild(div);
 }
 
-/* ==============================
-   REALTIME
-============================== */
+function scrollBottom(){
+ const el=$("chatMessages");
+ el.scrollTop=el.scrollHeight;
+}
 
-function listenMessages(){
- if(realtimeChannel){
-  db.removeChannel(realtimeChannel);
-  realtimeChannel=null;
+function subscribeMessages(){
+ if(messageChannel){
+  sb.removeChannel(messageChannel);
+  messageChannel=null;
  }
-
- realtimeChannel=db
-  .channel("chat-"+currentConversationId)
-  .on(
-   "postgres_changes",
-   {
-    event:"INSERT",
-    schema:"public",
-    table:"messages",
-    filter:"conversation_id=eq."+currentConversationId
-   },
-   payload=>{
-    renderMessage(payload.new);
-   }
-  )
-  .subscribe(statusValue=>{
-   if(statusValue==="SUBSCRIBED"){
-    status("chatStatus","Realtime connected ✓");
-   }
-  });
+ messageChannel=sb.channel("chat-"+activeConversation)
+ .on("postgres_changes",{
+  event:"INSERT",schema:"public",table:"messages",
+  filter:"conversation_id=eq."+activeConversation
+ },payload=>{
+  const m=payload.new;
+  // Own messages are added immediately; avoid displaying duplicates.
+  if(m.sender_id!==currentUser.id)renderMessage(m);
+  scrollBottom();
+ })
+ .subscribe();
 }
-
-/* ==============================
-   SEND MESSAGE
-============================== */
 
 async function sendMessage(){
- const input=document.getElementById("messageInput");
- const text=input.value.trim();
+ if(sending)return;
+ const text=$("messageInput").value.trim();
+ if(!text||!activeConversation)return;
 
- if(!text)return;
- if(!currentConversationId||!currentUser)return;
-
- const sendButton=document.querySelector(".chat-input-row button");
- sendButton.disabled=true;
+ sending=true;
+ $("messageInput").value="";
+ status("chatStatus","भेज रहे हैं...");
 
  try{
-  const {data,error}=await db
-   .from("messages")
+  const {data,error}=await sb.from("messages")
    .insert({
-    conversation_id:currentConversationId,
+    conversation_id:activeConversation,
     sender_id:currentUser.id,
     content:text,
     message_type:"text"
-   })
-   .select()
-   .single();
-
+   }).select().single();
   if(error)throw error;
 
-  input.value="";
   renderMessage(data);
-
- }catch(error){
-  status("chatStatus","मैसेज भेजने में Error: "+error.message);
+  scrollBottom();
+  status("chatStatus","");
+  // Update chat preview in home list
+  await loadHomeDataOnly();
+ }catch(e){
+  $("messageInput").value=text;
+  status("chatStatus","मैसेज नहीं भेजा गया: "+e.message);
  }finally{
-  sendButton.disabled=false;
-  input.focus();
+  sending=false;
  }
 }
 
-/* ==============================
-   BACK
-============================== */
-
-async function backToUsers(){
- if(realtimeChannel){
-  await db.removeChannel(realtimeChannel);
-  realtimeChannel=null;
+async function loadHomeDataOnly(){
+ try{
+  await getMyChatData();
+ }catch(e){
+  console.warn(e);
  }
-
- currentChatUser=null;
- currentConversationId=null;
- renderedMessageIds=new Set();
-
- document.getElementById("chatBox").classList.add("hidden");
- document.getElementById("homeBox").classList.remove("hidden");
-
- status("homeStatus","");
- await loadMyChats();
 }
 
-/* ==============================
-   START APP
-============================== */
+async function backHome(){
+ if(messageChannel){
+  await sb.removeChannel(messageChannel);
+  messageChannel=null;
+ }
+ activeChat=null;
+ activeConversation=null;
+ await loadHome();
+}
 
-db.auth.onAuthStateChange((event,session)=>{
+/* ---------- SESSION ---------- */
+
+async function checkSession(){
+ const {data,error}=await sb.auth.getSession();
+ if(error){
+  status("authStatus",error.message);
+  return;
+ }
+ if(data.session){
+  currentUser=data.session.user;
+  await loadHome();
+ }else{
+  showPage("authPage");
+ }
+}
+
+sb.auth.onAuthStateChange((event,session)=>{
  if(event==="SIGNED_OUT"){
   currentUser=null;
-  showAuth();
+  showPage("authPage");
  }
 });
 
+/* ---------- INIT ---------- */
 checkSession();
-
 </script>
 </body>
 </html>
