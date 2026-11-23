@@ -10,56 +10,123 @@
 :root{--orange:#E87916;--deep:#C45C0B;--bg:#FFF8F0;--white:#fff;--text:#30251B;--muted:#88796B;--border:#F0E2D3;--light:#FFE8CE;--green:#16a34a}
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}.page{min-height:100vh}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.page{min-height:100vh}
 .header{background:linear-gradient(135deg,#E87916,#C45C0B);color:white;padding:15px;display:flex;align-items:center;gap:11px;position:sticky;top:0;z-index:10;box-shadow:0 3px 12px #c45c0b22}
 .logo{width:43px;height:43px;border-radius:50%;background:#fff3e3;color:var(--deep);display:grid;place-items:center;font-size:23px;font-weight:bold}
-.headerTitle{font-size:19px;font-weight:bold}.headerSub{font-size:12px;opacity:.95;margin-top:3px}.headerRight{margin-left:auto;display:flex;gap:7px}
+.headerTitle{font-size:19px;font-weight:bold}
+.headerSub{font-size:12px;opacity:.95;margin-top:3px}
+.headerRight{margin-left:auto;display:flex;gap:7px}
 .iconBtn{border:0;background:#ffffff25;color:white;border-radius:12px;padding:10px;font-size:18px}
 .main{max-width:720px;margin:auto;padding-bottom:25px}
 .panel{background:white;border:1px solid var(--border);border-radius:18px;padding:18px;margin:14px;box-shadow:0 4px 15px #5b35100a}
-.authWrap{max-width:440px;margin:40px auto;padding:14px}.authLogo{text-align:center;margin:10px auto 25px}
+.authWrap{max-width:440px;margin:40px auto;padding:14px}
+.authLogo{text-align:center;margin:10px auto 25px}
 .authLogo .logo{width:75px;height:75px;font-size:36px;margin:auto;background:var(--orange);color:white}
-.authLogo h1{margin:12px 0 5px}.authLogo p{color:var(--muted);margin:0}
+.authLogo h1{margin:12px 0 5px}
+.authLogo p{color:var(--muted);margin:0}
 input,textarea,select{width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);outline:none;background:white;font-size:15px;margin:6px 0}
-textarea{resize:vertical;min-height:90px}input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:0 0 0 3px #e8791618}
+textarea{resize:vertical;min-height:90px}
+input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:0 0 0 3px #e8791618}
 .primary{border:0;border-radius:12px;padding:14px;background:var(--orange);color:white;font-weight:bold;width:100%;margin-top:10px}
-.primary:active{background:var(--deep)}.secondary{border:1px solid var(--border);background:white;color:var(--deep);border-radius:12px;padding:11px}
+.primary:active{background:var(--deep)}
+.secondary{border:1px solid var(--border);background:white;color:var(--deep);border-radius:12px;padding:11px}
 .danger{border:0;background:#fff0eb;color:#bd351d;border-radius:12px;padding:12px}
 .status{font-size:13px;margin:10px 0;color:var(--deep);white-space:pre-wrap}
-.authToggle{text-align:center;margin-top:15px;color:var(--muted)}.authToggle button{border:0;background:none;color:var(--deep);font-weight:bold}
-.tabs{display:flex;gap:7px;padding:12px;flex-wrap:wrap}.tab{flex:1;min-width:75px;padding:11px 6px;border:1px solid var(--border);background:white;border-radius:12px;color:var(--deep);font-weight:bold}.tab.active{background:var(--orange);color:white;border-color:var(--orange)}
-.searchBox{padding:12px 14px 0}.searchBox input{background:#fff9f3}
+.authToggle{text-align:center;margin-top:15px;color:var(--muted)}
+.authToggle button{border:0;background:none;color:var(--deep);font-weight:bold}
+.tabs{display:flex;gap:7px;padding:12px;flex-wrap:wrap}
+.tab{flex:1;min-width:75px;padding:11px 6px;border:1px solid var(--border);background:white;border-radius:12px;color:var(--deep);font-weight:bold}
+.tab.active{background:var(--orange);color:white;border-color:var(--orange)}
+.searchBox{padding:12px 14px 0}
+.searchBox input{background:#fff9f3}
 .sectionTitle{font-weight:bold;color:var(--deep);padding:15px 16px 8px;display:flex;align-items:center;justify-content:space-between}
-.userRow{display:flex;align-items:center;gap:12px;padding:12px 15px;border-bottom:1px solid #f7eee5;cursor:pointer;background:white}.userRow:hover{background:#fffaf5}
-.avatar{width:48px;height:48px;flex-shrink:0;border-radius:50%;background:#FFE3C2;color:var(--deep);display:grid;place-items:center;font-weight:bold;font-size:18px;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}
-.userInfo{flex:1;min-width:0}.userName{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.preview{font-size:13px;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.time{font-size:11px;color:var(--muted)}
-.presenceText{font-size:12px;margin-top:4px}.onlineText{color:var(--green)!important;font-weight:bold}.offlineText{color:var(--muted)!important}
+.userRow{display:flex;align-items:center;gap:12px;padding:12px 15px;border-bottom:1px solid #f7eee5;cursor:pointer;background:white}
+.userRow:hover{background:#fffaf5}
+.avatar{width:48px;height:48px;flex-shrink:0;border-radius:50%;background:#FFE3C2;color:var(--deep);display:grid;place-items:center;font-weight:bold;font-size:18px;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.userInfo{flex:1;min-width:0}
+.userName{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview{font-size:13px;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.time{font-size:11px;color:var(--muted)}
+.presenceText{font-size:12px;margin-top:4px}
+.onlineText{color:var(--green)!important;font-weight:bold}
+.offlineText{color:var(--muted)!important}
 .empty{text-align:center;padding:35px 20px;color:var(--muted)}
-.chatHeader .back{font-size:23px}.chatArea{height:calc(100dvh - 148px);min-height:300px;overflow-y:auto;padding:15px;background:linear-gradient(#fff8f0e8,#fff8f0e8)}
+.chatHeader .back{font-size:23px}
+
+/* CHAT AREA */
+.chatArea{height:calc(100dvh - 190px);min-height:280px;overflow-y:auto;padding:15px;background:linear-gradient(#fff8f0e8,#fff8f0e8)}
 .msg{max-width:82%;padding:10px 12px;margin:8px 0;border-radius:15px;word-break:break-word;box-shadow:0 1px 3px #00000008}
-.msg.mine{margin-left:auto;background:#FFE2BE;border-bottom-right-radius:4px}.msg.theirs{margin-right:auto;background:white;border:1px solid #f2e8dd;border-bottom-left-radius:4px}
+.msg.mine{margin-left:auto;background:#FFE2BE;border-bottom-right-radius:4px}
+.msg.theirs{margin-right:auto;background:white;border:1px solid #f2e8dd;border-bottom-left-radius:4px}
 .msgTime{text-align:right;font-size:10px;color:#9c826a;margin-top:5px}
 .msgTicks{display:inline-block;margin-left:5px;font-size:14px;font-weight:bold;letter-spacing:-3px;padding-right:3px}
-.msgTicks.sent,.msgTicks.delivered{color:#9B9289}.msgTicks.read{color:#E87916}
+.msgTicks.sent,.msgTicks.delivered{color:#9B9289}
+.msgTicks.read{color:#E87916}
+
+/* NEW: TYPING INDICATOR */
+.typingIndicator{
+background:#fff;
+color:var(--deep);
+font-size:13px;
+font-weight:bold;
+padding:8px 15px;
+border-bottom:1px solid var(--border);
+min-height:34px;
+}
+.typingDots{display:inline-flex;gap:3px;margin-left:5px;vertical-align:middle}
+.typingDots span{
+width:5px;height:5px;border-radius:50%;
+background:var(--orange);
+animation:typingBounce 1s infinite ease-in-out;
+}
+.typingDots span:nth-child(2){animation-delay:.15s}
+.typingDots span:nth-child(3){animation-delay:.3s}
+@keyframes typingBounce{
+0%,60%,100%{transform:translateY(0);opacity:.5}
+30%{transform:translateY(-4px);opacity:1}
+}
+
 .chatInputBar{display:flex;gap:8px;align-items:center;padding:10px;background:white;border-top:1px solid var(--border);position:sticky;bottom:0}
-.chatInputBar input{margin:0;border-radius:25px;padding:13px}.sendBtn{border:0;background:var(--orange);color:white;width:48px;height:48px;border-radius:50%;font-size:20px;flex-shrink:0}
-.profileCard{text-align:center}.profilePhoto{width:110px;height:110px;border-radius:50%;background:#FFE3C2;color:var(--deep);margin:10px auto;overflow:hidden;display:grid;place-items:center;font-size:40px;font-weight:bold}.profilePhoto img{width:100%;height:100%;object-fit:cover}
-.profileName{font-size:22px;font-weight:bold;margin:10px}.profileAbout{color:var(--muted);margin:8px 0;white-space:pre-wrap}.profileUsername{color:var(--deep);font-size:14px}
-.formLabel{font-size:13px;font-weight:bold;color:var(--deep);margin-top:12px;display:block}.small{font-size:12px;color:var(--muted)}hr{border:0;border-top:1px solid var(--border);margin:15px 0}
+.chatInputBar input{margin:0;border-radius:25px;padding:13px}
+.sendBtn{border:0;background:var(--orange);color:white;width:48px;height:48px;border-radius:50%;font-size:20px;flex-shrink:0}
+.profileCard{text-align:center}
+.profilePhoto{width:110px;height:110px;border-radius:50%;background:#FFE3C2;color:var(--deep);margin:10px auto;overflow:hidden;display:grid;place-items:center;font-size:40px;font-weight:bold}
+.profilePhoto img{width:100%;height:100%;object-fit:cover}
+.profileName{font-size:22px;font-weight:bold;margin:10px}
+.profileAbout{color:var(--muted);margin:8px 0;white-space:pre-wrap}
+.profileUsername{color:var(--deep);font-size:14px}
+.formLabel{font-size:13px;font-weight:bold;color:var(--deep);margin-top:12px;display:block}
+.small{font-size:12px;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 .statusCard{display:flex;align-items:center;gap:10px;background:white;padding:13px;margin:10px 14px;border:1px solid var(--border);border-radius:16px;flex-wrap:wrap}
 .statusRing{padding:3px;border-radius:50%;background:linear-gradient(135deg,#ffb14a,#e87916,#c45c0b)}
-.statusAvatar{width:54px;height:54px;border-radius:50%;overflow:hidden;background:#ffe3c2;display:grid;place-items:center;color:var(--deep);font-weight:bold}.statusAvatar img{width:100%;height:100%;object-fit:cover}
-.statusText{flex:1;min-width:100px}.statusText strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.statusText small{display:block;color:var(--muted);margin-top:4px}
-.statusAddBtn{border:0;background:#fff0dd;color:var(--deep);font-weight:bold;border-radius:12px;padding:10px 12px}.viewCount{font-size:12px;color:var(--deep);font-weight:bold;white-space:nowrap}
+.statusAvatar{width:54px;height:54px;border-radius:50%;overflow:hidden;background:#ffe3c2;display:grid;place-items:center;color:var(--deep);font-weight:bold}
+.statusAvatar img{width:100%;height:100%;object-fit:cover}
+.statusText{flex:1;min-width:100px}
+.statusText strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.statusText small{display:block;color:var(--muted);margin-top:4px}
+.statusAddBtn{border:0;background:#fff0dd;color:var(--deep);font-weight:bold;border-radius:12px;padding:10px 12px}
+.viewCount{font-size:12px;color:var(--deep);font-weight:bold;white-space:nowrap}
 .modalBackdrop{position:fixed;inset:0;background:#0008;z-index:50;display:flex;align-items:center;justify-content:center;padding:15px}
 .modal{background:white;border-radius:20px;width:100%;max-width:480px;max-height:90dvh;overflow:auto;padding:18px}
-.modalHead{display:flex;justify-content:space-between;align-items:center;gap:10px}.modalClose{border:0;background:#fff0dd;color:var(--deep);border-radius:10px;padding:9px 12px}
+.modalHead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.modalClose{border:0;background:#fff0dd;color:var(--deep);border-radius:10px;padding:9px 12px}
 .statusViewer{background:#20150d;color:white;border-radius:18px;min-height:65dvh;padding:18px;display:flex;flex-direction:column;position:relative}
-.viewerTop{display:flex;align-items:center;gap:10px}.viewerBody{flex:1;display:grid;place-items:center;text-align:center;padding:15px;white-space:pre-wrap;word-break:break-word;font-size:20px}
-.viewerBody img,.viewerBody video{max-width:100%;max-height:55dvh;border-radius:12px;object-fit:contain}.viewerBody iframe{width:100%;height:55dvh;max-height:560px;border:0;border-radius:12px;background:#000}
-.linkBox{width:100%;background:#fff;color:#333;padding:15px;border-radius:12px}.linkBox a{color:#c45c0b;word-break:break-all}
-.viewerBottom{font-size:13px;opacity:.85}.viewerViewsBtn{border:0;background:#ffffff20;color:white;border-radius:10px;padding:11px;width:100%;margin-top:12px;font-weight:bold}
-.viewerViewsList{background:#fff;color:#30251B;border-radius:12px;padding:10px;margin-top:10px;max-height:190px;overflow:auto}.viewerPerson{display:flex;align-items:center;gap:10px;padding:9px;border-bottom:1px solid #eee}.viewerPerson .avatar{width:38px;height:38px}
+.viewerTop{display:flex;align-items:center;gap:10px}
+.viewerBody{flex:1;display:grid;place-items:center;text-align:center;padding:15px;white-space:pre-wrap;word-break:break-word;font-size:20px}
+.viewerBody img,.viewerBody video{max-width:100%;max-height:55dvh;border-radius:12px;object-fit:contain}
+.viewerBody iframe{width:100%;height:55dvh;max-height:560px;border:0;border-radius:12px;background:#000}
+.linkBox{width:100%;background:#fff;color:#333;padding:15px;border-radius:12px}
+.linkBox a{color:#c45c0b;word-break:break-all}
+.viewerBottom{font-size:13px;opacity:.85}
+.viewerViewsBtn{border:0;background:#ffffff20;color:white;border-radius:10px;padding:11px;width:100%;margin-top:12px;font-weight:bold}
+.viewerViewsList{background:#fff;color:#30251B;border-radius:12px;padding:10px;margin-top:10px;max-height:190px;overflow:auto}
+.viewerPerson{display:flex;align-items:center;gap:10px;padding:9px;border-bottom:1px solid #eee}
+.viewerPerson .avatar{width:38px;height:38px}
 @media(min-width:700px){.panel{margin:20px}.authWrap{margin-top:60px}}
 </style>
 </head>
@@ -110,7 +177,19 @@ textarea{resize:vertical;min-height:90px}input:focus,textarea:focus,select:focus
 
 <div id="chatPage" class="page hidden">
 <div class="header chatHeader"><button class="iconBtn back" onclick="backHome()">‹</button><div class="avatar" id="chatAvatar">?</div><div style="min-width:0"><div class="headerTitle" id="chatName">Chat</div><div class="headerSub" id="chatSub">Chat With Me</div></div><button class="iconBtn" style="margin-left:auto" onclick="openOtherProfile()">👤</button></div>
-<div id="chatMessages" class="chatArea"></div><div class="chatInputBar"><input id="messageInput" placeholder="Message लिखें..." onkeydown="if(event.key==='Enter')sendMessage()"><button class="sendBtn" onclick="sendMessage()">➤</button></div><div id="chatStatus" class="status" style="padding:0 12px"></div>
+
+<!-- NEW: Typing indicator -->
+<div id="typingIndicator" class="typingIndicator hidden">
+<span id="typingName">लिख रहा है</span>
+<span class="typingDots"><span></span><span></span><span></span></span>
+</div>
+
+<div id="chatMessages" class="chatArea"></div>
+<div class="chatInputBar">
+<input id="messageInput" placeholder="Message लिखें..." oninput="typingInput()" onkeydown="if(event.key==='Enter')sendMessage()">
+<button class="sendBtn" onclick="sendMessage()">➤</button>
+</div>
+<div id="chatStatus" class="status" style="padding:0 12px"></div>
 </div>
 
 <div id="statusComposer" class="modalBackdrop hidden"><div class="modal">
@@ -136,6 +215,11 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let currentUser=null,profiles=[],myChats=[],currentTab="chats",activeChat=null,activeConversation=null,messageChannel=null,isSignup=false,sending=false,currentProfile=null,allStatuses=[],statusViewing=null;
 let presenceChannel=null,presenceHeartbeat=null,presenceCache={};
 let receiptCache={},receiptChannel=null,deliveryChannel=null;
+
+/* NEW: TYPING STATE */
+let typingChannel=null,typingDebounce=null,typingHideTimer=null;
+const TYPING_DELAY=4000,TYPING_FRESH=5000;
+
 const PRESENCE_INTERVAL=30000,PRESENCE_TIMEOUT=75000;
 
 function $(id){return document.getElementById(id)}
@@ -162,7 +246,7 @@ window.addEventListener("pagehide",()=>{if(currentUser)markOffline()});
 function toggleAuth(){isSignup=!isSignup;$("authTitle").textContent=isSignup?"नया अकाउंट बनाएँ":"Login करें";$("authBtn").textContent=isSignup?"Signup करें":"Login करें";$("nameBox").classList.toggle("hidden",!isSignup);$("toggleText").textContent=isSignup?"पहले से अकाउंट है?":"नया अकाउंट बनाना है?";$("toggleBtn").textContent=isSignup?"Login करें":"Signup करें";status("authStatus","")}
 async function handleAuth(){const email=$("emailInput").value.trim(),password=$("passwordInput").value,name=$("nameInput").value.trim();if(!email||!password){status("authStatus","Email और Password भरें");return}if(isSignup&&!name){status("authStatus","अपना नाम लिखें");return}$("authBtn").disabled=true;status("authStatus","कृपया प्रतीक्षा करें...");try{if(isSignup){const {data,error}=await sb.auth.signUp({email,password,options:{data:{name,full_name:name}}});if(error)throw error;if(data.session){currentUser=data.user;await ensureProfile(name);await loadHome()}else{status("authStatus","अकाउंट बन गया। अब Login करें।");isSignup=false;toggleAuth()}}else{const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;currentUser=data.user;await ensureProfile(currentUser.user_metadata?.full_name||currentUser.user_metadata?.name||"");await loadHome()}}catch(e){status("authStatus","त्रुटि: "+e.message)}finally{$("authBtn").disabled=false}}
 async function ensureProfile(name){if(!currentUser)return;const {data,error}=await sb.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();if(error)throw error;if(data){currentProfile=data;if(!data.full_name&&name)await sb.from("profiles").update({full_name:name}).eq("id",currentUser.id)}else currentProfile=null}
-async function logout(){await markOffline();for(const ch of [presenceChannel,messageChannel,receiptChannel,deliveryChannel])if(ch)await sb.removeChannel(ch);presenceChannel=messageChannel=receiptChannel=deliveryChannel=null;if(presenceHeartbeat)clearInterval(presenceHeartbeat);presenceHeartbeat=null;receiptCache={};presenceCache={};await sb.auth.signOut();currentUser=null;profiles=[];myChats=[];activeChat=null;activeConversation=null;allStatuses=[];showPage("authPage")}
+async function logout(){stopTypingNow();if(typingChannel)await sb.removeChannel(typingChannel);typingChannel=null;for(const ch of [presenceChannel,messageChannel,receiptChannel,deliveryChannel])if(ch)await sb.removeChannel(ch);presenceChannel=messageChannel=receiptChannel=deliveryChannel=null;if(presenceHeartbeat)clearInterval(presenceHeartbeat);presenceHeartbeat=null;receiptCache={};presenceCache={};await sb.auth.signOut();currentUser=null;profiles=[];myChats=[];activeChat=null;activeConversation=null;allStatuses=[];showPage("authPage")}
 
 /* DATA */
 async function getProfiles(){const {data,error}=await sb.from("profiles").select("*");if(error)throw error;profiles=data||[];if(currentUser)currentProfile=profiles.find(p=>p.id===currentUser.id)||currentProfile}
@@ -182,8 +266,80 @@ function renderUsers(){const q=$("userSearchInput").value.trim().toLowerCase();c
 async function startChat(peerId){status("homeStatus","Chat खोल रहे हैं...");try{const convId=await findExistingChat(peerId);if(convId){await openChat(peerId,convId);return}const {data:conv,error}=await sb.from("conversations").insert({created_by:currentUser.id,is_group:false}).select().single();if(error)throw error;const {error:memberError}=await sb.from("conversation_members").insert([{conversation_id:conv.id,user_id:currentUser.id},{conversation_id:conv.id,user_id:peerId}]);if(memberError)throw memberError;await openChat(peerId,conv.id)}catch(e){status("homeStatus","Chat शुरू नहीं हुई: "+e.message)}}
 async function findExistingChat(peerId){const {data:mine,error}=await sb.from("conversation_members").select("conversation_id").eq("user_id",currentUser.id);if(error)throw error;const ids=(mine||[]).map(x=>x.conversation_id);if(!ids.length)return null;const {data:convs,error:ce}=await sb.from("conversations").select("*").in("id",ids).eq("is_group",false);if(ce)throw ce;let best=null,bestTime=0;for(const c of convs||[]){const {data:m,error:me}=await sb.from("conversation_members").select("user_id").eq("conversation_id",c.id);if(me)continue;const people=(m||[]).map(x=>x.user_id);if(people.includes(peerId)&&people.includes(currentUser.id)&&people.length===2){const t=new Date(c.created_at||0).getTime();if(t>=bestTime){best=c.id;bestTime=t}}}return best}
 
+/* NEW: TYPING INDICATOR FUNCTIONS */
+function showTyping(name){
+$("typingName").textContent=(name||"User")+" लिख रहा है";
+$("typingIndicator").classList.remove("hidden");
+if(typingHideTimer)clearTimeout(typingHideTimer);
+typingHideTimer=setTimeout(()=>hideTyping(),TYPING_FRESH);
+}
+function hideTyping(){
+$("typingIndicator").classList.add("hidden");
+if(typingHideTimer){clearTimeout(typingHideTimer);typingHideTimer=null}
+}
+async function typingUpsert(value){
+if(!currentUser||!activeConversation)return;
+try{
+const {error}=await sb.from("typing_status").upsert({
+conversation_id:activeConversation,
+user_id:currentUser.id,
+is_typing:value,
+updated_at:new Date().toISOString()
+},{onConflict:"conversation_id,user_id"});
+if(error)console.warn("Typing update:",error.message);
+}catch(e){console.warn("Typing error:",e.message)}
+}
+function typingInput(){
+const input=$("messageInput");
+if(!input||!activeConversation)return;
+if(!input.value.trim()){stopTypingNow();return}
+typingUpsert(true);
+if(typingDebounce)clearTimeout(typingDebounce);
+typingDebounce=setTimeout(()=>stopTypingNow(),TYPING_DELAY);
+}
+function stopTypingNow(){
+if(typingDebounce){clearTimeout(typingDebounce);typingDebounce=null}
+hideTyping();
+typingUpsert(false);
+}
+async function subscribeTyping(){
+if(typingChannel){await sb.removeChannel(typingChannel);typingChannel=null}
+hideTyping();
+if(!currentUser||!activeConversation)return;
+const conv=activeConversation;
+const peerId=activeChat?.id;
+const peerName=displayName(activeChat);
+typingChannel=sb.channel("typing-"+conv+"-"+currentUser.id)
+.on("postgres_changes",{event:"*",schema:"public",table:"typing_status",filter:"conversation_id=eq."+conv},payload=>{
+const row=payload.new;
+if(!row||row.user_id===currentUser.id)return;
+if(row.is_typing&&Date.now()-new Date(row.updated_at).getTime()<TYPING_FRESH){
+showTyping(peerName);
+}else{
+hideTyping();
+}
+}).subscribe();
+/* यदि दूसरे व्यक्ति की typing पहले से चालू है तो भी पता चले */
+const {data,error}=await sb.from("typing_status").select("*").eq("conversation_id",conv).eq("user_id",peerId).maybeSingle();
+if(!error&&data?.is_typing&&Date.now()-new Date(data.updated_at).getTime()<TYPING_FRESH)showTyping(peerName);
+}
+
 /* MESSAGES AND RECEIPTS */
-async function openChat(peerId,convId){const peer=profiles.find(p=>p.id===peerId);if(!peer)return;activeChat=peer;activeConversation=convId;$("chatName").textContent=displayName(peer);$("chatAvatar").innerHTML=avatarHTML(peer);$("chatSub").textContent=presenceLabel(peer.id);$("chatMessages").innerHTML="";status("chatStatus","Messages लोड हो रहे हैं...");showPage("chatPage");await loadMessages();subscribeMessages();$("messageInput").focus()}
+async function openChat(peerId,convId){
+const peer=profiles.find(p=>p.id===peerId);if(!peer)return;
+stopTypingNow();
+activeChat=peer;activeConversation=convId;
+$("chatName").textContent=displayName(peer);
+$("chatAvatar").innerHTML=avatarHTML(peer);
+$("chatSub").textContent=presenceLabel(peer.id);
+$("chatMessages").innerHTML="";
+status("chatStatus","Messages लोड हो रहे हैं...");
+showPage("chatPage");
+await loadMessages();
+subscribeMessages();
+subscribeTyping();
+$("messageInput").focus()
+}
 function renderMessage(m){const mine=m.sender_id===currentUser.id,div=document.createElement("div");div.className="msg "+(mine?"mine":"theirs");div.dataset.messageId=m.id;const r=receiptCache[m.id];let ticks="";if(mine){if(r?.read_at)ticks='<span class="msgTicks read">✓✓</span>';else if(r?.delivered_at)ticks='<span class="msgTicks delivered">✓✓</span>';else ticks='<span class="msgTicks sent">✓</span>'}div.innerHTML=`<div>${escapeHTML(m.content)}</div><div class="msgTime" data-created="${escapeHTML(m.created_at||"")}">${timeText(m.created_at)} ${ticks}</div>`;$("chatMessages").appendChild(div)}
 function scrollBottom(){const el=$("chatMessages");el.scrollTop=el.scrollHeight}
 async function loadReceipts(messages){receiptCache={};const ids=(messages||[]).filter(m=>m.sender_id===currentUser.id).map(m=>m.id);if(!ids.length)return;const {data,error}=await sb.from("message_receipts").select("message_id,delivered_at,read_at").in("message_id",ids);if(error){console.warn("Receipt load:",error.message);return}(data||[]).forEach(r=>receiptCache[r.message_id]={delivered_at:r.delivered_at,read_at:r.read_at})}
@@ -192,11 +348,28 @@ async function saveRead(messageId){if(!currentUser||!messageId)return;await save
 function refreshMessageTicks(messageId){const el=document.querySelector(`[data-message-id="${messageId}"]`);if(!el)return;const r=receiptCache[messageId];let html='<span class="msgTicks sent">✓</span>';if(r?.read_at)html='<span class="msgTicks read">✓✓</span>';else if(r?.delivered_at)html='<span class="msgTicks delivered">✓✓</span>';const time=el.querySelector(".msgTime");if(time){time.innerHTML=escapeHTML(timeText(time.dataset.created))+" "+html}}
 async function loadMessages(){if(!activeConversation)return;const {data,error}=await sb.from("messages").select("*").eq("conversation_id",activeConversation).order("created_at",{ascending:true});if(error){status("chatStatus","Messages लोड नहीं हुए: "+error.message);return}const messages=data||[];await loadReceipts(messages);for(const m of messages){if(m.sender_id!==currentUser.id)await saveRead(m.id)}$("chatMessages").innerHTML="";messages.forEach(renderMessage);scrollBottom();status("chatStatus","")}
 function subscribeMessages(){if(messageChannel){sb.removeChannel(messageChannel);messageChannel=null}messageChannel=sb.channel("chat-"+activeConversation).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"conversation_id=eq."+activeConversation},async()=>{await loadMessages();scrollBottom()}).subscribe()}
-async function sendMessage(){if(sending)return;const text=$("messageInput").value.trim();if(!text||!activeConversation)return;sending=true;$("messageInput").value="";status("chatStatus","भेज रहे हैं...");try{const {data,error}=await sb.from("messages").insert({conversation_id:activeConversation,sender_id:currentUser.id,content:text,message_type:"text"}).select().single();if(error)throw error;await loadMessages();scrollBottom();status("chatStatus","");await getMyChatData()}catch(e){$("messageInput").value=text;status("chatStatus","मैसेज नहीं भेजा गया: "+e.message)}finally{sending=false}}
+async function sendMessage(){
+if(sending)return;
+const text=$("messageInput").value.trim();
+if(!text||!activeConversation)return;
+stopTypingNow();
+sending=true;$("messageInput").value="";status("chatStatus","भेज रहे हैं...");
+try{
+const {data,error}=await sb.from("messages").insert({conversation_id:activeConversation,sender_id:currentUser.id,content:text,message_type:"text"}).select().single();
+if(error)throw error;
+await loadMessages();scrollBottom();status("chatStatus","");await getMyChatData()
+}catch(e){$("messageInput").value=text;status("chatStatus","मैसेज नहीं भेजा गया: "+e.message)}
+finally{sending=false}
+}
 function startReceiptRealtime(){if(!currentUser)return;if(deliveryChannel)sb.removeChannel(deliveryChannel);if(receiptChannel)sb.removeChannel(receiptChannel);
 deliveryChannel=sb.channel("delivery-"+currentUser.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},async payload=>{const m=payload.new;if(!m||m.sender_id===currentUser.id)return;await saveDelivered(m.id);if(activeConversation===m.conversation_id)await saveRead(m.id)}).subscribe();
 receiptChannel=sb.channel("receipt-updates-"+currentUser.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"message_receipts"},payload=>{const r=payload.new;if(!r)return;receiptCache[r.message_id]={delivered_at:r.delivered_at,read_at:r.read_at};refreshMessageTicks(r.message_id)}).on("postgres_changes",{event:"UPDATE",schema:"public",table:"message_receipts"},payload=>{const r=payload.new;if(!r)return;receiptCache[r.message_id]={delivered_at:r.delivered_at,read_at:r.read_at};refreshMessageTicks(r.message_id)}).subscribe()}
-async function backHome(){if(messageChannel){await sb.removeChannel(messageChannel);messageChannel=null}activeChat=null;activeConversation=null;receiptCache={};await loadHome()}
+async function backHome(){
+stopTypingNow();
+if(typingChannel){await sb.removeChannel(typingChannel);typingChannel=null}
+if(messageChannel){await sb.removeChannel(messageChannel);messageChannel=null}
+activeChat=null;activeConversation=null;receiptCache={};await loadHome()
+}
 
 /* MY PROFILE */
 function openMyProfile(){currentProfile=profiles.find(p=>p.id===currentUser.id)||currentProfile;renderMyProfile();showPage("profilePage");$("profileEditPanel").classList.add("hidden")}
@@ -215,7 +388,7 @@ function renderStatuses(){if(!currentUser)return;const mine=allStatuses.filter(s
 function statusRowHTML(s,isMine){const p=profiles.find(x=>x.id===s.user_id)||{full_name:isMine?"आप":"User"};const label=isMine?"आप":displayName(p);let desc=s.content||"";if(s.media_type==="image")desc=desc||"📷 फोटो Status";else if(s.media_type==="video")desc=desc||"🎥 वीडियो Status";else if(s.media_type==="link")desc=desc||"🔗 लिंक Status";else desc=desc||"Text Status";const remaining=Math.max(0,Math.ceil((new Date(s.expires_at)-Date.now())/3600000)),count=isMine?(statusViewsCache[s.id]?.length||0):null;return `<div class="statusCard"><div class="statusRing"><div class="statusAvatar">${avatarHTML(p)}</div></div><div class="statusText"><strong>${escapeHTML(label)}</strong><small>${escapeHTML(desc.substring(0,55))}${desc.length>55?"…":""} · ${remaining} घंटे बाकी</small>${isMine?`<div class="viewCount">👁️ ${count} Views</div>`:""}</div><button class="statusAddBtn" onclick="viewStatus('${s.id}')">देखें</button>${isMine?`<button class="danger" onclick="deleteStatus('${s.id}')">🗑️</button>`:""}</div>`}
 function openStatusComposer(){$("statusContent").value="";$("statusFile").value="";$("statusLink").value="";$("statusDuration").value="24";status("statusComposerMsg","");$("statusComposer").classList.remove("hidden")}
 function closeStatusComposer(){$("statusComposer").classList.add("hidden")}
-function validHttpUrl(v){try{const u=new URL(v);return u.protocol==="https:"||u.protocol==="http:"}catch{return false}}
+function validHttpUrl(v){try{const u=new URL(v);return u.protocol==="https:"||u.protocol==="http"}catch{return false}}
 function isDirectVideoUrl(url){return /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(url)}
 function youtubeEmbed(url){try{const u=new URL(url);let id="";if(u.hostname.includes("youtu.be"))id=u.pathname.split("/").filter(Boolean)[0]||"";else if(u.hostname.includes("youtube.com")){if(u.pathname.startsWith("/shorts/"))id=u.pathname.split("/")[2]||"";else if(u.pathname==="/watch")id=u.searchParams.get("v")||"";else if(u.pathname.startsWith("/embed/"))id=u.pathname.split("/")[2]||""}return id&&/^[A-Za-z0-9_-]{6,20}$/.test(id)?"https://www.youtube-nocookie.com/embed/"+id:null}catch{return null}}
 function linkEmbedInfo(url){const yt=youtubeEmbed(url);if(yt)return{src:yt,type:"iframe"};try{const u=new URL(url),host=u.hostname.toLowerCase();if(host==="instagram.com"||host==="www.instagram.com"){let path=u.pathname.replace(/\/?$/,"/");if(!path.endsWith("embed/"))path+="embed/";return{src:"https://www.instagram.com"+path,type:"iframe"}}if(host.includes("facebook.com")||host==="fb.watch")return{src:"https://www.facebook.com/plugins/video.php?href="+encodeURIComponent(url)+"&show_text=false&width=500",type:"iframe"};if(isDirectVideoUrl(url))return{src:url,type:"video"};return null}catch{return null}}
@@ -224,7 +397,7 @@ async function recordStatusView(s){if(!s||!currentUser||s.user_id===currentUser.
 async function showStatusViewers(){if(!statusViewing||statusViewing.user_id!==currentUser.id)return;const box=$("viewerViewsList");box.classList.remove("hidden");box.innerHTML="देखने वालों की सूची लोड हो रही है...";try{const {data,error}=await sb.from("status_views").select("viewer_id,viewed_at").eq("status_id",statusViewing.id).order("viewed_at",{ascending:false});if(error)throw error;if(!data||!data.length){box.textContent="अभी किसी ने यह Status नहीं देखी है।";return}const ids=[...new Set(data.map(v=>v.viewer_id))];const {data:people,error:profileError}=await sb.from("profiles").select("id,full_name,username,avatar_url").in("id",ids);if(profileError)throw profileError;box.innerHTML=data.map(v=>{const p=(people||[]).find(x=>x.id===v.viewer_id),name=displayName(p),avatar=p?.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(name));return `<div class="viewerPerson"><div class="avatar">${avatar}</div><div><strong>${escapeHTML(name)}</strong><div class="small">${timeText(v.viewed_at)}</div></div></div>`}).join("")}catch(e){box.textContent="Viewers लोड नहीं हुए: "+e.message}}
 async function viewStatus(id){const s=allStatuses.find(x=>x.id===id);if(!s)return;statusViewing=s;const p=profiles.find(x=>x.id===s.user_id)||{};$("viewerAvatar").innerHTML=avatarHTML(p);$("viewerName").textContent=s.user_id===currentUser.id?"आप":displayName(p);$("viewerTime").textContent=timeText(s.created_at);$("viewerViewsList").classList.add("hidden");$("viewerViewsList").innerHTML="";$("viewerRecordError").textContent="";const own=s.user_id===currentUser.id;$("viewerViewsBtn").classList.toggle("hidden",!own);if(!own){const result=await recordStatusView(s);if(!result.ok)$("viewerRecordError").textContent="View सेव नहीं हुआ: "+result.message}const body=$("viewerBody");body.innerHTML="";if(s.media_url){if(s.media_type==="link"){const link=s.media_url;if(!validHttpUrl(link))body.textContent="यह लिंक मान्य नहीं है";else{const info=linkEmbedInfo(link);if(info?.type==="iframe"){const iframe=document.createElement("iframe");iframe.src=info.src;iframe.title="Linked video";iframe.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";iframe.allowFullscreen=true;iframe.loading="lazy";body.appendChild(iframe)}else if(info?.type==="video"){const video=document.createElement("video");video.src=info.src;video.controls=true;video.playsInline=true;video.preload="metadata";body.appendChild(video)}else{const box=document.createElement("div");box.className="linkBox";const ptext=document.createElement("p");ptext.textContent="इस लिंक का वीडियो यहाँ Embed नहीं हो सकता।";const a=document.createElement("a");a.href=link;a.target="_blank";a.rel="noopener noreferrer";a.textContent="मूल वीडियो खोलें ↗";box.append(ptext,a);body.appendChild(box)}}}else{const {data,error}=await sb.storage.from("chat-status-media").createSignedUrl(s.media_url,3600);if(error)body.textContent="Media लोड नहीं हुआ: "+error.message;else if(s.media_type==="video"){const video=document.createElement("video");video.src=data.signedUrl;video.controls=true;video.playsInline=true;video.preload="metadata";body.appendChild(video)}else{const img=document.createElement("img");img.src=data.signedUrl;img.alt="Status photo";body.appendChild(img)}}}if(s.content){const caption=document.createElement("div");caption.textContent=s.content;body.appendChild(caption)}$("viewerExpiry").textContent="समाप्त होगा: "+new Date(s.expires_at).toLocaleString("hi-IN");$("statusViewer").classList.remove("hidden")}
 function closeStatusViewer(){$("statusViewer").classList.add("hidden");$("viewerViewsList").classList.add("hidden");statusViewing=null}
-async function deleteStatus(id){if(!confirm("क्या आप अपना Status हटाना चाहते हैं?"))return;try{const s=allStatuses.find(x=>x.id===id);const {error}=await sb.from("statuses").delete().eq("id",id).eq("user_id",currentUser.id);if(error)throw error;if(s?.media_url&&s.media_type!=="link")await sb.storage.from("chat-status-media").remove([s.media_url]);await loadStatuses();status("homeStatus","Status हटा दिया गया")}catch(e){status("homeStatus","Status नहीं हटाया: "+e.message)}}
+async function deleteStatus(id){if(!confirm("क्या आप अपना Status हटाना चाहते हैं?"))return;try{const s=allStatuses.find(x=>x.id===id);const {error}=await sb.from("statuses").delete().eq("id",id).eq("user_id",currentUser.id);if(error)throw error;if(s?.media_url&&s.media_type!=="link")await sb.storage.from("chat-status-media").remove([s.media_url]);await loadStatuses();status("homeStatus","Status हटा दिया गया")}catch(e){status("homeStatus","Status नहीं हटाया: "+e.message)}
 
 /* SESSION */
 async function checkSession(){const {data,error}=await sb.auth.getSession();if(error){status("authStatus",error.message);return}if(data.session){currentUser=data.session.user;await loadHome()}else showPage("authPage")}
