@@ -279,7 +279,7 @@ myChats.push({conversation:conv,peer,isGroup:false,lastMessage:latest?.[0]||null
 }
 myChats.sort((a,b)=>new Date(b.lastMessage?.created_at||b.conversation.created_at||0)-new Date(a.lastMessage?.created_at||a.conversation.created_at||0));
 }
-async function loadHome(){if(!currentUser)return;showPage("homePage");status("homeStatus","डेटा लोड हो रहा है...");try{await getProfiles();startPresence();startReceiptRealtime();await loadPresence();await getMyChatData();await loadStatuses();status("homeStatus","");renderCurrentTab()}catch(e){status("homeStatus","लोड नहीं हुआ: "+e.message)}}
+async function loadHome(){if(!currentUser)return;showPage("homePage");status("homeStatus","डेटा लोड हो रहा है...");try{await getProfiles();startPresence();await loadPresence();await getMyChatData();await loadStatuses();status("homeStatus","");renderCurrentTab()}catch(e){status("homeStatus","लोड नहीं हुआ: "+e.message)}}
 
 /* TABS */
 function showTab(tab){currentTab=tab;$("chatsTab").classList.toggle("active",tab==="chats");$("usersTab").classList.toggle("active",tab==="users");$("statusTab").classList.toggle("active",tab==="status");$("chatsSection").classList.toggle("hidden",tab!=="chats");$("usersSection").classList.toggle("hidden",tab!=="users");$("statusSection").classList.toggle("hidden",tab!=="status");if(tab==="status")loadStatuses();renderCurrentTab()}
