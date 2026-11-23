@@ -3,168 +3,143 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#E87916">
 <title>Chat With Me</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
  --orange:#E87916;
  --deep:#C45C0B;
- --light:#FFF1DF;
  --bg:#FFF8F0;
  --white:#fff;
  --text:#30251B;
  --muted:#88796B;
  --border:#F0E2D3;
+ --light:#FFE8CE;
 }
 *{box-sizing:border-box}
-body{
- margin:0;font-family:Arial,Helvetica,sans-serif;
- background:var(--bg);color:var(--text);
-}
-button,input{font:inherit}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+button,input,textarea{font:inherit}
 button{cursor:pointer}
-.page{min-height:100vh}
 .hidden{display:none!important}
+.page{min-height:100vh}
 .header{
- background:linear-gradient(135deg,var(--orange),var(--deep));
- color:white;padding:18px 16px;
- display:flex;align-items:center;gap:12px;
- position:sticky;top:0;z-index:5;
- box-shadow:0 3px 12px #c45c0b22;
+ background:linear-gradient(135deg,#E87916,#C45C0B);
+ color:white;padding:15px;
+ display:flex;align-items:center;gap:11px;
+ position:sticky;top:0;z-index:10;
+ box-shadow:0 3px 12px #c45c0b22
 }
 .logo{
  width:43px;height:43px;border-radius:50%;
  background:#fff3e3;color:var(--deep);
- display:grid;place-items:center;font-size:22px;font-weight:bold;
+ display:grid;place-items:center;font-size:23px;font-weight:bold
 }
-.headerTitle{font-size:20px;font-weight:bold}
+.headerTitle{font-size:19px;font-weight:bold}
 .headerSub{font-size:12px;opacity:.9;margin-top:3px}
-.headerRight{margin-left:auto;display:flex;gap:8px}
+.headerRight{margin-left:auto;display:flex;gap:7px}
 .iconBtn{
  border:0;background:#ffffff25;color:white;
- border-radius:12px;padding:10px;font-size:18px;
+ border-radius:12px;padding:10px;font-size:18px
 }
+.main{max-width:720px;margin:auto;padding-bottom:25px}
 .panel{
  background:white;border:1px solid var(--border);
  border-radius:18px;padding:18px;margin:14px;
- box-shadow:0 4px 15px #5b35100a;
+ box-shadow:0 4px 15px #5b35100a
 }
-.authWrap{
- max-width:440px;margin:40px auto;padding:14px;
-}
-.authLogo{
- text-align:center;margin:10px auto 25px;
-}
-.authLogo .logo{
- width:75px;height:75px;font-size:36px;margin:auto;
- background:var(--orange);color:white;
-}
+.authWrap{max-width:440px;margin:40px auto;padding:14px}
+.authLogo{text-align:center;margin:10px auto 25px}
+.authLogo .logo{width:75px;height:75px;font-size:36px;margin:auto;background:var(--orange);color:white}
 .authLogo h1{margin:12px 0 5px}
 .authLogo p{color:var(--muted);margin:0}
-input{
+input,textarea{
  width:100%;padding:14px;border-radius:12px;
  border:1px solid var(--border);outline:none;
- background:#fff;font-size:15px;margin:6px 0;
+ background:white;font-size:15px;margin:6px 0
 }
-input:focus{border-color:var(--orange);box-shadow:0 0 0 3px #e8791618}
+textarea{resize:vertical;min-height:90px}
+input:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px #e8791618}
 .primary{
  border:0;border-radius:12px;padding:14px;
- background:var(--orange);color:white;font-weight:bold;
- width:100%;margin-top:10px;
+ background:var(--orange);color:white;font-weight:bold;width:100%;margin-top:10px
 }
 .primary:active{background:var(--deep)}
 .secondary{
  border:1px solid var(--border);background:white;
- color:var(--deep);border-radius:12px;padding:10px;
+ color:var(--deep);border-radius:12px;padding:11px
 }
-.authToggle{
- text-align:center;margin-top:15px;color:var(--muted);
+.danger{border:0;background:#fff0eb;color:#bd351d;border-radius:12px;padding:12px}
+.status{font-size:13px;margin:10px 0;color:var(--deep);white-space:pre-wrap}
+.authToggle{text-align:center;margin-top:15px;color:var(--muted)}
+.authToggle button{border:0;background:none;color:var(--deep);font-weight:bold}
+.tabs{display:flex;gap:8px;padding:12px}
+.tab{
+ flex:1;padding:11px;border:1px solid var(--border);
+ background:white;border-radius:12px;color:var(--deep);font-weight:bold
 }
-.authToggle button{
- border:0;background:none;color:var(--deep);font-weight:bold;
-}
-.status{font-size:13px;margin:10px 0;color:var(--deep)}
-.main{max-width:700px;margin:auto;padding-bottom:30px}
+.tab.active{background:var(--orange);color:white;border-color:var(--orange)}
 .searchBox{padding:12px 14px 0}
 .searchBox input{background:#fff9f3}
 .sectionTitle{
  font-weight:bold;color:var(--deep);padding:15px 16px 8px;
- display:flex;align-items:center;justify-content:space-between;
+ display:flex;align-items:center;justify-content:space-between
 }
 .userRow{
- display:flex;align-items:center;gap:12px;
- padding:12px 15px;border-bottom:1px solid #f7eee5;
- cursor:pointer;background:white;
+ display:flex;align-items:center;gap:12px;padding:12px 15px;
+ border-bottom:1px solid #f7eee5;cursor:pointer;background:white
 }
 .userRow:hover{background:#fffaf5}
 .avatar{
  width:48px;height:48px;flex-shrink:0;border-radius:50%;
- background:#FFE3C2;color:var(--deep);
- display:grid;place-items:center;font-weight:bold;font-size:18px;
+ background:#FFE3C2;color:var(--deep);display:grid;place-items:center;
+ font-weight:bold;font-size:18px;overflow:hidden
 }
+.avatar img{width:100%;height:100%;object-fit:cover}
 .userInfo{flex:1;min-width:0}
 .userName{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.preview{font-size:13px;color:var(--muted);margin-top:5px;
- white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview{font-size:13px;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .time{font-size:11px;color:var(--muted)}
-.badge{
- background:var(--orange);color:white;border-radius:30px;
- font-size:12px;padding:4px 8px;
-}
 .empty{text-align:center;padding:35px 20px;color:var(--muted)}
-.chatHeader{position:sticky;top:0}
 .chatHeader .back{font-size:23px}
 .chatArea{
- height:calc(100dvh - 148px);min-height:300px;
- overflow-y:auto;padding:15px;
- background:
- linear-gradient(#fff8f0e8,#fff8f0e8),
- radial-gradient(circle at 10% 20%,#e8791615 1px,transparent 2px);
+ height:calc(100dvh - 148px);min-height:300px;overflow-y:auto;padding:15px;
+ background:linear-gradient(#fff8f0e8,#fff8f0e8)
 }
 .msg{
- max-width:82%;padding:10px 12px;margin:8px 0;
- border-radius:15px;word-break:break-word;
- box-shadow:0 1px 3px #00000008;
+ max-width:82%;padding:10px 12px;margin:8px 0;border-radius:15px;
+ word-break:break-word;box-shadow:0 1px 3px #00000008
 }
-.msg.mine{
- margin-left:auto;background:#FFE2BE;
- border-bottom-right-radius:4px;
-}
-.msg.theirs{
- margin-right:auto;background:white;
- border:1px solid #f2e8dd;border-bottom-left-radius:4px;
-}
+.msg.mine{margin-left:auto;background:#FFE2BE;border-bottom-right-radius:4px}
+.msg.theirs{margin-right:auto;background:white;border:1px solid #f2e8dd;border-bottom-left-radius:4px}
 .msgTime{text-align:right;font-size:10px;color:#9c826a;margin-top:5px}
 .chatInputBar{
- display:flex;gap:8px;align-items:center;padding:10px;
- background:white;border-top:1px solid var(--border);
- position:sticky;bottom:0;
+ display:flex;gap:8px;align-items:center;padding:10px;background:white;
+ border-top:1px solid var(--border);position:sticky;bottom:0
 }
 .chatInputBar input{margin:0;border-radius:25px;padding:13px}
 .sendBtn{
- border:0;background:var(--orange);color:white;
- width:48px;height:48px;border-radius:50%;font-size:20px;
- flex-shrink:0;
+ border:0;background:var(--orange);color:white;width:48px;height:48px;
+ border-radius:50%;font-size:20px;flex-shrink:0
 }
-.tabs{
- display:flex;gap:8px;padding:12px;
+.profileCard{text-align:center}
+.profilePhoto{
+ width:110px;height:110px;border-radius:50%;background:#FFE3C2;
+ color:var(--deep);margin:10px auto;overflow:hidden;
+ display:grid;place-items:center;font-size:40px;font-weight:bold
 }
-.tab{
- flex:1;padding:11px;border:1px solid var(--border);
- background:white;border-radius:12px;color:var(--deep);
- font-weight:bold;
-}
-.tab.active{background:var(--orange);color:white;border-color:var(--orange)}
+.profilePhoto img{width:100%;height:100%;object-fit:cover}
+.profileName{font-size:22px;font-weight:bold;margin:10px}
+.profileAbout{color:var(--muted);margin:8px 0;white-space:pre-wrap}
+.profileUsername{color:var(--deep);font-size:14px}
+.profileButtons{display:flex;gap:8px;margin-top:14px}
+.profileButtons button{flex:1}
+.formLabel{font-size:13px;font-weight:bold;color:var(--deep);margin-top:12px;display:block}
 .small{font-size:12px;color:var(--muted)}
-hr{border:0;border-top:1px solid var(--border)}
-@media(min-width:700px){
- .panel{margin:20px}
- .authWrap{margin-top:60px}
-}
+hr{border:0;border-top:1px solid var(--border);margin:15px 0}
+@media(min-width:700px){.panel{margin:20px}.authWrap{margin-top:60px}}
 </style>
 </head>
 
@@ -178,20 +153,15 @@ hr{border:0;border-top:1px solid var(--border)}
    <h1>Chat With Me</h1>
    <p>Connect • Chat • Share</p>
   </div>
-
   <div class="panel">
    <h2 id="authTitle">Login करें</h2>
-
    <div id="nameBox" class="hidden">
-    <input id="nameInput" placeholder="आपका नाम" autocomplete="name">
+    <input id="nameInput" placeholder="आपका नाम">
    </div>
-
-   <input id="emailInput" type="email" placeholder="Email Address" autocomplete="email">
-   <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password">
-
+   <input id="emailInput" type="email" placeholder="Email Address">
+   <input id="passwordInput" type="password" placeholder="Password">
    <button class="primary" id="authBtn" onclick="handleAuth()">Login करें</button>
    <div id="authStatus" class="status"></div>
-
    <div class="authToggle">
     <span id="toggleText">नया अकाउंट बनाना है?</span>
     <button onclick="toggleAuth()" id="toggleBtn">Signup करें</button>
@@ -210,6 +180,7 @@ hr{border:0;border-top:1px solid var(--border)}
   </div>
   <div class="headerRight">
    <button class="iconBtn" onclick="loadHome()" title="Refresh">↻</button>
+   <button class="iconBtn" onclick="openMyProfile()" title="Profile">👤</button>
    <button class="iconBtn" onclick="logout()" title="Logout">⏻</button>
   </div>
  </div>
@@ -219,21 +190,69 @@ hr{border:0;border-top:1px solid var(--border)}
    <button class="tab active" id="chatsTab" onclick="showTab('chats')">💬 Chats</button>
    <button class="tab" id="usersTab" onclick="showTab('users')">👥 Users</button>
   </div>
-
   <div class="searchBox">
-   <input id="searchInput" placeholder="🔎 नाम खोजें..." oninput="renderCurrentTab()">
+   <input id="searchInput" placeholder="🔎 नाम या Username खोजें..." oninput="renderCurrentTab()">
   </div>
-
   <div id="homeStatus" class="status" style="padding:0 15px"></div>
-
   <div id="chatsSection">
    <div class="sectionTitle">मेरी Chats <span class="small" id="chatCount"></span></div>
    <div id="chatList"></div>
   </div>
-
   <div id="usersSection" class="hidden">
    <div class="sectionTitle">नए लोग <span class="small" id="userCount"></span></div>
    <div id="userList"></div>
+  </div>
+ </div>
+</div>
+
+<!-- PROFILE -->
+<div id="profilePage" class="page hidden">
+ <div class="header">
+  <button class="iconBtn" onclick="backHome()">‹</button>
+  <div>
+   <div class="headerTitle">मेरा प्रोफाइल</div>
+   <div class="headerSub">Chat With Me</div>
+  </div>
+ </div>
+ <div class="main">
+  <div class="panel profileCard">
+   <div class="profilePhoto" id="profilePhoto">?</div>
+   <div class="profileName" id="profileViewName">नाम</div>
+   <div class="profileUsername" id="profileViewUsername"></div>
+   <div class="profileAbout" id="profileViewAbout"></div>
+   <button class="primary" onclick="showProfileEdit()">✏️ प्रोफाइल एडिट करें</button>
+  </div>
+  <div class="panel hidden" id="profileEditPanel">
+   <h3>प्रोफाइल एडिट करें</h3>
+   <label class="formLabel">नाम</label>
+   <input id="editName" placeholder="अपना नाम">
+   <label class="formLabel">Username (अलग पहचान)</label>
+   <input id="editUsername" placeholder="जैसे vinod123">
+   <div class="small">Username में अंग्रेज़ी अक्षर, नंबर और underscore रखें।</div>
+   <label class="formLabel">About</label>
+   <textarea id="editAbout" maxlength="140" placeholder="आपके बारे में..."></textarea>
+   <label class="formLabel">प्रोफाइल फोटो</label>
+   <input id="avatarFile" type="file" accept="image/*">
+   <button class="primary" onclick="saveMyProfile()">💾 प्रोफाइल सेव करें</button>
+   <button class="secondary" style="width:100%;margin-top:10px" onclick="hideProfileEdit()">रद्द करें</button>
+   <div id="profileStatus" class="status"></div>
+  </div>
+ </div>
+</div>
+
+<!-- OTHER USER PROFILE -->
+<div id="otherProfilePage" class="page hidden">
+ <div class="header">
+  <button class="iconBtn" onclick="backHome()">‹</button>
+  <div class="headerTitle">यूज़र प्रोफाइल</div>
+ </div>
+ <div class="main">
+  <div class="panel profileCard">
+   <div class="profilePhoto" id="otherPhoto">?</div>
+   <div class="profileName" id="otherName"></div>
+   <div class="profileUsername" id="otherUsername"></div>
+   <div class="profileAbout" id="otherAbout"></div>
+   <button class="primary" id="otherChatBtn">💬 Message करें</button>
   </div>
  </div>
 </div>
@@ -247,13 +266,12 @@ hr{border:0;border-top:1px solid var(--border)}
    <div class="headerTitle" id="chatName">Chat</div>
    <div class="headerSub" id="chatSub">Chat With Me</div>
   </div>
+  <button class="iconBtn" style="margin-left:auto" onclick="openOtherProfile()">👤</button>
  </div>
-
  <div id="chatMessages" class="chatArea"></div>
-
  <div class="chatInputBar">
   <input id="messageInput" placeholder="Message लिखें..." onkeydown="if(event.key==='Enter')sendMessage()">
-  <button class="sendBtn" onclick="sendMessage()" title="Send">➤</button>
+  <button class="sendBtn" onclick="sendMessage()">➤</button>
  </div>
  <div id="chatStatus" class="status" style="padding:0 12px"></div>
 </div>
@@ -261,59 +279,38 @@ hr{border:0;border-top:1px solid var(--border)}
 <script>
 const SUPABASE_URL="https://drvrqgfsakuhzbzklafx.supabase.co";
 const SUPABASE_KEY="sb_publishable_3wHhdUS0kDgI6OuPTmfiUA_XdPWrR3H";
-
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-let currentUser=null;
-let profiles=[];
-let myChats=[];
-let currentTab="chats";
-let activeChat=null;
-let activeConversation=null;
-let messageChannel=null;
-let isSignup=false;
-let sending=false;
-
-/* ---------- BASIC HELPERS ---------- */
+let currentUser=null,profiles=[],myChats=[],currentTab="chats";
+let activeChat=null,activeConversation=null,messageChannel=null;
+let isSignup=false,sending=false,currentProfile=null;
 
 function $(id){return document.getElementById(id)}
-
-function escapeHTML(value){
- return String(value??"").replace(/[&<>"']/g,function(c){
-  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
- });
+function escapeHTML(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
-
 function displayName(p){
- return p?.full_name||p?.name||p?.username||p?.display_name||
- p?.email||"User";
+ return p?.full_name||p?.name||p?.username||p?.email||"User";
 }
-
-function initials(name){
- let s=String(name||"?").trim();
- return s.substring(0,1).toUpperCase();
-}
-
+function initials(n){return String(n||"?").trim().substring(0,1).toUpperCase()}
 function timeText(date){
  if(!date)return "";
- const d=new Date(date);
- if(isNaN(d))return "";
- const today=new Date();
- if(d.toDateString()===today.toDateString()){
+ const d=new Date(date);if(isNaN(d))return "";
+ const now=new Date();
+ if(d.toDateString()===now.toDateString())
   return d.toLocaleTimeString("hi-IN",{hour:"2-digit",minute:"2-digit"});
- }
  return d.toLocaleDateString("hi-IN",{day:"numeric",month:"short"});
 }
-
-function status(id,text){
- $(id).textContent=text||"";
-}
-
+function status(id,t){$(id).textContent=t||""}
 function showPage(page){
- ["authPage","homePage","chatPage"].forEach(id=>$(id).classList.add("hidden"));
+ ["authPage","homePage","profilePage","otherProfilePage","chatPage"]
+ .forEach(id=>$(id).classList.add("hidden"));
  $(page).classList.remove("hidden");
 }
-
+function avatarHTML(p){
+ if(p?.avatar_url)return `<img src="${escapeHTML(p.avatar_url)}" alt="">`;
+ return escapeHTML(initials(displayName(p)));
+}
 function toggleAuth(){
  isSignup=!isSignup;
  $("authTitle").textContent=isSignup?"नया अकाउंट बनाएँ":"Login करें";
@@ -324,147 +321,107 @@ function toggleAuth(){
  status("authStatus","");
 }
 
-/* ---------- AUTH ---------- */
-
+/* AUTH */
 async function handleAuth(){
  const email=$("emailInput").value.trim();
  const password=$("passwordInput").value;
  const name=$("nameInput").value.trim();
-
- if(!email||!password){
-  status("authStatus","Email और Password भरें");
-  return;
- }
- if(isSignup&&!name){
-  status("authStatus","अपना नाम लिखें");
-  return;
- }
-
- $("authBtn").disabled=true;
- status("authStatus","कृपया प्रतीक्षा करें...");
-
+ if(!email||!password){status("authStatus","Email और Password भरें");return}
+ if(isSignup&&!name){status("authStatus","अपना नाम लिखें");return}
+ $("authBtn").disabled=true;status("authStatus","कृपया प्रतीक्षा करें...");
  try{
   if(isSignup){
-   const {data,error}=await sb.auth.signUp({
-    email,password,
-    options:{data:{name,full_name:name}}
-   });
+   const {data,error}=await sb.auth.signUp({email,password,options:{data:{name,full_name:name}}});
    if(error)throw error;
    if(data.session){
     currentUser=data.user;
-    await saveProfile(name);
+    await ensureProfile(name);
     await loadHome();
    }else{
     status("authStatus","अकाउंट बन गया। अब Login करें।");
-    isSignup=false;
-    toggleAuth();
+    isSignup=true;toggleAuth();
    }
   }else{
    const {data,error}=await sb.auth.signInWithPassword({email,password});
    if(error)throw error;
    currentUser=data.user;
+   await ensureProfile(currentUser.user_metadata?.full_name||currentUser.user_metadata?.name||"");
    await loadHome();
   }
- }catch(e){
-  status("authStatus","त्रुटि: "+(e.message||e));
- }finally{
-  $("authBtn").disabled=false;
- }
+ }catch(e){status("authStatus","त्रुटि: "+e.message)}
+ finally{$("authBtn").disabled=false}
 }
 
-async function saveProfile(name){
+async function ensureProfile(name){
  if(!currentUser)return;
- // Existing profile row may already exist.
- const {error}=await sb.from("profiles").upsert({
-  id:currentUser.id,
-  full_name:name
- },{onConflict:"id"});
- if(error){
-  // If the table uses name rather than full_name, signup is still retained.
-  console.warn("Profile update:",error.message);
+ const {data,error}=await sb.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
+ if(error)throw error;
+ if(data){
+  currentProfile=data;
+  if(!data.full_name&&name){
+   await sb.from("profiles").update({full_name:name}).eq("id",currentUser.id);
+  }
+ }else{
+  // Profiles may be created by a database signup trigger.
+  currentProfile=null;
  }
 }
 
 async function logout(){
+ if(messageChannel){await sb.removeChannel(messageChannel);messageChannel=null}
  await sb.auth.signOut();
- currentUser=null;
- profiles=[];
- myChats=[];
- activeChat=null;
- activeConversation=null;
- showPage("authPage");
- status("authStatus","Logout हो गया");
+ currentUser=null;profiles=[];myChats=[];activeChat=null;activeConversation=null;
+ showPage("authPage");status("authStatus","Logout हो गया");
 }
 
-/* ---------- PROFILE / HOME ---------- */
-
+/* HOME DATA */
 async function getProfiles(){
  const {data,error}=await sb.from("profiles").select("*");
  if(error)throw error;
  profiles=data||[];
+ if(currentUser){
+  currentProfile=profiles.find(p=>p.id===currentUser.id)||currentProfile;
+ }
 }
-
 async function getMyChatData(){
  myChats=[];
  const {data:members,error:mErr}=await sb.from("conversation_members")
-  .select("conversation_id")
-  .eq("user_id",currentUser.id);
+  .select("conversation_id").eq("user_id",currentUser.id);
  if(mErr)throw mErr;
-
  const ids=[...new Set((members||[]).map(x=>x.conversation_id))];
  if(!ids.length)return;
-
- const {data:convs,error:cErr}=await sb.from("conversations")
-  .select("*").in("id",ids);
+ const {data:convs,error:cErr}=await sb.from("conversations").select("*").in("id",ids);
  if(cErr)throw cErr;
 
+ const peerSeen=new Set();
  for(const conv of (convs||[])){
   if(conv.is_group)continue;
-
   const {data:allMembers,error:amErr}=await sb.from("conversation_members")
    .select("user_id").eq("conversation_id",conv.id);
   if(amErr)continue;
-
-  const otherId=(allMembers||[]).map(x=>x.user_id)
-   .find(id=>id!==currentUser.id);
-  if(!otherId)continue;
-
+  const otherId=(allMembers||[]).map(x=>x.user_id).find(id=>id!==currentUser.id);
+  if(!otherId||peerSeen.has(otherId))continue;
   const peer=profiles.find(p=>p.id===otherId);
   if(!peer)continue;
-
-  const {data:latest}=await sb.from("messages")
-   .select("*").eq("conversation_id",conv.id)
-   .order("created_at",{ascending:false}).limit(1);
-
-  myChats.push({
-   conversation:conv,
-   peer,
-   lastMessage:latest?.[0]||null
-  });
+  const {data:latest}=await sb.from("messages").select("*")
+   .eq("conversation_id",conv.id).order("created_at",{ascending:false}).limit(1);
+  peerSeen.add(otherId);
+  myChats.push({conversation:conv,peer,lastMessage:latest?.[0]||null});
  }
-
  myChats.sort((a,b)=>{
   const at=a.lastMessage?.created_at||a.conversation.created_at||0;
   const bt=b.lastMessage?.created_at||b.conversation.created_at||0;
   return new Date(bt)-new Date(at);
  });
 }
-
 async function loadHome(){
  if(!currentUser)return;
- showPage("homePage");
- status("homeStatus","डेटा लोड हो रहा है...");
-
+ showPage("homePage");status("homeStatus","डेटा लोड हो रहा है...");
  try{
-  await getProfiles();
-  await getMyChatData();
-  status("homeStatus","");
-  renderCurrentTab();
- }catch(e){
-  status("homeStatus","लोड नहीं हुआ: "+e.message);
- }
+  await getProfiles();await getMyChatData();
+  status("homeStatus","");renderCurrentTab();
+ }catch(e){status("homeStatus","लोड नहीं हुआ: "+e.message)}
 }
-
 function showTab(tab){
  currentTab=tab;
  $("chatsTab").classList.toggle("active",tab==="chats");
@@ -473,260 +430,218 @@ function showTab(tab){
  $("usersSection").classList.toggle("hidden",tab!=="users");
  renderCurrentTab();
 }
-
-function renderCurrentTab(){
- if(currentTab==="chats")renderChats();
- else renderUsers();
-}
-
+function renderCurrentTab(){currentTab==="chats"?renderChats():renderUsers()}
 function renderChats(){
  const q=$("searchInput").value.trim().toLowerCase();
- const list=myChats.filter(c=>displayName(c.peer).toLowerCase().includes(q));
+ const list=myChats.filter(c=>{
+  const n=displayName(c.peer).toLowerCase();
+  const u=(c.peer.username||"").toLowerCase();
+  return n.includes(q)||u.includes(q);
+ });
  $("chatCount").textContent=list.length;
  if(!list.length){
   $("chatList").innerHTML=`<div class="empty">अभी कोई Chat नहीं है।<br>Users टैब से नया चैट शुरू करें।</div>`;
   return;
  }
-
  $("chatList").innerHTML=list.map(c=>{
   const name=displayName(c.peer);
-  const preview=c.lastMessage?
-   (c.lastMessage.sender_id===currentUser.id?"आप: ":"")+c.lastMessage.content:
-   "चैट शुरू करें";
+  const preview=c.lastMessage?(c.lastMessage.sender_id===currentUser.id?"आप: ":"")+c.lastMessage.content:"चैट शुरू करें";
   return `<div class="userRow" onclick="openChat('${c.peer.id}','${c.conversation.id}')">
-   <div class="avatar">${escapeHTML(initials(name))}</div>
-   <div class="userInfo">
-    <div class="userName">${escapeHTML(name)}</div>
-    <div class="preview">${escapeHTML(preview)}</div>
-   </div>
+   <div class="avatar">${avatarHTML(c.peer)}</div>
+   <div class="userInfo"><div class="userName">${escapeHTML(name)}</div>
+   <div class="preview">${escapeHTML(preview)}</div></div>
    <div class="time">${timeText(c.lastMessage?.created_at||c.conversation.created_at)}</div>
   </div>`;
  }).join("");
 }
-
 function renderUsers(){
  const q=$("searchInput").value.trim().toLowerCase();
  const list=profiles.filter(p=>p.id!==currentUser.id&&
- displayName(p).toLowerCase().includes(q));
+ (displayName(p).toLowerCase().includes(q)||(p.username||"").toLowerCase().includes(q)));
  $("userCount").textContent=list.length;
-
- if(!list.length){
-  $("userList").innerHTML=`<div class="empty">कोई User नहीं मिला</div>`;
-  return;
- }
-
+ if(!list.length){$("userList").innerHTML=`<div class="empty">कोई User नहीं मिला</div>`;return}
  $("userList").innerHTML=list.map(p=>{
-  const name=displayName(p);
-  return `<div class="userRow" onclick="startChat('${p.id}')">
-   <div class="avatar">${escapeHTML(initials(name))}</div>
-   <div class="userInfo">
-    <div class="userName">${escapeHTML(name)}</div>
-    <div class="preview">नया Chat शुरू करें</div>
-   </div>
+  const n=displayName(p),about=p.about||"नया Chat शुरू करें";
+  return `<div class="userRow" onclick="viewUserProfile('${p.id}')">
+   <div class="avatar">${avatarHTML(p)}</div>
+   <div class="userInfo"><div class="userName">${escapeHTML(n)}</div>
+   <div class="preview">${escapeHTML(p.username?"@"+p.username:about)}</div></div>
    <div style="color:var(--orange)">›</div>
   </div>`;
  }).join("");
 }
 
-/* ---------- START / REUSE CHAT ---------- */
-
+/* CHAT CREATION / REUSE */
 async function startChat(peerId){
  status("homeStatus","Chat खोल रहे हैं...");
  try{
   const convId=await findExistingChat(peerId);
-  if(convId){
-   await openChat(peerId,convId);
-   return;
-  }
-
+  if(convId){await openChat(peerId,convId);return}
   const {data:conv,error}=await sb.from("conversations")
-   .insert({created_by:currentUser.id,is_group:false})
-   .select().single();
+   .insert({created_by:currentUser.id,is_group:false}).select().single();
   if(error)throw error;
-
-  const {error:memberError}=await sb.from("conversation_members")
-   .insert([
-    {conversation_id:conv.id,user_id:currentUser.id},
-    {conversation_id:conv.id,user_id:peerId}
-   ]);
+  const {error:memberError}=await sb.from("conversation_members").insert([
+   {conversation_id:conv.id,user_id:currentUser.id},
+   {conversation_id:conv.id,user_id:peerId}
+  ]);
   if(memberError)throw memberError;
-
   await openChat(peerId,conv.id);
- }catch(e){
-  status("homeStatus","Chat शुरू नहीं हुई: "+e.message);
- }
+ }catch(e){status("homeStatus","Chat शुरू नहीं हुई: "+e.message)}
 }
-
 async function findExistingChat(peerId){
  const {data:mine,error}=await sb.from("conversation_members")
   .select("conversation_id").eq("user_id",currentUser.id);
  if(error)throw error;
-
- const ids=(mine||[]).map(x=>x.conversation_id);
- if(!ids.length)return null;
-
+ const ids=(mine||[]).map(x=>x.conversation_id);if(!ids.length)return null;
  const {data:convs,error:ce}=await sb.from("conversations")
   .select("*").in("id",ids).eq("is_group",false);
  if(ce)throw ce;
-
+ let best=null,bestTime=0;
  for(const c of (convs||[])){
   const {data:m,error:me}=await sb.from("conversation_members")
    .select("user_id").eq("conversation_id",c.id);
   if(me)continue;
   const people=(m||[]).map(x=>x.user_id);
   if(people.includes(peerId)&&people.includes(currentUser.id)&&people.length===2){
-   return c.id;
+   const t=new Date(c.created_at||0).getTime();
+   if(t>=bestTime){best=c.id;bestTime=t}
   }
  }
- return null;
+ return best;
 }
 
-/* ---------- CHAT VIEW ---------- */
-
+/* CHAT */
 async function openChat(peerId,convId){
- const peer=profiles.find(p=>p.id===peerId);
- if(!peer)return;
-
- activeChat=peer;
- activeConversation=convId;
-
- const name=displayName(peer);
- $("chatName").textContent=name;
- $("chatAvatar").textContent=initials(name);
- $("chatSub").textContent="Chat With Me";
- $("chatMessages").innerHTML="";
- status("chatStatus","Messages लोड हो रहे हैं...");
+ const peer=profiles.find(p=>p.id===peerId);if(!peer)return;
+ activeChat=peer;activeConversation=convId;
+ const n=displayName(peer);
+ $("chatName").textContent=n;$("chatAvatar").innerHTML=avatarHTML(peer);
+ $("chatSub").textContent=peer.username?"@"+peer.username:(peer.about||"Chat With Me");
+ $("chatMessages").innerHTML="";status("chatStatus","Messages लोड हो रहे हैं...");
  showPage("chatPage");
-
- await loadMessages();
- subscribeMessages();
- $("messageInput").focus();
+ await loadMessages();subscribeMessages();$("messageInput").focus();
 }
-
 async function loadMessages(){
  if(!activeConversation)return;
-
- const {data,error}=await sb.from("messages")
-  .select("*").eq("conversation_id",activeConversation)
-  .order("created_at",{ascending:true});
- if(error){
-  status("chatStatus","Messages लोड नहीं हुए: "+error.message);
-  return;
- }
-
- $("chatMessages").innerHTML="";
- (data||[]).forEach(renderMessage);
- scrollBottom();
- status("chatStatus","");
+ const {data,error}=await sb.from("messages").select("*")
+  .eq("conversation_id",activeConversation).order("created_at",{ascending:true});
+ if(error){status("chatStatus","Messages लोड नहीं हुए: "+error.message);return}
+ $("chatMessages").innerHTML="";(data||[]).forEach(renderMessage);
+ scrollBottom();status("chatStatus","");
 }
-
 function renderMessage(m){
  const mine=m.sender_id===currentUser.id;
- const div=document.createElement("div");
- div.className="msg "+(mine?"mine":"theirs");
- div.innerHTML=`
-  <div>${escapeHTML(m.content)}</div>
-  <div class="msgTime">${timeText(m.created_at)}${mine?" ✓":""}</div>`;
+ const div=document.createElement("div");div.className="msg "+(mine?"mine":"theirs");
+ div.innerHTML=`<div>${escapeHTML(m.content)}</div><div class="msgTime">${timeText(m.created_at)}${mine?" ✓":""}</div>`;
  $("chatMessages").appendChild(div);
 }
-
-function scrollBottom(){
- const el=$("chatMessages");
- el.scrollTop=el.scrollHeight;
-}
-
+function scrollBottom(){const el=$("chatMessages");el.scrollTop=el.scrollHeight}
 function subscribeMessages(){
- if(messageChannel){
-  sb.removeChannel(messageChannel);
-  messageChannel=null;
- }
+ if(messageChannel){sb.removeChannel(messageChannel);messageChannel=null}
  messageChannel=sb.channel("chat-"+activeConversation)
- .on("postgres_changes",{
-  event:"INSERT",schema:"public",table:"messages",
-  filter:"conversation_id=eq."+activeConversation
- },payload=>{
+ .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"conversation_id=eq."+activeConversation},payload=>{
   const m=payload.new;
-  // Own messages are added immediately; avoid displaying duplicates.
   if(m.sender_id!==currentUser.id)renderMessage(m);
   scrollBottom();
- })
- .subscribe();
+ }).subscribe();
 }
-
 async function sendMessage(){
  if(sending)return;
- const text=$("messageInput").value.trim();
- if(!text||!activeConversation)return;
-
- sending=true;
- $("messageInput").value="";
- status("chatStatus","भेज रहे हैं...");
-
+ const text=$("messageInput").value.trim();if(!text||!activeConversation)return;
+ sending=true;$("messageInput").value="";status("chatStatus","भेज रहे हैं...");
  try{
-  const {data,error}=await sb.from("messages")
-   .insert({
-    conversation_id:activeConversation,
-    sender_id:currentUser.id,
-    content:text,
-    message_type:"text"
-   }).select().single();
+  const {data,error}=await sb.from("messages").insert({
+   conversation_id:activeConversation,sender_id:currentUser.id,
+   content:text,message_type:"text"
+  }).select().single();
   if(error)throw error;
-
-  renderMessage(data);
-  scrollBottom();
-  status("chatStatus","");
-  // Update chat preview in home list
-  await loadHomeDataOnly();
- }catch(e){
-  $("messageInput").value=text;
-  status("chatStatus","मैसेज नहीं भेजा गया: "+e.message);
- }finally{
-  sending=false;
- }
-}
-
-async function loadHomeDataOnly(){
- try{
+  renderMessage(data);scrollBottom();status("chatStatus","");
   await getMyChatData();
- }catch(e){
-  console.warn(e);
- }
+ }catch(e){$("messageInput").value=text;status("chatStatus","मैसेज नहीं भेजा गया: "+e.message)}
+ finally{sending=false}
 }
-
 async function backHome(){
- if(messageChannel){
-  await sb.removeChannel(messageChannel);
-  messageChannel=null;
- }
- activeChat=null;
- activeConversation=null;
- await loadHome();
+ if(messageChannel){await sb.removeChannel(messageChannel);messageChannel=null}
+ activeChat=null;activeConversation=null;await loadHome();
 }
 
-/* ---------- SESSION ---------- */
-
-async function checkSession(){
- const {data,error}=await sb.auth.getSession();
- if(error){
-  status("authStatus",error.message);
+/* PROFILE */
+function openMyProfile(){
+ currentProfile=profiles.find(p=>p.id===currentUser.id)||currentProfile;
+ renderMyProfile();showPage("profilePage");$("profileEditPanel").classList.add("hidden");
+}
+function renderMyProfile(){
+ const p=currentProfile||{};
+ $("profilePhoto").innerHTML=p.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(displayName(p)));
+ $("profileViewName").textContent=displayName(p);
+ $("profileViewUsername").textContent=p.username?"@"+p.username:"Username सेट नहीं है";
+ $("profileViewAbout").textContent=p.about||"About अभी नहीं लिखा";
+}
+function showProfileEdit(){
+ const p=currentProfile||{};
+ $("editName").value=p.full_name||p.name||currentUser.user_metadata?.name||"";
+ $("editUsername").value=p.username||"";
+ $("editAbout").value=p.about||"";
+ $("profileEditPanel").classList.remove("hidden");status("profileStatus","");
+}
+function hideProfileEdit(){$("profileEditPanel").classList.add("hidden")}
+async function saveMyProfile(){
+ const name=$("editName").value.trim();
+ const username=$("editUsername").value.trim().toLowerCase().replace(/^@/,"");
+ const about=$("editAbout").value.trim();
+ const file=$("avatarFile").files[0];
+ if(!name){status("profileStatus","नाम लिखना जरूरी है");return}
+ if(username&&! /^[a-z0-9_]{3,24}$/.test(username)){
+  status("profileStatus","Username 3–24 अक्षर का हो, केवल अंग्रेज़ी अक्षर, नंबर या _");
   return;
  }
- if(data.session){
-  currentUser=data.session.user;
-  await loadHome();
- }else{
-  showPage("authPage");
- }
+ status("profileStatus","प्रोफाइल सेव हो रही है...");
+ try{
+  if(username){
+   const {data:existing,error:checkError}=await sb.from("profiles")
+    .select("id").eq("username",username).neq("id",currentUser.id).limit(1);
+   if(checkError)throw checkError;
+   if(existing?.length){status("profileStatus","यह Username पहले से किसी ने लिया है");return}
+  }
+  let avatar_url=currentProfile?.avatar_url||null;
+  if(file){
+   if(file.size>5*1024*1024){status("profileStatus","फोटो 5 MB से छोटी रखें");return}
+   const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+   const path=currentUser.id+"/"+Date.now()+"."+ext;
+   const {error:uploadError}=await sb.storage.from("chat-avatars").upload(path,file,{upsert:true,contentType:file.type});
+   if(uploadError)throw uploadError;
+   const {data:urlData}=sb.storage.from("chat-avatars").getPublicUrl(path);
+   avatar_url=urlData.publicUrl;
+  }
+  const update={full_name:name,username:username||null,about:about||null,avatar_url};
+  const {data,error}=await sb.from("profiles").update(update).eq("id",currentUser.id).select().single();
+  if(error)throw error;
+  currentProfile=data;
+  await getProfiles();renderMyProfile();
+  hideProfileEdit();status("profileStatus","प्रोफाइल सेव हो गई");
+ }catch(e){status("profileStatus","सेव नहीं हुई: "+e.message)}
 }
+function viewUserProfile(id){
+ const p=profiles.find(x=>x.id===id);if(!p)return;
+ $("otherPhoto").innerHTML=p.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(displayName(p)));
+ $("otherName").textContent=displayName(p);
+ $("otherUsername").textContent=p.username?"@"+p.username:"";
+ $("otherAbout").textContent=p.about||"About अभी नहीं लिखा";
+ $("otherChatBtn").onclick=()=>startChat(p.id);
+ showPage("otherProfilePage");
+}
+function openOtherProfile(){if(activeChat)viewUserProfile(activeChat.id)}
 
+/* SESSION */
+async function checkSession(){
+ const {data,error}=await sb.auth.getSession();
+ if(error){status("authStatus",error.message);return}
+ if(data.session){currentUser=data.session.user;await loadHome()}
+ else showPage("authPage");
+}
 sb.auth.onAuthStateChange((event,session)=>{
- if(event==="SIGNED_OUT"){
-  currentUser=null;
-  showPage("authPage");
- }
+ if(event==="SIGNED_OUT"){currentUser=null;showPage("authPage")}
 });
-
-/* ---------- INIT ---------- */
 checkSession();
 </script>
 </body>
