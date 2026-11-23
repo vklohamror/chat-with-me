@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -221,6 +220,7 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 <button class="modalClose" style="margin-left:auto" onclick="closeStatusViewer()">✕</button>
 </div>
 <div class="viewerBody" id="viewerBody"></div>
+<div class="viewerBottom" id="viewerRecordError" style="color:#ffb6a1"></div>
 <div class="viewerBottom" id="viewerExpiry"></div>
 <button id="viewerViewsBtn" class="viewerViewsBtn hidden" onclick="showStatusViewers()">👁️ देखने वाले</button>
 <div id="viewerViewsList" class="viewerViewsList hidden"></div>
@@ -537,10 +537,10 @@ const myIds=allStatuses.filter(s=>s.user_id===currentUser.id).map(s=>s.id);
 if(!myIds.length)return;
 const {data,error}=await sb.from("status_views").select("status_id,viewer_id,viewed_at").in("status_id",myIds);
 if(error){console.error("View counts:",error.message);return}
-(myStatuses=>myStatuses.forEach(v=>{
+(data||[]).forEach(v=>{
 if(!statusViewsCache[v.status_id])statusViewsCache[v.status_id]=[];
 if(!statusViewsCache[v.status_id].some(x=>x.viewer_id===v.viewer_id))statusViewsCache[v.status_id].push(v);
-}))(data||[]);
+});
 }
 
 function renderStatuses(){
@@ -642,14 +642,24 @@ status("homeStatus","Status पोस्ट हो गया! 🎉");
 finally{$("publishStatusBtn").disabled=false}
 }
 
-/* जब कोई दूसरे व्यक्ति की Status खोलता है तो View रिकॉर्ड होता है */
+/* Status View record: INSERT करके view सेव करें */
 async function recordStatusView(s){
-if(!s||s.user_id===currentUser.id)return;
-const {error}=await sb.from("status_views").upsert(
-{status_id:s.id,viewer_id:currentUser.id,viewed_at:new Date().toISOString()},
-{onConflict:"status_id,viewer_id",ignoreDuplicates:true}
-);
-if(error)console.error("Status view save error:",error.message);
+if(!s||!currentUser||s.user_id===currentUser.id){
+return {ok:true};
+}
+
+const {error}=await sb.from("status_views").insert({
+status_id:s.id,
+viewer_id:currentUser.id,
+viewed_at:new Date().toISOString()
+});
+
+if(error&&error.code!=="23505"){
+console.error("Status view save error:",error);
+return {ok:false,message:error.message||"View रिकॉर्ड सेव नहीं हुआ"};
+}
+
+return {ok:true};
 }
 
 /* अपनी Status देखने वालों की सूची */
@@ -695,9 +705,17 @@ $("viewerName").textContent=s.user_id===currentUser.id?"आप":displayName(p);
 $("viewerTime").textContent=timeText(s.created_at);
 $("viewerViewsList").classList.add("hidden");
 $("viewerViewsList").innerHTML="";
+$("viewerRecordError").textContent="";
 const own=s.user_id===currentUser.id;
 $("viewerViewsBtn").classList.toggle("hidden",!own);
-if(!own)await recordStatusView(s);
+
+if(!own){
+const result=await recordStatusView(s);
+if(!result.ok){
+$("viewerRecordError").textContent="View सेव नहीं हुआ: "+result.message;
+}
+}
+
 const body=$("viewerBody");
 body.innerHTML="";
 if(s.media_url){
