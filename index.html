@@ -67,7 +67,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:0 
 .msg{max-width:82%;padding:10px 12px;margin:8px 0;border-radius:15px;word-break:break-word;box-shadow:0 1px 3px #00000008}
 .msg.mine{margin-left:auto;background:#FFE2BE;border-bottom-right-radius:4px}
 .msg.theirs{margin-right:auto;background:white;border:1px solid #f2e8dd;border-bottom-left-radius:4px}
-.msgTime{text-align:right;font-size:10px;color:#9c826a;margin-top:5px}
+.msgTime{text-align:right;font-size:10px;color:#9c826a;margin-top:5px}.msgActions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.msgActions button{font-size:11px;padding:5px 8px;border:1px solid #e9eaee;border-radius:8px;background:#fff;color:#444}.msgActions button:disabled{display:none}
 .msgTicks{display:inline-block;margin-left:5px;font-size:14px;font-weight:bold;letter-spacing:-3px;padding-right:3px}
 .msgTicks.sent,.msgTicks.delivered{color:#9B9289}
 .msgTicks.read{color:#E87916}
@@ -147,6 +147,7 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 <div class="main">
 <div class="tabs"><button class="tab active" id="chatsTab" onclick="showTab('chats')">💬 Chats</button><button class="tab" id="usersTab" onclick="showTab('users')">👥 Users</button><button class="tab" id="statusTab" onclick="showTab('status')">🟠 Status</button></div>
 <div id="homeStatus" class="status" style="padding:0 15px"></div>
+<div style="padding:0 14px 5px"><button class="secondary" style="width:auto;padding:7px 12px" onclick="openMyProfile()">👤 मेरा प्रोफाइल</button></div>
 <div id="chatsSection">
 <div class="searchBox"><input id="searchInput" placeholder="🔎 नाम या Username खोजें..." oninput="renderCurrentTab()"></div>
 <div class="sectionTitle">मेरी Chats <span class="small" id="chatCount"></span></div>
@@ -289,7 +290,7 @@ myChats.sort((a,b)=>new Date(b.lastMessage?.created_at||b.conversation.created_a
 async function loadHome(){if(!currentUser)return;showPage("homePage");status("homeStatus","डेटा लोड हो रहा है...");try{await getProfiles();startPresence();startReceiptRealtime();await loadPresence();await getMyChatData();await loadStatuses();status("homeStatus","");renderCurrentTab()}catch(e){status("homeStatus","लोड नहीं हुआ: "+e.message)}}
 
 /* TABS */
-function showTab(tab){currentTab=tab;$("chatsTab").classList.toggle("active",tab==="chats");$("usersTab").classList.toggle("active",tab==="users");$("statusTab").classList.toggle("active",tab==="status");$("chatsSection").classList.toggle("hidden",tab!=="chats");$("usersSection").classList.toggle("hidden",tab!=="users");$("statusSection").classList.toggle("hidden",tab!=="status");if(tab==="status")loadStatuses();renderCurrentTab()}
+function showTab(tab){if(navReady&&tab!==currentTab){history.pushState({cwmPage:navCurrent,tab},"");navTab=tab}currentTab=tab;$("chatsTab").classList.toggle("active",tab==="chats");$("usersTab").classList.toggle("active",tab==="users");$("statusTab").classList.toggle("active",tab==="status");$("chatsSection").classList.toggle("hidden",tab!=="chats");$("usersSection").classList.toggle("hidden",tab!=="users");$("statusSection").classList.toggle("hidden",tab!=="status");if(tab==="status")loadStatuses();renderCurrentTab()}
 function renderCurrentTab(){if(currentTab==="chats")renderChats();else if(currentTab==="users")renderUsers();else renderStatuses()}
 
 /* CHAT LIST */
@@ -434,7 +435,7 @@ const mine=m.sender_id===currentUser.id,div=document.createElement("div");div.cl
 const r=receiptCache[m.id];let ticks="";
 if(mine){if(r?.read_at)ticks='<span class="msgTicks read">✓✓</span>';else if(r?.delivered_at)ticks='<span class="msgTicks delivered">✓✓</span>';else ticks='<span class="msgTicks sent">✓</span>'}
 const sender=activeGroup&&!mine?profiles.find(p=>p.id===m.sender_id):null;
-div.innerHTML=`${sender?`<div style="font-size:11px;color:var(--deep);font-weight:bold;margin-bottom:4px">${escapeHTML(displayName(sender))}</div>`:""}<div>${escapeHTML(m.content)}</div><div class="msgTime" data-created="${escapeHTML(m.created_at||"")}">${timeText(m.created_at)} ${ticks}</div>`;
+div.innerHTML=`${sender?`<div style="font-size:11px;color:var(--deep);font-weight:bold;margin-bottom:4px">${escapeHTML(displayName(sender))}</div>`:""}<div class="msgContent">${escapeHTML(m.content)}</div><div class="msgTime" data-created="${escapeHTML(m.created_at||"")}">${timeText(m.created_at)} ${ticks}</div><div class="msgActions hidden"><button onclick="editMessage('${m.id}')" ${mine?"":"disabled"}>✏️ Edit</button><button onclick="deleteMessage('${m.id}')">🗑️ Delete</button><button onclick="forwardMessage('${m.id}')">↗️ Forward</button></div>`;div.addEventListener("click",()=>div.querySelector(".msgActions").classList.toggle("hidden"));div.querySelector(".msgActions").addEventListener("click",e=>e.stopPropagation());
 $("chatMessages").appendChild(div);
 }
 function scrollBottom(){const el=$("chatMessages");el.scrollTop=el.scrollHeight}
@@ -475,6 +476,9 @@ await loadMessages();scrollBottom();status("chatStatus","");await getMyChatData(
 }catch(e){$("messageInput").value=text;status("chatStatus","मैसेज नहीं भेजा गया: "+e.message)}
 finally{sending=false}
 }
+async function editMessage(id){const node=document.querySelector(`[data-message-id="${id}"]`);const messageText=node?.querySelector(".msgContent")?.textContent;if(!node||!messageText)return;const edited=prompt("मैसेज एडिट करें:",messageText);if(edited===null)return;if(!edited.trim()){alert("खाली मैसेज नहीं भेज सकते");return}const {error}=await sb.from("messages").update({content:edited.trim()}).eq("id",id).eq("sender_id",currentUser.id);if(error){alert("Edit नहीं हुआ: "+error.message);return}await loadMessages()}
+async function deleteMessage(id){if(!confirm("मैसेज डिलीट करें? (डेटाबेस अनुमति के अनुसार सभी के लिए हट सकता है)"))return;const {error}=await sb.from("messages").delete().eq("id",id);if(error){alert("डिलीट नहीं हुआ: "+error.message);return}await loadMessages()}
+async function forwardMessage(id){const {data:msg,error}=await sb.from("messages").select("*").eq("id",id).single();if(error||!msg){alert("मैसेज नहीं मिला");return}const targets=profiles.filter(p=>p.id!==currentUser.id);if(!targets.length){alert("Forward करने के लिए कोई उपयोगकर्ता उपलब्ध नहीं");return}const options=targets.map((p,i)=>`${i+1}. ${displayName(p)}${p.username?" (@"+p.username+")":""}`).join("\n");const choice=prompt("किसको Forward करें? नंबर लिखें:\n"+options);if(choice===null)return;const index=parseInt(choice,10)-1;if(index<0||index>=targets.length){alert("सही नंबर चुनें");return}const note=prompt("Forward के साथ कुछ लिखें (वैकल्पिक):","");if(note===null)return;try{const peer=targets[index],convId=await findExistingChat(peer.id);let targetConv=convId;if(!targetConv){const {data:c,error:ce}=await sb.from("conversations").insert({created_by:currentUser.id,is_group:false}).select().single();if(ce)throw ce;targetConv=c.id;const {error:me}=await sb.from("conversation_members").insert([{conversation_id:targetConv,user_id:currentUser.id},{conversation_id:targetConv,user_id:peer.id}]);if(me)throw me}const content=(note.trim()?note.trim()+"\n":"")+"↗ Forwarded: "+msg.content;const {error:sendError}=await sb.from("messages").insert({conversation_id:targetConv,sender_id:currentUser.id,content,message_type:"text"});if(sendError)throw sendError;alert("Forward भेज दिया गया") ;await getMyChatData()}catch(e){alert("Forward नहीं हुआ: "+e.message)}}
 function startReceiptRealtime(){
 if(!currentUser)return;if(deliveryChannel)sb.removeChannel(deliveryChannel);if(receiptChannel)sb.removeChannel(receiptChannel);
 deliveryChannel=sb.channel("delivery-"+currentUser.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},async payload=>{const m=payload.new;if(!m||m.sender_id===currentUser.id)return;const {data:mine}=await sb.from("conversation_members").select("conversation_id").eq("conversation_id",m.conversation_id).eq("user_id",currentUser.id).maybeSingle();if(!mine)return;await saveDelivered(m.id);if(activeConversation===m.conversation_id)await saveRead(m.id)}).subscribe();
@@ -544,7 +548,7 @@ const ids=[...new Set(data.map(v=>v.viewer_id))];const {data:people,error:profil
 box.innerHTML=data.map(v=>{const p=(people||[]).find(x=>x.id===v.viewer_id),name=displayName(p),avatar=p?.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(name));return `<div class="viewerPerson"><div class="avatar">${avatar}</div><div><strong>${escapeHTML(name)}</strong><div class="small">${timeText(v.viewed_at)}</div></div></div>`}).join("");
 }catch(e){box.textContent="Viewers लोड नहीं हुए: "+e.message}
 }
-async function viewStatus(id){
+async function viewStatus(id){if(navReady)history.pushState({cwmPage:navCurrent,tab:currentTab,statusViewer:true},"");
 const s=allStatuses.find(x=>x.id===id);if(!s)return;statusViewing=s;const p=profiles.find(x=>x.id===s.user_id)||{};
 $("viewerAvatar").innerHTML=avatarHTML(p);$("viewerName").textContent=s.user_id===currentUser.id?"आप":displayName(p);$("viewerTime").textContent=timeText(s.created_at);$("viewerViewsList").classList.add("hidden");$("viewerViewsList").innerHTML="";$("viewerRecordError").textContent="";
 const own=s.user_id===currentUser.id;$("viewerViewsBtn").classList.toggle("hidden",!own);
@@ -585,6 +589,7 @@ await loadStatuses();status("homeStatus","Status हटा दिया गय�
 /* SESSION */
 async function checkSession(){const {data,error}=await sb.auth.getSession();if(error){status("authStatus",error.message);return}if(data.session){currentUser=data.session.user;await loadHome()}else showPage("authPage")}
 sb.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"){currentUser=null;showPage("authPage")}});
+setupMobileBack();
 checkSession();
 </script>
 </body>
