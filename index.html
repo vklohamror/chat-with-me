@@ -138,6 +138,21 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 .groupActions{display:flex;gap:8px;flex-wrap:wrap}
 .groupActions button{flex:1}
 @media(min-width:700px){.panel{margin:20px}.authWrap{margin-top:60px}}
+
+/* Modern compact composer update */
+.chatInputBar{padding:9px 10px calc(9px + env(safe-area-inset-bottom));background:rgba(250,250,252,.96);backdrop-filter:blur(14px);gap:9px;border-top:1px solid #e9e9ee}
+.composerPill{border:1px solid #e6e7ec;border-radius:26px;padding:4px 7px;gap:5px;box-shadow:0 2px 8px #2021240a;background:#fff}
+.composerIcon{width:34px;height:36px;border-radius:12px;font-size:22px;color:#707781;transition:background .15s,color .15s}
+.composerIcon:active{background:#fff0df;color:var(--deep)}
+.composerIcon.attachBtn{font-size:27px;color:var(--orange);font-weight:400;transform:rotate(0deg)}
+.composerSend{width:48px;height:48px;border-radius:17px;background:linear-gradient(145deg,#f59b36,#e87916);box-shadow:0 4px 12px #e8791638;font-size:21px;transition:transform .15s,box-shadow .15s}
+.composerSend.voice{border-radius:50%;background:linear-gradient(145deg,#f59b36,#e87916)}
+.composerSend:active{transform:scale(.94)}
+.attachmentMenu{position:absolute;bottom:72px;left:12px;z-index:15;background:white;border:1px solid #eee;border-radius:18px;padding:8px;box-shadow:0 10px 30px #0002;min-width:190px;animation:attachPop .16s ease-out}
+.attachmentMenu button{display:flex;width:100%;border:0;background:white;padding:12px 14px;border-radius:12px;text-align:left;gap:10px;font-size:14px;color:#30343a}
+.attachmentMenu button:active{background:#fff0dd}
+@keyframes attachPop{from{transform:translateY(6px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:420px){.chatInputBar{padding:7px 8px calc(7px + env(safe-area-inset-bottom));gap:7px}.composerPill{padding:3px 5px}.composerIcon{width:31px;height:34px}.composerSend{width:46px;height:46px;border-radius:16px}}
 </style>
 </head>
 <body>
@@ -213,7 +228,7 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 <div class="header chatHeader"><button class="iconBtn back" onclick="backHome()">‹</button><div class="avatar" id="chatAvatar">?</div><div style="min-width:0;flex:1"><div class="headerTitle" id="chatName">Chat</div><div class="headerSub" id="chatSub">Chat With Me</div></div><button class="iconBtn" title="Voice Call" onclick="chatCallNotice('voice')">📞</button><button class="iconBtn" title="Video Call" onclick="chatCallNotice('video')">🎥</button><button class="iconBtn" title="Chat options" onclick="openChatOptions()">⋮</button></div>
 <div id="typingIndicator" class="typingIndicator hidden"><span id="typingName">लिख रहा है</span><span class="typingDots"><span></span><span></span><span></span></span></div>
 <div id="chatMessages" class="chatArea"></div>
-<div id="emojiPanel" class="emojiPanel hidden"><div class="emojiPanelTop"><input id="emojiSearch" type="search" placeholder="🔎 Emoji खोजें..." oninput="renderEmojiGrid()"><button class="emojiClose" onclick="toggleEmojiPanel()" aria-label="Emoji बंद">✕</button></div><div class="emojiCategoryBar" id="emojiCategoryBar"></div><div class="emojiToneBar" id="emojiToneBar"></div><div class="emojiGrid" id="emojiGrid"></div></div><div class="chatInputBar"><div class="composerPill"><button class="composerIcon" title="Emoji" onclick="toggleEmojiPanel()">☺</button><input id="messageInput" placeholder="Message" oninput="typingInput();syncComposer()" onkeydown="if(event.key==='Enter')sendMessage()"><button class="composerIcon" title="Attachment" onclick="chatAttachmentNotice()">📎</button><button class="composerIcon" title="Camera" onclick="chatCameraNotice()">📷</button></div><button id="composerAction" class="composerSend voice" title="Voice message" onclick="composerAction()">🎤</button></div>
+<div id="attachmentMenu" class="attachmentMenu hidden"><button onclick="chooseGallery()">🖼️ Gallery</button><button onclick="chooseDocument()">📄 Document</button><button onclick="chooseCamera()">📷 Camera</button></div><input id="galleryInput" type="file" accept="image/*,video/*" class="hidden" onchange="pickedAttachment(this)"><input id="documentInput" type="file" accept="*/*" class="hidden" onchange="pickedAttachment(this)"><input id="cameraInput" type="file" accept="image/*" capture="environment" class="hidden" onchange="pickedAttachment(this)"><div id="emojiPanel" class="emojiPanel hidden"><div class="emojiPanelTop"><input id="emojiSearch" type="search" placeholder="🔎 Emoji खोजें..." oninput="renderEmojiGrid()"><button class="emojiClose" onclick="toggleEmojiPanel()" aria-label="Emoji बंद">✕</button></div><div class="emojiCategoryBar" id="emojiCategoryBar"></div><div class="emojiToneBar" id="emojiToneBar"></div><div class="emojiGrid" id="emojiGrid"></div></div><div class="chatInputBar"><div class="composerPill"><button class="composerIcon emojiBtn" title="Emoji" onclick="toggleEmojiPanel()">☺</button><input id="messageInput" placeholder="Message" oninput="typingInput();syncComposer()" onkeydown="if(event.key==='Enter')sendMessage()"><button class="composerIcon attachBtn" title="Attach" onclick="toggleAttachmentMenu()">＋</button></div><button id="composerAction" class="composerSend voice" title="Voice message" onclick="composerAction()">🎙</button></div>
 <div id="chatStatus" class="status" style="padding:0 12px"></div>
 </div>
 
@@ -515,8 +530,36 @@ function saveChatLocalPrefs(p){localStorage.setItem("cwmChatOptionsV1",JSON.stri
 function chatPref(){return chatLocalPrefs()[activeConversation]||{muted:false,disappearing:"off",theme:"default",blocked:false}}
 function updateChatPref(patch){const all=chatLocalPrefs(),old=all[activeConversation]||{};all[activeConversation]={...old,...patch};saveChatLocalPrefs(all)}
 function chatCallNotice(kind){alert((kind==="voice"?"Voice Call":"Video Call")+" का UI जोड़ा गया है, लेकिन वास्तविक कॉल के लिए WebRTC/signaling server अभी सेट नहीं है।")}
-function chatAttachmentNotice(){alert("Attachment चयन UI अगला चरण है। अभी इस संस्करण में फोटो/फाइल अपलोड और संदेश के रूप में भेजना समर्थित नहीं है।")}
-function chatCameraNotice(){alert("Camera से फोटो लेना/भेजना अभी समर्थित नहीं है।")}
+function toggleAttachmentMenu(){const m=$("attachmentMenu");m.classList.toggle("hidden");$("emojiPanel").classList.add("hidden")}
+function chooseGallery(){$("attachmentMenu").classList.add("hidden");$("galleryInput").click()}
+function chooseDocument(){$("attachmentMenu").classList.add("hidden");$("documentInput").click()}
+function chooseCamera(){$("attachmentMenu").classList.add("hidden");$("cameraInput").click()}
+async function pickedAttachment(input){
+const file=input.files&&input.files[0];if(!file)return;
+input.value="";
+if(!currentUser||!activeConversation){alert("पहले किसी चैट को खोलें");return}
+if(file.size>40*1024*1024){alert("यह फ़ाइल 40 MB से बड़ी है। छोटी फ़ाइल चुनें।");return}
+const type=file.type||"application/octet-stream";
+const isImage=type.startsWith("image/"),isVideo=type.startsWith("video/");
+const allowed= isImage||isVideo||["application/pdf","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","text/plain","application/zip"].includes(type);
+if(!allowed){alert("यह फ़ाइल प्रकार chat-media bucket में अनुमति प्राप्त नहीं है। फोटो, वीडियो, PDF, DOC, DOCX, TXT या ZIP चुनें।");return}
+const safeName=(file.name||"attachment").normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"_").slice(-90)||"attachment";
+const path=currentUser.id+"/"+activeConversation+"/"+Date.now()+"_"+safeName;
+const action=$("composerAction");if(action)action.disabled=true;
+status("chatStatus","फ़ाइल अपलोड हो रही है…");
+try{
+ const {error:uploadError}=await sb.storage.from("chat-media").upload(path,file,{upsert:false,contentType:type});
+ if(uploadError)throw uploadError;
+ const kind=isImage?"image":isVideo?"video":"file";
+ const payload=JSON.stringify({path,name:file.name||safeName,mime:type,size:file.size});
+ const {error:messageError}=await sb.from("messages").insert({conversation_id:activeConversation,sender_id:currentUser.id,content:payload,message_type:kind});
+ if(messageError){await sb.storage.from("chat-media").remove([path]);throw messageError}
+ await loadMessages();scrollBottom();status("chatStatus","फ़ाइल भेज दी गई ✓");await getMyChatData();
+}catch(e){console.error("Attachment send:",e);status("chatStatus","फ़ाइल नहीं भेजी गई: "+(e.message||"Upload error"));alert("फ़ाइल नहीं भेजी गई:\n"+(e.message||"Upload error")+"\n\nकृपया Storage policy और chat-media bucket जाँचें।")}
+finally{if(action)action.disabled=false;setTimeout(()=>{if($("chatStatus")?.textContent==="फ़ाइल भेज दी गई ✓")status("chatStatus","")},3500)}
+}
+function chatAttachmentNotice(){toggleAttachmentMenu()}
+function chatCameraNotice(){chooseCamera()}
 function openChatOptions(){if(!activeConversation)return;const p=chatPref(),title=$("quickMenuTitle"),content=$("quickMenuContent");title.textContent="Chat विकल्प";content.innerHTML=`<button class="secondary" style="width:100%" onclick="chatViewContact()">👤 View contact / group info</button><button class="secondary" style="width:100%" onclick="chatSearchMessages()">🔎 Search messages</button><button class="secondary" style="width:100%" onclick="chatMediaLinks()">🖼️ Media, links, and docs</button><button class="secondary" style="width:100%" onclick="chatMuteToggle()">🔕 ${p.muted?"Unmute notifications":"Mute notifications"}</button><button class="secondary" style="width:100%" onclick="chatDisappearingMenu()">⏳ Disappearing messages: ${escapeHTML(p.disappearing||"off")}</button><button class="secondary" style="width:100%" onclick="chatThemeMenu()">🎨 Chat theme</button><button class="secondary" style="width:100%" onclick="chatMoreMenu()">⋮ More</button>`;$('quickMenuModal').classList.remove('hidden')}
 function chatViewContact(){closeQuickMenu();openChatInfo()}
 function chatMuteToggle(){const p=chatPref();updateChatPref({muted:!p.muted});openChatOptions();alert(p.muted?"Notifications unmute setting इस डिवाइस पर सेव हुआ।":"Notifications mute setting इस डिवाइस पर सेव हुआ।")}
@@ -540,13 +583,36 @@ stopTypingNow();activeGroup=false;activeGroupMembers=[];activeChat=peer;activeCo
 $("chatName").textContent=displayName(peer);$("chatAvatar").innerHTML=avatarHTML(peer);$("chatSub").textContent=presenceLabel(peer.id);$("chatMessages").innerHTML="";status("chatStatus","Messages लोड हो रहे हैं...");showPage("chatPage");
 await loadMessages();applyChatTheme();subscribeMessages();subscribeTyping();$("messageInput").focus();
 }
+function attachmentData(m){try{const d=JSON.parse(m.content||"{}");return d&&typeof d.path==="string"?d:null}catch{return null}}
+async function hydrateAttachment(m,div){
+ const d=attachmentData(m);if(!d)return;
+ const body=div.querySelector(".msgContent");if(!body)return;
+ body.textContent="फ़ाइल लोड हो रही है…";
+ try{
+  const {data,error}=await sb.storage.from("chat-media").createSignedUrl(d.path,3600);
+  if(error)throw error;
+  const url=data?.signedUrl;if(!url)throw new Error("Signed URL नहीं मिला");
+  body.textContent="";
+  if(m.message_type==="image"){
+   const img=document.createElement("img");img.src=url;img.alt=d.name||"Chat image";img.loading="lazy";img.style.cssText="display:block;max-width:min(240px,65vw);max-height:320px;border-radius:12px;object-fit:contain";img.onclick=()=>window.open(url,"_blank","noopener");body.appendChild(img);
+  }else if(m.message_type==="video"){
+   const video=document.createElement("video");video.src=url;video.controls=true;video.playsInline=true;video.style.cssText="display:block;max-width:min(260px,68vw);max-height:320px;border-radius:12px";body.appendChild(video);
+  }else{
+   const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";a.textContent="📄 "+(d.name||"दस्तावेज़ खोलें");a.style.cssText="color:inherit;text-decoration:underline;overflow-wrap:anywhere";body.appendChild(a);
+  }
+  const meta=document.createElement("div");meta.textContent=(d.name||"फ़ाइल")+" · "+(d.size?((d.size/1024/1024).toFixed(2)+" MB"):"");meta.style.cssText="font-size:11px;opacity:.75;margin-top:5px";body.appendChild(meta);
+ }catch(e){body.textContent="अटैचमेंट उपलब्ध नहीं: "+(e.message||"Access error")}
+}
 function renderMessage(m){
 const mine=m.sender_id===currentUser.id,div=document.createElement("div");div.className="msg "+(mine?"mine":"theirs");div.dataset.messageId=m.id;
 const r=receiptCache[m.id];let ticks="";
 if(mine){if(r?.read_at)ticks='<span class="msgTicks read">✓✓</span>';else if(r?.delivered_at)ticks='<span class="msgTicks delivered">✓✓</span>';else ticks='<span class="msgTicks sent">✓</span>'}
 const sender=activeGroup&&!mine?profiles.find(p=>p.id===m.sender_id):null;
-div.innerHTML=`${sender?`<div style="font-size:11px;color:var(--deep);font-weight:bold;margin-bottom:4px">${escapeHTML(displayName(sender))}</div>`:""}<div class="msgContent">${escapeHTML(m.content)}</div><div class="msgTime" data-created="${escapeHTML(m.created_at||"")}">${timeText(m.created_at)} ${ticks}</div><div class="msgActions hidden"><button onclick="editMessage('${m.id}')" ${mine?"":"disabled"}>✏️ Edit</button><button onclick="deleteMessage('${m.id}')">🗑️ Delete</button><button onclick="forwardMessage('${m.id}')">↗️ Forward</button></div>`;div.addEventListener("click",()=>div.querySelector(".msgActions").classList.toggle("hidden"));div.querySelector(".msgActions").addEventListener("click",e=>e.stopPropagation());
-$("chatMessages").appendChild(div);
+const isAttachment=["image","video","file"].includes(m.message_type)&&attachmentData(m);
+const content=isAttachment?"अटैचमेंट लोड हो रहा है…":escapeHTML(m.content||"");
+div.innerHTML=`${sender?`<div style="font-size:11px;color:var(--deep);font-weight:bold;margin-bottom:4px">${escapeHTML(displayName(sender))}</div>`:""}<div class="msgContent">${content}</div><div class="msgTime" data-created="${escapeHTML(m.created_at||"")}">${timeText(m.created_at)} ${ticks}</div><div class="msgActions hidden"><button onclick="editMessage('${m.id}')" ${mine?"":"disabled"}>✏️ Edit</button><button onclick="deleteMessage('${m.id}')">🗑️ Delete</button><button onclick="forwardMessage('${m.id}')">↗️ Forward</button></div>`;
+div.addEventListener("click",()=>div.querySelector(".msgActions").classList.toggle("hidden"));div.querySelector(".msgActions").addEventListener("click",e=>e.stopPropagation());
+$("chatMessages").appendChild(div);if(isAttachment)hydrateAttachment(m,div);
 }
 function scrollBottom(){const el=$("chatMessages");el.scrollTop=el.scrollHeight}
 async function loadReceipts(messages){receiptCache={};const ids=(messages||[]).filter(m=>m.sender_id===currentUser.id).map(m=>m.id);if(!ids.length)return;const {data,error}=await sb.from("message_receipts").select("message_id,delivered_at,read_at").in("message_id",ids);if(error){console.warn("Receipt load:",error.message);return}(data||[]).forEach(r=>{const old=receiptCache[r.message_id]||{};receiptCache[r.message_id]={delivered_at:old.delivered_at||r.delivered_at,read_at:old.read_at||r.read_at}})}
