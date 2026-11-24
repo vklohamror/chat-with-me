@@ -251,6 +251,7 @@ let presenceChannel=null,presenceHeartbeat=null,presenceCache={};
 let receiptCache={},receiptChannel=null,deliveryChannel=null;
 let typingChannel=null,typingDebounce=null,typingHideTimer=null;
 let activeGroup=false,activeGroupMembers=[],groupChoiceIds=new Set(),groupInfoData=null;
+let chatOriginTab="chats",mobileBackReady=false;
 const TYPING_DELAY=4000,TYPING_FRESH=5000,PRESENCE_INTERVAL=30000,PRESENCE_TIMEOUT=75000;
 
 function $(id){return document.getElementById(id)}
@@ -312,11 +313,11 @@ myChats.sort((a,b)=>new Date(b.lastMessage?.created_at||b.conversation.created_a
 async function loadHome(){if(!currentUser)return;showPage("homePage");status("homeStatus","डेटा लोड हो रहा है...");try{await getProfiles();startPresence();startReceiptRealtime();await loadPresence();await getMyChatData();await loadStatuses();status("homeStatus","");renderCurrentTab()}catch(e){status("homeStatus","लोड नहीं हुआ: "+e.message)}}
 
 /* TABS */
-function showTab(tab){
+function showTab(tab,fromBack=false){
 const validTabs=["chats","users","status","groups","calls"];
 if(!validTabs.includes(tab))return;
 closeHeaderMenus();
-if(navReady&&tab!==currentTab){history.pushState({cwmPage:navCurrent,tab},"");navTab=tab}
+if(mobileBackReady&&!fromBack&&tab!==currentTab){history.pushState({cwmScreen:"home",tab},"");}
 currentTab=tab;
 const sections={chats:"chatsSection",users:"usersSection",status:"statusSection",groups:"groupsSection",calls:"callsSection"};
 validTabs.forEach(t=>{const button=$(t+"Tab"),section=$(sections[t]);if(button)button.classList.toggle("active",t===tab);if(section)section.classList.toggle("hidden",t!==tab)});
@@ -381,6 +382,7 @@ finally{$("createGroupBtn").disabled=false}
 
 /* GROUP OPEN AND INFO */
 async function openGroupChat(convId){
+chatOriginTab=currentTab;if(mobileBackReady)history.pushState({cwmScreen:"chat",tab:chatOriginTab,group:true},"");
 try{
 status("homeStatus","Group खोल रहे हैं...");
 const {data:conv,error}=await sb.from("conversations").select("*").eq("id",convId).single();if(error)throw error;
@@ -459,6 +461,7 @@ await updateTypingDisplay();
 /* MESSAGES AND RECEIPTS */
 async function openChat(peerId,convId){
 const peer=profiles.find(p=>p.id===peerId);if(!peer)return;
+chatOriginTab=currentTab;if(mobileBackReady)history.pushState({cwmScreen:"chat",tab:chatOriginTab,group:false},"");
 stopTypingNow();activeGroup=false;activeGroupMembers=[];activeChat=peer;activeConversation=convId;
 $("chatName").textContent=displayName(peer);$("chatAvatar").innerHTML=avatarHTML(peer);$("chatSub").textContent=presenceLabel(peer.id);$("chatMessages").innerHTML="";status("chatStatus","Messages लोड हो रहे हैं...");showPage("chatPage");
 await loadMessages();subscribeMessages();subscribeTyping();$("messageInput").focus();
@@ -519,11 +522,11 @@ receiptChannel=sb.channel("receipt-updates-"+currentUser.id).on("postgres_change
 }
 async function backHome(){
 stopTypingNow();if(typingChannel){await sb.removeChannel(typingChannel);typingChannel=null}if(messageChannel){await sb.removeChannel(messageChannel);messageChannel=null}
-activeChat=null;activeConversation=null;activeGroup=false;activeGroupMembers=[];receiptCache={};await loadHome();
+activeChat=null;activeConversation=null;activeGroup=false;activeGroupMembers=[];receiptCache={};await loadHome();showTab(chatOriginTab||"chats",true);
 }
 
 /* MY PROFILE */
-function openMyProfile(){currentProfile=profiles.find(p=>p.id===currentUser.id)||currentProfile;renderMyProfile();showPage("profilePage");$("profileEditPanel").classList.add("hidden")}
+function openMyProfile(){chatOriginTab=currentTab;if(mobileBackReady)history.pushState({cwmScreen:"profile",tab:currentTab},"");currentProfile=profiles.find(p=>p.id===currentUser.id)||currentProfile;renderMyProfile();showPage("profilePage");$("profileEditPanel").classList.add("hidden")}
 function renderMyProfile(){const p=currentProfile||{};$("profilePhoto").innerHTML=p.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(displayName(p)));$("profileViewName").textContent=displayName(p);$("profileViewUsername").textContent=p.username?"@"+p.username:"Username सेट नहीं है";$("profileViewAbout").textContent=p.about||"About अभी नहीं लिखा"}
 function showProfileEdit(){const p=currentProfile||{};$("editName").value=p.full_name||p.name||currentUser.user_metadata?.name||"";$("editUsername").value=p.username||"";$("editAbout").value=p.about||"";$("profileEditPanel").classList.remove("hidden");status("profileStatus","")}
 function hideProfileEdit(){$("profileEditPanel").classList.add("hidden")}
@@ -539,7 +542,7 @@ if(file){if(file.size>5*1024*1024){status("profileStatus","फोटो 5 MB स
 const {data,error}=await sb.from("profiles").update({full_name:name,username:username||null,about:about||null,avatar_url}).eq("id",currentUser.id).select().single();if(error)throw error;currentProfile=data;await getProfiles();renderMyProfile();hideProfileEdit();status("profileStatus","प्रोफाइल सेव हो गई");
 }catch(e){status("profileStatus","सेव नहीं हुई: "+e.message)}
 }
-function viewUserProfile(id){const p=profiles.find(x=>x.id===id);if(!p)return;$("otherPhoto").innerHTML=p.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(displayName(p)));$("otherName").textContent=displayName(p);$("otherUsername").textContent=p.username?"@"+p.username:"";$("otherAbout").textContent=presenceLabel(p.id)+"\n\n"+(p.about||"About अभी नहीं लिखा");$("otherChatBtn").onclick=()=>startChat(p.id);showPage("otherProfilePage")}
+function viewUserProfile(id){const p=profiles.find(x=>x.id===id);if(!p)return;if(mobileBackReady)history.pushState({cwmScreen:activeChat?"otherProfile":"otherProfile",tab:currentTab,fromChat:!!activeChat},"");$("otherPhoto").innerHTML=p.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(displayName(p)));$("otherName").textContent=displayName(p);$("otherUsername").textContent=p.username?"@"+p.username:"";$("otherAbout").textContent=presenceLabel(p.id)+"\n\n"+(p.about||"About अभी नहीं लिखा");$("otherChatBtn").onclick=()=>startChat(p.id);showPage("otherProfilePage")}
 function openOtherProfile(){if(activeChat)viewUserProfile(activeChat.id)}
 
 /* STATUS */
@@ -581,7 +584,7 @@ const ids=[...new Set(data.map(v=>v.viewer_id))];const {data:people,error:profil
 box.innerHTML=data.map(v=>{const p=(people||[]).find(x=>x.id===v.viewer_id),name=displayName(p),avatar=p?.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(name));return `<div class="viewerPerson"><div class="avatar">${avatar}</div><div><strong>${escapeHTML(name)}</strong><div class="small">${timeText(v.viewed_at)}</div></div></div>`}).join("");
 }catch(e){box.textContent="Viewers लोड नहीं हुए: "+e.message}
 }
-async function viewStatus(id){if(navReady)history.pushState({cwmPage:navCurrent,tab:currentTab,statusViewer:true},"");
+async function viewStatus(id){if(mobileBackReady)history.pushState({cwmScreen:"statusViewer",tab:currentTab},"");
 const s=allStatuses.find(x=>x.id===id);if(!s)return;statusViewing=s;const p=profiles.find(x=>x.id===s.user_id)||{};
 $("viewerAvatar").innerHTML=avatarHTML(p);$("viewerName").textContent=s.user_id===currentUser.id?"आप":displayName(p);$("viewerTime").textContent=timeText(s.created_at);$("viewerViewsList").classList.add("hidden");$("viewerViewsList").innerHTML="";$("viewerRecordError").textContent="";
 const own=s.user_id===currentUser.id;$("viewerViewsBtn").classList.toggle("hidden",!own);
@@ -640,7 +643,20 @@ async function resendAccountChangeOtp(){try{const {error}=pendingAccountChange.t
 function saveMenuPrefs(){const p={};document.querySelectorAll("[data-pref]").forEach(x=>p[x.dataset.pref]=x.checked);try{const old=JSON.parse(localStorage.getItem("cwmMenuPrefsV1")||"{}");localStorage.setItem("cwmMenuPrefsV1",JSON.stringify({...old,...p}))}catch(e){}closeQuickMenu();alert("Settings इस डिवाइस पर सेव हो गईं")}
 function savePrivacyPrefs(){const p={};document.querySelectorAll("[data-privacy]").forEach(x=>p["privacy_"+x.dataset.privacy]=x.checked);try{const old=JSON.parse(localStorage.getItem("cwmMenuPrefsV1")||"{}");localStorage.setItem("cwmMenuPrefsV1",JSON.stringify({...old,...p}))}catch(e){}closeQuickMenu();alert("Privacy विकल्प इस डिवाइस पर सेव हुए। सर्वर enforcement अभी नहीं है।")}
 function removeStar(i){let s=[];try{s=JSON.parse(localStorage.getItem("cwmStarredV1")||"[]")}catch(e){}s.splice(i,1);localStorage.setItem("cwmStarredV1",JSON.stringify(s));openQuickMenu("starred")}
-function setupMobileBack(){window.addEventListener("popstate",()=>{closeHeaderMenus();if(!$ ("quickMenuModal").classList.contains("hidden")){closeQuickMenu();return}if(!$ ("statusViewer").classList.contains("hidden")){closeStatusViewer();return}if(!$ ("groupInfoModal").classList.contains("hidden")){closeGroupInfo();return}if(!$ ("chatPage").classList.contains("hidden")){backHome();return}if(!$ ("profilePage").classList.contains("hidden")||!$("otherProfilePage").classList.contains("hidden")){backHome();return}if(!$ ("homePage").classList.contains("hidden")){showTab("chats");return}})}
+function setupMobileBack(){
+if(mobileBackReady)return;mobileBackReady=true;
+try{history.replaceState({cwmScreen:"home",tab:currentTab||"chats"},"")}catch(e){}
+window.addEventListener("popstate",async(event)=>{
+closeHeaderMenus();
+if(!$ ("quickMenuModal").classList.contains("hidden")){closeQuickMenu();return}
+if(!$ ("statusViewer").classList.contains("hidden")){closeStatusViewer();return}
+if(!$ ("groupInfoModal").classList.contains("hidden")){closeGroupInfo();return}
+if(!$ ("chatPage").classList.contains("hidden")){await backHome();return}
+if(!$ ("profilePage").classList.contains("hidden")){await loadHome();showTab(event.state?.tab||"chats",true);return}
+if(!$ ("otherProfilePage").classList.contains("hidden")){if(event.state?.cwmScreen==="chat"&&activeConversation){showPage("chatPage");return}await loadHome();showTab(event.state?.tab||chatOriginTab||"chats",true);return}
+if(!$ ("homePage").classList.contains("hidden")){const target=event.state?.tab;if(target&&["chats","users","status","groups","calls"].includes(target))showTab(target,true);else showTab("chats",true);return}
+});
+}
 
 /* SESSION */
 async function checkSession(){const {data,error}=await sb.auth.getSession();if(error){status("authStatus",error.message);return}if(data.session){currentUser=data.session.user;await loadHome()}else showPage("authPage")}
