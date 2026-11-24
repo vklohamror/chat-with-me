@@ -18,10 +18,23 @@ button{cursor:pointer}
 .logo{display:none!important}
 .headerTitle{font-size:13px;font-weight:600;letter-spacing:.1px}
 .headerSub{display:none!important}
-#homePage>.header{justify-content:center;gap:0}
-#homePage>.header>div:not(.headerTitle){display:none!important}
-#homePage>.header .headerTitle{font-size:13px;font-weight:600;text-align:center;line-height:29px}
-#homePage>.header .headerRight{display:flex!important;position:absolute;right:8px}
+#homePage>.header{justify-content:space-between;gap:4px;height:38px;min-height:38px;padding:2px 8px}
+#homePage>.header .headerTitle{font-size:13px;font-weight:600;text-align:center;line-height:30px;flex:1}
+#homePage>.header .headerRight{display:flex!important;margin-left:0;gap:0}
+#homePage>.header .logo{display:none!important}
+#homePage>.header .homeHeaderBtn{width:30px;height:30px;border-radius:8px;background:transparent;color:var(--orange);font-size:19px}
+#homePage>.header .headerRight .homeHeaderBtn{margin-left:auto}
+#homePage>.header .headerTitleWrap{flex:1;text-align:center;min-width:0}
+.headerMenuPanel{position:fixed;z-index:60;top:42px;background:white;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 24px #0002;padding:6px;min-width:190px}
+#homeDrawer{left:8px;right:auto;min-width:210px}
+#homeMoreMenu{right:8px;left:auto}
+.headerMenuPanel button{display:block;width:100%;text-align:left;background:#fff;border:0;border-radius:9px;padding:11px 12px;color:var(--text);font-size:14px}
+.headerMenuPanel button:active{background:var(--light)}
+.menuBackdrop{position:fixed;inset:0;z-index:55;background:transparent}
+#quickMenuModal{position:fixed;inset:0;z-index:80;background:#0005;display:flex;align-items:center;justify-content:center;padding:16px}
+#quickMenuModal .quickCard{background:#fff;width:min(94%,440px);max-height:85vh;overflow:auto;border-radius:16px;padding:16px}
+#quickMenuModal h3{margin:0 0 12px;color:var(--deep)}
+#quickMenuModal .quickCard button.secondary{margin:5px 0}
 .headerRight{margin-left:auto;display:flex;gap:4px}
 .iconBtn{border:0;background:#F3F4F6;color:#444;border-radius:50%;width:34px;height:34px;padding:0;font-size:17px;display:grid;place-items:center}
 .main{max-width:720px;margin:auto;padding-bottom:25px}
@@ -120,14 +133,6 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 .groupActions{display:flex;gap:8px;flex-wrap:wrap}
 .groupActions button{flex:1}
 @media(min-width:700px){.panel{margin:20px}.authWrap{margin-top:60px}}
-
-.menuPanel{position:fixed;top:38px;right:10px;z-index:80;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px #0002;border-radius:14px;padding:6px;width:220px}
-.menuPanel button{width:100%;border:0;background:white;text-align:left;padding:12px;border-radius:9px;color:#333}
-.menuPanel .dangerMenu{color:#bd351d}
-.settingsPage{position:fixed;inset:0;background:var(--bg);z-index:40;overflow:auto}
-.settingsItem{background:white;margin:8px 12px;border:1px solid var(--border);border-radius:12px;padding:13px}
-.settingsItem label{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.settingsItem input[type=checkbox]{width:22px;height:22px;accent-color:var(--orange);margin:0}
 </style>
 </head>
 <body>
@@ -149,13 +154,22 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 
 <div id="homePage" class="page hidden">
 <div class="header">
-<div class="logo">💬</div><div><div class="headerTitle">Chat With Me</div><div class="headerSub">Connect • Chat • Share</div></div>
-<div class="headerRight"><button class="iconBtn" onclick="toggleHomeMenu()" aria-label="Menu">⋮</button></div>
+<button class="iconBtn homeHeaderBtn" aria-label="Navigation menu" onclick="toggleHomeDrawer()">☰</button>
+<div class="headerTitleWrap"><div class="headerTitle">Chat With Me</div></div>
+<div class="headerRight"><button class="iconBtn homeHeaderBtn" aria-label="More options" onclick="toggleMoreMenu()">⋮</button></div>
 </div>
+<div id="homeDrawer" class="headerMenuPanel hidden">
+<button onclick="closeHeaderMenus();showTab('chats')">💬 Chats</button><button onclick="closeHeaderMenus();showTab('users')">👥 Users</button><button onclick="closeHeaderMenus();showTab('status')">🟠 Status</button><button onclick="closeHeaderMenus();openMyProfile()">👤 मेरा प्रोफाइल</button><button onclick="closeHeaderMenus();openCreateGroup()">＋ नया Group</button>
+</div>
+<div id="homeMoreMenu" class="headerMenuPanel hidden">
+<button onclick="closeHeaderMenus();openMyProfile()">👤 मेरा प्रोफाइल / Edit</button><button onclick="closeHeaderMenus();openQuickMenu('settings')">⚙️ Settings</button><button onclick="closeHeaderMenus();openQuickMenu('privacy')">🔒 Privacy</button><button onclick="closeHeaderMenus();openQuickMenu('starred')">⭐ Starred Messages</button><button onclick="closeHeaderMenus();openQuickMenu('about')">ℹ️ About Chat With Me</button><button onclick="closeHeaderMenus();confirm('अकाउंट बदलने के लिए पहले Logout करें।')">🔄 Change Account</button><button onclick="closeHeaderMenus();logout()">🚪 Logout</button><button onclick="closeHeaderMenus();openQuickMenu('delete')" style="color:#b91c1c">🗑️ Delete Account</button>
+</div>
+<div id="menuBackdrop" class="menuBackdrop hidden" onclick="closeHeaderMenus()"></div>
+<div id="quickMenuModal" class="hidden" onclick="if(event.target===this)closeQuickMenu()"><div class="quickCard"><h3 id="quickMenuTitle"></h3><div id="quickMenuContent"></div><button class="secondary" onclick="closeQuickMenu()">बंद करें</button></div></div>
 <div class="main">
 <div class="tabs"><button class="tab active" id="chatsTab" onclick="showTab('chats')">💬 Chats</button><button class="tab" id="usersTab" onclick="showTab('users')">👥 Users</button><button class="tab" id="statusTab" onclick="showTab('status')">🟠 Status</button></div>
 <div id="homeStatus" class="status" style="padding:0 15px"></div>
-
+<div style="padding:0 14px 5px"><button class="secondary" style="width:auto;padding:7px 12px" onclick="openMyProfile()">👤 मेरा प्रोफाइल</button></div>
 <div id="chatsSection">
 <div class="searchBox"><input id="searchInput" placeholder="🔎 नाम या Username खोजें..." oninput="renderCurrentTab()"></div>
 <div class="sectionTitle">मेरी Chats <span class="small" id="chatCount"></span></div>
@@ -172,10 +186,6 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 </div>
 </div>
 </div>
-<div id="homeMenu" class="menuPanel hidden">
-<button onclick="menuOpenPage('profile')">👤 मेरा प्रोफाइल</button><button onclick="menuOpenPage('settings')">⚙️ Settings</button><button onclick="menuOpenPage('privacy')">🔒 Privacy</button><button onclick="menuOpenPage('starred')">⭐ Starred Messages</button><button onclick="menuOpenPage('about')">ℹ️ About Chat With Me</button><hr><button onclick="logout()">⏻ Logout</button><button class="dangerMenu" onclick="menuOpenPage('delete')">🗑️ Delete Account</button>
-</div>
-<div id="settingsOverlay" class="settingsPage hidden"><div class="header"><button class="iconBtn" onclick="closeSettingsPage()">‹</button><div class="headerTitle" id="settingsTitle">Settings</div></div><div class="main" id="settingsContent"></div></div>
 
 <div id="profilePage" class="page hidden">
 <div class="header"><button class="iconBtn" onclick="backHome()">‹</button><div><div class="headerTitle">मेरा प्रोफाइल</div><div class="headerSub">Chat With Me</div></div></div>
@@ -302,7 +312,7 @@ myChats.sort((a,b)=>new Date(b.lastMessage?.created_at||b.conversation.created_a
 async function loadHome(){if(!currentUser)return;showPage("homePage");status("homeStatus","डेटा लोड हो रहा है...");try{await getProfiles();startPresence();startReceiptRealtime();await loadPresence();await getMyChatData();await loadStatuses();status("homeStatus","");renderCurrentTab()}catch(e){status("homeStatus","लोड नहीं हुआ: "+e.message)}}
 
 /* TABS */
-function showTab(tab){currentTab=tab;$("chatsTab").classList.toggle("active",tab==="chats");$("usersTab").classList.toggle("active",tab==="users");$("statusTab").classList.toggle("active",tab==="status");$("chatsSection").classList.toggle("hidden",tab!=="chats");$("usersSection").classList.toggle("hidden",tab!=="users");$("statusSection").classList.toggle("hidden",tab!=="status");if(tab==="status")loadStatuses();renderCurrentTab()}
+function showTab(tab){if(navReady&&tab!==currentTab){history.pushState({cwmPage:navCurrent,tab},"");navTab=tab}currentTab=tab;$("chatsTab").classList.toggle("active",tab==="chats");$("usersTab").classList.toggle("active",tab==="users");$("statusTab").classList.toggle("active",tab==="status");$("chatsSection").classList.toggle("hidden",tab!=="chats");$("usersSection").classList.toggle("hidden",tab!=="users");$("statusSection").classList.toggle("hidden",tab!=="status");if(tab==="status")loadStatuses();renderCurrentTab()}
 function renderCurrentTab(){if(currentTab==="chats")renderChats();else if(currentTab==="users")renderUsers();else renderStatuses()}
 
 /* CHAT LIST */
@@ -360,7 +370,6 @@ finally{$("createGroupBtn").disabled=false}
 
 /* GROUP OPEN AND INFO */
 async function openGroupChat(convId){
-history.pushState({cwmPage:"chat",group:true},"");
 try{
 status("homeStatus","Group खोल रहे हैं...");
 const {data:conv,error}=await sb.from("conversations").select("*").eq("id",convId).single();if(error)throw error;
@@ -376,7 +385,7 @@ if(activeGroup){await showGroupInfo();return}
 if(activeChat)openOtherProfile();
 }
 async function showGroupInfo(){
-if(!activeGroup||!activeConversation)return;history.pushState({cwmPage:"groupInfo"},"");
+if(!activeGroup||!activeConversation)return;
 status("groupInfoStatus","Group जानकारी लोड हो रही है...");
 $("groupInfoModal").classList.remove("hidden");
 try{
@@ -438,7 +447,6 @@ await updateTypingDisplay();
 
 /* MESSAGES AND RECEIPTS */
 async function openChat(peerId,convId){
-history.pushState({cwmPage:"chat"},"");
 const peer=profiles.find(p=>p.id===peerId);if(!peer)return;
 stopTypingNow();activeGroup=false;activeGroupMembers=[];activeChat=peer;activeConversation=convId;
 $("chatName").textContent=displayName(peer);$("chatAvatar").innerHTML=avatarHTML(peer);$("chatSub").textContent=presenceLabel(peer.id);$("chatMessages").innerHTML="";status("chatStatus","Messages लोड हो रहे हैं...");showPage("chatPage");
@@ -449,7 +457,7 @@ const mine=m.sender_id===currentUser.id,div=document.createElement("div");div.cl
 const r=receiptCache[m.id];let ticks="";
 if(mine){if(r?.read_at)ticks='<span class="msgTicks read">✓✓</span>';else if(r?.delivered_at)ticks='<span class="msgTicks delivered">✓✓</span>';else ticks='<span class="msgTicks sent">✓</span>'}
 const sender=activeGroup&&!mine?profiles.find(p=>p.id===m.sender_id):null;
-div.innerHTML=`${sender?`<div style="font-size:11px;color:var(--deep);font-weight:bold;margin-bottom:4px">${escapeHTML(displayName(sender))}</div>`:""}<div class="msgContent">${escapeHTML(m.content)}</div><div class="msgTime" data-created="${escapeHTML(m.created_at||"")}">${timeText(m.created_at)} ${ticks}</div><div class="msgActions hidden"><button onclick="editMessage('${m.id}')" ${mine?"":"disabled"}>✏️ Edit</button><button onclick="deleteMessage('${m.id}')">🗑️ Delete</button><button onclick="forwardMessage('${m.id}')">↗️ Forward</button><button onclick="toggleStarMessage('${m.id}')">⭐ Star</button></div>`;div.addEventListener("click",()=>div.querySelector(".msgActions").classList.toggle("hidden"));div.querySelector(".msgActions").addEventListener("click",e=>e.stopPropagation());
+div.innerHTML=`${sender?`<div style="font-size:11px;color:var(--deep);font-weight:bold;margin-bottom:4px">${escapeHTML(displayName(sender))}</div>`:""}<div class="msgContent">${escapeHTML(m.content)}</div><div class="msgTime" data-created="${escapeHTML(m.created_at||"")}">${timeText(m.created_at)} ${ticks}</div><div class="msgActions hidden"><button onclick="editMessage('${m.id}')" ${mine?"":"disabled"}>✏️ Edit</button><button onclick="deleteMessage('${m.id}')">🗑️ Delete</button><button onclick="forwardMessage('${m.id}')">↗️ Forward</button></div>`;div.addEventListener("click",()=>div.querySelector(".msgActions").classList.toggle("hidden"));div.querySelector(".msgActions").addEventListener("click",e=>e.stopPropagation());
 $("chatMessages").appendChild(div);
 }
 function scrollBottom(){const el=$("chatMessages");el.scrollTop=el.scrollHeight}
@@ -504,7 +512,7 @@ activeChat=null;activeConversation=null;activeGroup=false;activeGroupMembers=[];
 }
 
 /* MY PROFILE */
-function openMyProfile(){history.pushState({cwmPage:"profile"},"");currentProfile=profiles.find(p=>p.id===currentUser.id)||currentProfile;renderMyProfile();showPage("profilePage");$("profileEditPanel").classList.add("hidden")}
+function openMyProfile(){currentProfile=profiles.find(p=>p.id===currentUser.id)||currentProfile;renderMyProfile();showPage("profilePage");$("profileEditPanel").classList.add("hidden")}
 function renderMyProfile(){const p=currentProfile||{};$("profilePhoto").innerHTML=p.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(displayName(p)));$("profileViewName").textContent=displayName(p);$("profileViewUsername").textContent=p.username?"@"+p.username:"Username सेट नहीं है";$("profileViewAbout").textContent=p.about||"About अभी नहीं लिखा"}
 function showProfileEdit(){const p=currentProfile||{};$("editName").value=p.full_name||p.name||currentUser.user_metadata?.name||"";$("editUsername").value=p.username||"";$("editAbout").value=p.about||"";$("profileEditPanel").classList.remove("hidden");status("profileStatus","")}
 function hideProfileEdit(){$("profileEditPanel").classList.add("hidden")}
@@ -520,7 +528,7 @@ if(file){if(file.size>5*1024*1024){status("profileStatus","फोटो 5 MB स
 const {data,error}=await sb.from("profiles").update({full_name:name,username:username||null,about:about||null,avatar_url}).eq("id",currentUser.id).select().single();if(error)throw error;currentProfile=data;await getProfiles();renderMyProfile();hideProfileEdit();status("profileStatus","प्रोफाइल सेव हो गई");
 }catch(e){status("profileStatus","सेव नहीं हुई: "+e.message)}
 }
-function viewUserProfile(id){history.pushState({cwmPage:"otherProfile"},"");const p=profiles.find(x=>x.id===id);if(!p)return;$("otherPhoto").innerHTML=p.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(displayName(p)));$("otherName").textContent=displayName(p);$("otherUsername").textContent=p.username?"@"+p.username:"";$("otherAbout").textContent=presenceLabel(p.id)+"\n\n"+(p.about||"About अभी नहीं लिखा");$("otherChatBtn").onclick=()=>startChat(p.id);showPage("otherProfilePage")}
+function viewUserProfile(id){const p=profiles.find(x=>x.id===id);if(!p)return;$("otherPhoto").innerHTML=p.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(displayName(p)));$("otherName").textContent=displayName(p);$("otherUsername").textContent=p.username?"@"+p.username:"";$("otherAbout").textContent=presenceLabel(p.id)+"\n\n"+(p.about||"About अभी नहीं लिखा");$("otherChatBtn").onclick=()=>startChat(p.id);showPage("otherProfilePage")}
 function openOtherProfile(){if(activeChat)viewUserProfile(activeChat.id)}
 
 /* STATUS */
@@ -529,7 +537,7 @@ async function loadStatuses(){if(!currentUser)return;const {data,error}=await sb
 async function loadMyStatusViewCounts(){statusViewsCache={};const myIds=allStatuses.filter(s=>s.user_id===currentUser.id).map(s=>s.id);if(!myIds.length)return;const {data,error}=await sb.from("status_views").select("status_id,viewer_id,viewed_at").in("status_id",myIds);if(error){console.error(error);return}(data||[]).forEach(v=>{if(!statusViewsCache[v.status_id])statusViewsCache[v.status_id]=[];if(!statusViewsCache[v.status_id].some(x=>x.viewer_id===v.viewer_id))statusViewsCache[v.status_id].push(v)})}
 function renderStatuses(){if(!currentUser)return;const mine=allStatuses.filter(s=>s.user_id===currentUser.id),others=allStatuses.filter(s=>s.user_id!==currentUser.id);$("myStatusList").innerHTML=mine.length?mine.map(s=>statusRowHTML(s,true)).join(""):'<div class="empty">अभी आपका कोई Status नहीं है।<br>＋ नया Status लगाएँ</div>';if(!others.length){$("otherStatusList").innerHTML='<div class="empty">अभी दूसरे लोगों का Status नहीं है।</div>';return}const latestByUser=new Map();others.forEach(s=>{if(!latestByUser.has(s.user_id))latestByUser.set(s.user_id,s)});$("otherStatusList").innerHTML=[...latestByUser.values()].map(s=>statusRowHTML(s,false)).join("")}
 function statusRowHTML(s,isMine){const p=profiles.find(x=>x.id===s.user_id)||{full_name:isMine?"आप":"User"};const label=isMine?"आप":displayName(p);let desc=s.content||"";if(s.media_type==="image")desc=desc||"📷 फोटो Status";else if(s.media_type==="video")desc=desc||"🎥 वीडियो Status";else if(s.media_type==="link")desc=desc||"🔗 लिंक Status";else desc=desc||"Text Status";const remaining=Math.max(0,Math.ceil((new Date(s.expires_at)-Date.now())/3600000)),count=isMine?(statusViewsCache[s.id]?.length||0):null;return `<div class="statusCard"><div class="statusRing"><div class="statusAvatar">${avatarHTML(p)}</div></div><div class="statusText"><strong>${escapeHTML(label)}</strong><small>${escapeHTML(desc.substring(0,55))}${desc.length>55?"…":""} · ${remaining} घंटे बाकी</small>${isMine?`<div class="viewCount">👁️ ${count} Views</div>`:""}</div><button class="statusAddBtn" onclick="viewStatus('${s.id}')">देखें</button>${isMine?`<button class="danger" onclick="deleteStatus('${s.id}')">🗑️</button>`:""}</div>`}
-function openStatusComposer(){history.pushState({cwmPage:"statusComposer"},"");$("statusContent").value="";$("statusFile").value="";$("statusLink").value="";$("statusDuration").value="24";status("statusComposerMsg","");$("statusComposer").classList.remove("hidden")}
+function openStatusComposer(){$("statusContent").value="";$("statusFile").value="";$("statusLink").value="";$("statusDuration").value="24";status("statusComposerMsg","");$("statusComposer").classList.remove("hidden")}
 function closeStatusComposer(){$("statusComposer").classList.add("hidden")}
 function validHttpUrl(v){try{const u=new URL(v);return u.protocol==="https:"||u.protocol==="http"}catch{return false}}
 function isDirectVideoUrl(url){return /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(url)}
@@ -562,7 +570,7 @@ const ids=[...new Set(data.map(v=>v.viewer_id))];const {data:people,error:profil
 box.innerHTML=data.map(v=>{const p=(people||[]).find(x=>x.id===v.viewer_id),name=displayName(p),avatar=p?.avatar_url?`<img src="${escapeHTML(p.avatar_url)}">`:escapeHTML(initials(name));return `<div class="viewerPerson"><div class="avatar">${avatar}</div><div><strong>${escapeHTML(name)}</strong><div class="small">${timeText(v.viewed_at)}</div></div></div>`}).join("");
 }catch(e){box.textContent="Viewers लोड नहीं हुए: "+e.message}
 }
-async function viewStatus(id){history.pushState({cwmPage:"statusViewer",tab:currentTab},"");
+async function viewStatus(id){if(navReady)history.pushState({cwmPage:navCurrent,tab:currentTab,statusViewer:true},"");
 const s=allStatuses.find(x=>x.id===id);if(!s)return;statusViewing=s;const p=profiles.find(x=>x.id===s.user_id)||{};
 $("viewerAvatar").innerHTML=avatarHTML(p);$("viewerName").textContent=s.user_id===currentUser.id?"आप":displayName(p);$("viewerTime").textContent=timeText(s.created_at);$("viewerViewsList").classList.add("hidden");$("viewerViewsList").innerHTML="";$("viewerRecordError").textContent="";
 const own=s.user_id===currentUser.id;$("viewerViewsBtn").classList.toggle("hidden",!own);
@@ -601,33 +609,27 @@ await loadStatuses();status("homeStatus","Status हटा दिया गय�
 }
 
 
-/* Menu + Settings */
-let settingsPageType=null;
-const cwmPrefsKey="cwmPrefsV1",cwmStarKey="cwmStarredV1",cwmDeleteKey="cwmDeleteRequestV1";
-function toggleHomeMenu(){$("homeMenu").classList.toggle("hidden")}
-function menuOpenPage(which){$("homeMenu").classList.add("hidden");if(which==="profile"){openMyProfile();return}settingsPageType=which;$("settingsOverlay").classList.remove("hidden");$("settingsTitle").textContent=({settings:"Settings",privacy:"Privacy",starred:"Starred Messages",about:"About Chat With Me",delete:"Delete Account"})[which]||which;renderSettingsPage();history.pushState({cwmPage:"settings",which},"")}
-function closeSettingsPage(){$("settingsOverlay").classList.add("hidden");settingsPageType=null}
-function getPrefs(){try{return JSON.parse(localStorage.getItem(cwmPrefsKey)||"{}")}catch(e){return{}}}
-function updatePref(k,v){let p=getPrefs();p[k]=v;localStorage.setItem(cwmPrefsKey,JSON.stringify(p))}
-function getStarred(){try{return JSON.parse(localStorage.getItem(cwmStarKey)||"[]")}catch(e){return[]}}
-function toggleStarMessage(id){let el=document.querySelector(`[data-message-id="${id}"]`),content=el?.querySelector(".msgContent")?.textContent||"",list=getStarred();if(list.some(x=>x.id===id)){localStorage.setItem(cwmStarKey,JSON.stringify(list.filter(x=>x.id!==id)));alert("Star हटाया");return}list.unshift({id,content,chatLabel:activeGroup?$("chatName").textContent:(activeChat?displayName(activeChat):"Chat"),starredAt:new Date().toISOString()});localStorage.setItem(cwmStarKey,JSON.stringify(list));alert("Message Starred ⭐")}
-function unstarMessage(id){localStorage.setItem(cwmStarKey,JSON.stringify(getStarred().filter(x=>x.id!==id)));renderSettingsPage()}
-function tryChooseDownloadFolder(){$("storageMsg").textContent=window.showDirectoryPicker?"Folder picker मौजूद है, लेकिन app को chosen folder में file-write integration चाहिए।":"Browser folder picker support नहीं करता; default Downloads इस्तेमाल होगा।"}
-function requestDeleteAccount(){if(!confirm("यह केवल local request सेव करेगा; अकाउंट delete नहीं होगा। जारी रखें?"))return;localStorage.setItem(cwmDeleteKey,JSON.stringify({createdAt:new Date().toLocaleString("hi-IN")}));renderSettingsPage()}
-function cancelLocalDeleteRequest(){localStorage.removeItem(cwmDeleteKey);renderSettingsPage()}
-function renderSettingsPage(){let box=$("settingsContent"),p=getPrefs();
-if(settingsPageType==="settings"){box.innerHTML=`<div class="panel"><h3>⚙️ Settings</h3><p class="small">Auto-download पसंद इस browser में सेव होगी।</p></div>${["photos","audio","videos","documents"].map(k=>`<div class="settingsItem"><label>${({photos:"📷 Photos",audio:"🎵 Audio",videos:"🎥 Videos",documents:"📄 Documents"})[k]} Auto-download <input type="checkbox" ${p[k]!==false?"checked":""} onchange="updatePref('${k}',this.checked)"></label></div>`).join("")}<div class="panel"><h3>Storage & Downloads</h3><p class="small">Downloads browser की व्यवस्था से होंगे; folder picker हर Android browser में उपलब्ध नहीं।</p><button class="secondary" onclick="tryChooseDownloadFolder()">📁 Storage Location</button><div id="storageMsg" class="status"></div></div><div class="panel"><h3>Account</h3><button class="secondary" style="width:100%" onclick="logout()">🔄 Change Account / Logout</button><p class="small">Logout के बाद दूसरे account से Login करें।</p></div>`}
-else if(settingsPageType==="privacy"){box.innerHTML=`<div class="panel"><h3>🔒 Privacy</h3><p class="small">ये local preferences हैं; server-side privacy controls के लिए database/backend changes जरूरी हैं।</p></div>${[{k:"lastSeen",t:"👁️ Last seen दिखाएँ"},{k:"online",t:"🟢 Online status दिखाएँ"},{k:"readReceipts",t:"✓✓ Read receipts"},{k:"typing",t:"⌨️ Typing indicator"}].map(o=>`<div class="settingsItem"><label>${o.t}<input type="checkbox" ${p[o.k]!==false?"checked":""} onchange="updatePref('${o.k}',this.checked)"></label></div>`).join("")}`}
-else if(settingsPageType==="starred"){let a=getStarred();box.innerHTML=`<div class="panel"><h3>⭐ Starred Messages</h3><p class="small">यह सूची इस डिवाइस पर सेव है।</p></div>`+(a.length?a.map(x=>`<div class="settingsItem"><div>${escapeHTML(x.content)}</div><small>${escapeHTML(x.chatLabel||"Chat")} · ${timeText(x.starredAt)}</small><button class="danger" onclick="unstarMessage('${x.id}')">Unstar</button></div>`).join(""):'<div class="empty">अभी Starred Message नहीं है।</div>')}
-else if(settingsPageType==="about"){box.innerHTML=`<div class="panel profileCard"><div class="profilePhoto">💬</div><h2>Chat With Me</h2><p>Connect • Chat • Share</p><p class="small">Web App · Version 1</p></div>`}
-else if(settingsPageType==="delete"){let req=localStorage.getItem(cwmDeleteKey);box.innerHTML=`<div class="panel"><h3 style="color:#bd351d">🗑️ Delete Account</h3><p>इस version में OTP, 48 घंटे pending deletion, cancel/restore और server deletion backend configured नहीं है। यह UI अकाउंट delete नहीं करेगा।</p>${req?'<p class="status">Local request saved on this device.</p>':''}<button class="danger" style="width:100%" onclick="requestDeleteAccount()">Delete Account Request (Local)</button><button class="secondary" style="width:100%;margin-top:10px" onclick="cancelLocalDeleteRequest()">Cancel Local Request</button></div>`}}
-function setupMobileBack(){history.replaceState({cwmPage:"home"},"");window.addEventListener("popstate",()=>{if(!$("statusViewer").classList.contains("hidden")){closeStatusViewer();return}if(!$("groupInfoModal").classList.contains("hidden")){closeGroupInfo();return}if(!$("groupCreateModal").classList.contains("hidden")){closeCreateGroup();return}if(!$("statusComposer").classList.contains("hidden")){closeStatusComposer();return}if(!$("homeMenu").classList.contains("hidden")){$("homeMenu").classList.add("hidden");return}if(!$("settingsOverlay").classList.contains("hidden")){closeSettingsPage();return}if(!$("chatPage").classList.contains("hidden")){backHome();return}if(!$("profilePage").classList.contains("hidden")||!$("otherProfilePage").classList.contains("hidden")){loadHome();return}if(!$("homePage").classList.contains("hidden")){showTab("chats");return}showPage("authPage")})}
+/* HEADER MENUS + QUICK SETTINGS */
+function closeHeaderMenus(){["homeDrawer","homeMoreMenu","menuBackdrop"].forEach(id=>$(id).classList.add("hidden"))}
+function toggleHomeDrawer(){const el=$("homeDrawer"),was=el.classList.contains("hidden");closeHeaderMenus();if(was){el.classList.remove("hidden");$("menuBackdrop").classList.remove("hidden")}}
+function toggleMoreMenu(){const el=$("homeMoreMenu"),was=el.classList.contains("hidden");closeHeaderMenus();if(was){el.classList.remove("hidden");$("menuBackdrop").classList.remove("hidden")}}
+function closeQuickMenu(){$("quickMenuModal").classList.add("hidden")}
+function openQuickMenu(type){const title=$("quickMenuTitle"),content=$("quickMenuContent");const prefKey="cwmMenuPrefsV1";let prefs={};try{prefs=JSON.parse(localStorage.getItem(prefKey)||"{}")}catch(e){}
+if(type==="settings"){title.textContent="⚙️ Settings";content.innerHTML=`<p>ऑटो-डाउनलोड विकल्प (इस डिवाइस पर सेव):</p>${["फोटो","ऑडियो","वीडियो","दस्तावेज़"].map(k=>`<label style="display:flex;align-items:center;gap:8px;margin:12px 0"><input type="checkbox" style="width:auto;margin:0" data-pref="${k}" ${prefs[k]!==false?"checked":""}> ${k} Auto-download</label>`).join("")}<p class="small">Storage/Download सेटिंग अभी ऐप में स्थानीय प्राथमिकताओं के रूप में हैं; वास्तविक डाउनलोड नियंत्रण बाद में जोड़ा जाएगा।</p><button class="primary" onclick="saveMenuPrefs()">सेटिंग सेव करें</button>`}
+else if(type==="privacy"){title.textContent="🔒 Privacy";content.innerHTML=`${["Last Seen","Online Status","Read Receipts","Profile Photo","Status Visibility"].map(k=>`<label style="display:flex;align-items:center;gap:8px;margin:12px 0"><input type="checkbox" style="width:auto;margin:0" data-privacy="${k}" ${prefs["privacy_"+k]!==false?"checked":""}> ${k}</label>`).join("")}<p class="small">ये विकल्प अभी इस डिवाइस पर सेव होते हैं; सर्वर पर privacy enforcement अभी लागू नहीं है।</p><button class="primary" onclick="savePrivacyPrefs()">सेव</button>`}
+else if(type==="starred"){title.textContent="⭐ Starred Messages";let stars=[];try{stars=JSON.parse(localStorage.getItem("cwmStarredV1")||"[]")}catch(e){}content.innerHTML=stars.length?stars.map((x,i)=>`<div style="padding:10px;border-bottom:1px solid #eee">${escapeHTML(x.text||"")}<div class="small">${escapeHTML(x.when||"")}</div><button class="secondary" onclick="removeStar(${i})">हटाएँ</button></div>`).join(""):`<div class="empty">अभी कोई Starred message नहीं है।</div><p class="small">संदेशों पर Star विकल्प जोड़ना/सिंक करना आगे के अपडेट में किया जाएगा।</p>`}
+else if(type==="about"){title.textContent="ℹ️ About Chat With Me";content.innerHTML=`<div style="text-align:center;padding:10px"><div style="font-size:28px">💬</div><strong>Chat With Me</strong><p>Connect • Chat • Share</p><p class="small">केसरी थीम वाला मैसेजिंग ऐप</p></div>`}
+else{title.textContent="🗑️ Delete Account";content.innerHTML=`<p style="color:#b91c1c;font-weight:bold">Account delete करने का अनुरोध</p><p>यह UI केवल सूचना देता है। अभी सुरक्षित backend deletion/OTP/48-hour प्रक्रिया सेट नहीं है, इसलिए यहां से account delete नहीं होगा।</p><button class="secondary" onclick="closeQuickMenu()">समझ गया</button>`}
+$("quickMenuModal").classList.remove("hidden")}
+function saveMenuPrefs(){const p={};document.querySelectorAll("[data-pref]").forEach(x=>p[x.dataset.pref]=x.checked);try{const old=JSON.parse(localStorage.getItem("cwmMenuPrefsV1")||"{}");localStorage.setItem("cwmMenuPrefsV1",JSON.stringify({...old,...p}))}catch(e){}closeQuickMenu();alert("Settings इस डिवाइस पर सेव हो गईं")}
+function savePrivacyPrefs(){const p={};document.querySelectorAll("[data-privacy]").forEach(x=>p["privacy_"+x.dataset.privacy]=x.checked);try{const old=JSON.parse(localStorage.getItem("cwmMenuPrefsV1")||"{}");localStorage.setItem("cwmMenuPrefsV1",JSON.stringify({...old,...p}))}catch(e){}closeQuickMenu();alert("Privacy विकल्प इस डिवाइस पर सेव हुए। सर्वर enforcement अभी नहीं है।")}
+function removeStar(i){let s=[];try{s=JSON.parse(localStorage.getItem("cwmStarredV1")||"[]")}catch(e){}s.splice(i,1);localStorage.setItem("cwmStarredV1",JSON.stringify(s));openQuickMenu("starred")}
+function setupMobileBack(){window.addEventListener("popstate",()=>{closeHeaderMenus();if(!$ ("quickMenuModal").classList.contains("hidden")){closeQuickMenu();return}if(!$ ("statusViewer").classList.contains("hidden")){closeStatusViewer();return}if(!$ ("groupInfoModal").classList.contains("hidden")){closeGroupInfo();return}if(!$ ("chatPage").classList.contains("hidden")){backHome();return}if(!$ ("profilePage").classList.contains("hidden")||!$("otherProfilePage").classList.contains("hidden")){backHome();return}if(!$ ("homePage").classList.contains("hidden")){showTab("chats");return}})}
 
 /* SESSION */
 async function checkSession(){const {data,error}=await sb.auth.getSession();if(error){status("authStatus",error.message);return}if(data.session){currentUser=data.session.user;await loadHome()}else showPage("authPage")}
 sb.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"){currentUser=null;showPage("authPage")}});
 setupMobileBack();
-document.addEventListener('click',e=>{if(!$('homeMenu').classList.contains('hidden')&&!e.target.closest('.menuPanel')&&!e.target.closest('.headerRight'))$('homeMenu').classList.add('hidden')});
 checkSession();
 </script>
 </body>
