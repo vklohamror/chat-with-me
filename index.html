@@ -544,7 +544,7 @@ const isImage=type.startsWith("image/"),isVideo=type.startsWith("video/");
 const allowed= isImage||isVideo||["application/pdf","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","text/plain","application/zip"].includes(type);
 if(!allowed){alert("यह फ़ाइल प्रकार chat-media bucket में अनुमति प्राप्त नहीं है। फोटो, वीडियो, PDF, DOC, DOCX, TXT या ZIP चुनें।");return}
 const safeName=(file.name||"attachment").normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"_").slice(-90)||"attachment";
-const path=currentUser.id+"/"+activeConversation+"/"+Date.now()+"_"+safeName;
+const path=activeConversation+"/"+currentUser.id+"/"+Date.now()+"_"+safeName;
 const action=$("composerAction");if(action)action.disabled=true;
 status("chatStatus","फ़ाइल अपलोड हो रही है…");
 try{
