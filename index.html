@@ -159,7 +159,7 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 <div class="headerRight"><button class="iconBtn homeHeaderBtn" aria-label="More options" onclick="toggleMoreMenu()">⋮</button></div>
 </div>
 <div id="homeDrawer" class="headerMenuPanel hidden">
-<button onclick="closeHeaderMenus();showTab('chats')">💬 Chats</button><button onclick="closeHeaderMenus();showTab('users')">👥 Users</button><button onclick="closeHeaderMenus();showTab('status')">🟠 Status</button><button onclick="closeHeaderMenus();showTab('groups')">👥 Groups</button><button onclick="closeHeaderMenus();showTab('calls')">📞 Calls</button><button onclick="closeHeaderMenus();openMyProfile()">👤 मेरा प्रोफाइल</button>
+<button onclick="closeHeaderMenus();openMyProfile()">👤 मेरा प्रोफाइल</button>
 </div>
 <div id="homeMoreMenu" class="headerMenuPanel hidden">
 <button onclick="closeHeaderMenus();openQuickMenu('settings')">⚙️ Settings</button><button onclick="closeHeaderMenus();openQuickMenu('privacy')">🔒 Privacy</button><button onclick="closeHeaderMenus();openQuickMenu('starred')">⭐ Starred Messages</button><button onclick="closeHeaderMenus();openQuickMenu('about')">ℹ️ About Chat With Me</button><button onclick="closeHeaderMenus();openQuickMenu('changeAccount')">🔄 Change Account</button><button onclick="closeHeaderMenus();logout()">🚪 Logout</button><button onclick="closeHeaderMenus();openQuickMenu('delete')" style="color:#b91c1c">🗑️ Delete Account</button>
@@ -167,7 +167,7 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 <div id="menuBackdrop" class="menuBackdrop hidden" onclick="closeHeaderMenus()"></div>
 <div id="quickMenuModal" class="hidden" onclick="if(event.target===this)closeQuickMenu()"><div class="quickCard"><h3 id="quickMenuTitle"></h3><div id="quickMenuContent"></div><button class="secondary" onclick="closeQuickMenu()">बंद करें</button></div></div>
 <div class="main">
-<div class="tabs"><button class="tab active" id="chatsTab" onclick="showTab('chats')">💬 Chats</button><button class="tab" id="usersTab" onclick="showTab('users')">👥 Users</button><button class="tab" id="statusTab" onclick="showTab('status')">🟠 Status</button><button class="tab" id="groupsTab" onclick="showTab('groups')">👥 Groups</button><button class="tab" id="callsTab" onclick="showTab('calls')">📞 Calls</button></div>
+<div class="tabs"><button type="button" class="tab active" id="chatsTab">💬 Chats</button><button type="button" class="tab" id="usersTab">👥 Users</button><button type="button" class="tab" id="statusTab">🟠 Status</button><button type="button" class="tab" id="groupsTab">👥 Groups</button><button type="button" class="tab" id="callsTab">📞 Calls</button></div>
 <div id="homeStatus" class="status" style="padding:0 15px"></div>
 <div id="chatsSection">
 <div class="searchBox"><input id="searchInput" placeholder="🔎 नाम या Username खोजें..." oninput="renderCurrentTab()"></div>
@@ -312,8 +312,20 @@ myChats.sort((a,b)=>new Date(b.lastMessage?.created_at||b.conversation.created_a
 async function loadHome(){if(!currentUser)return;showPage("homePage");status("homeStatus","डेटा लोड हो रहा है...");try{await getProfiles();startPresence();startReceiptRealtime();await loadPresence();await getMyChatData();await loadStatuses();status("homeStatus","");renderCurrentTab()}catch(e){status("homeStatus","लोड नहीं हुआ: "+e.message)}}
 
 /* TABS */
-function showTab(tab){if(navReady&&tab!==currentTab){history.pushState({cwmPage:navCurrent,tab},"");navTab=tab}currentTab=tab;["chats","users","status","groups","calls"].forEach(t=>{const b=$(t+"Tab"),sec=$(t+"Section");if(b)b.classList.toggle("active",tab===t);if(sec)sec.classList.toggle("hidden",tab!==t)});if(tab==="status")loadStatuses();renderCurrentTab()}
+function showTab(tab){
+const validTabs=["chats","users","status","groups","calls"];
+if(!validTabs.includes(tab))return;
+closeHeaderMenus();
+if(navReady&&tab!==currentTab){history.pushState({cwmPage:navCurrent,tab},"");navTab=tab}
+currentTab=tab;
+const sections={chats:"chatsSection",users:"usersSection",status:"statusSection",groups:"groupsSection",calls:"callsSection"};
+validTabs.forEach(t=>{const button=$(t+"Tab"),section=$(sections[t]);if(button)button.classList.toggle("active",t===tab);if(section)section.classList.toggle("hidden",t!==tab)});
+if(tab==="status")loadStatuses();
+renderCurrentTab();
+}
 function renderCurrentTab(){if(currentTab==="chats")renderChats();else if(currentTab==="groups")renderGroups();else if(currentTab==="users")renderUsers();else if(currentTab==="status")renderStatuses();else if(currentTab==="calls")renderCalls()}
+// Reliable tab click binding (header tabs are the only tab navigation)
+document.querySelectorAll(".tabs .tab").forEach(button=>button.addEventListener("click",()=>showTab(button.id.replace("Tab",""))));
 
 /* CHAT LIST */
 function renderChats(){
