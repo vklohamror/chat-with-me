@@ -91,9 +91,13 @@ input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:0 
 .typingDots span:nth-child(2){animation-delay:.15s}
 .typingDots span:nth-child(3){animation-delay:.3s}
 @keyframes typingBounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
-.chatInputBar{display:flex;gap:8px;align-items:center;padding:10px;background:white;border-top:1px solid var(--border);position:sticky;bottom:0}
-.chatInputBar input{margin:0;border-radius:25px;padding:13px}
-.sendBtn{border:0;background:var(--orange);color:white;width:48px;height:48px;border-radius:50%;font-size:20px;flex-shrink:0}
+.chatInputBar{display:flex;align-items:center;gap:8px;padding:9px 10px;background:#f7f7f7;border-top:1px solid var(--border);position:sticky;bottom:0;z-index:4}
+.composerPill{display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:#fff;border:1px solid #e8e8e8;border-radius:28px;padding:5px 9px;box-shadow:0 1px 2px #00000008}
+.composerIcon{border:0;background:transparent;color:#6c777b;font-size:23px;width:34px;height:38px;display:grid;place-items:center;flex-shrink:0;padding:0}
+.composerPill input{flex:1;min-width:0;margin:0;border:0!important;outline:none!important;box-shadow:none!important;background:transparent!important;border-radius:0!important;padding:8px 2px;font-size:16px}
+.composerSend{border:0;background:var(--orange);color:white;width:48px;height:48px;border-radius:50%;font-size:22px;flex-shrink:0;display:grid;place-items:center;box-shadow:0 2px 5px #00000020}
+.composerSend.voice{background:#E87916}.emojiPanel{display:flex;gap:7px;flex-wrap:wrap;padding:8px 12px;background:#fff;border-top:1px solid #eee}.emojiPanel button{border:0;background:#fff;font-size:24px;padding:5px;border-radius:8px}
+@media(max-width:420px){.chatInputBar{gap:6px;padding:7px 7px}.composerPill{gap:5px;padding:4px 7px}.composerIcon{width:29px;font-size:21px}.composerSend{width:46px;height:46px}}
 .profileCard{text-align:center}
 .profilePhoto{width:110px;height:110px;border-radius:50%;background:#FFE3C2;color:var(--deep);margin:10px auto;overflow:hidden;display:grid;place-items:center;font-size:40px;font-weight:bold}
 .profilePhoto img{width:100%;height:100%;object-fit:cover}
@@ -209,7 +213,7 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 <div class="header chatHeader"><button class="iconBtn back" onclick="backHome()">‹</button><div class="avatar" id="chatAvatar">?</div><div style="min-width:0;flex:1"><div class="headerTitle" id="chatName">Chat</div><div class="headerSub" id="chatSub">Chat With Me</div></div><button class="iconBtn" title="Voice Call" onclick="chatCallNotice('voice')">📞</button><button class="iconBtn" title="Video Call" onclick="chatCallNotice('video')">🎥</button><button class="iconBtn" title="Chat options" onclick="openChatOptions()">⋮</button></div>
 <div id="typingIndicator" class="typingIndicator hidden"><span id="typingName">लिख रहा है</span><span class="typingDots"><span></span><span></span><span></span></span></div>
 <div id="chatMessages" class="chatArea"></div>
-<div class="chatInputBar"><button class="iconBtn" title="Attachment" onclick="chatAttachmentNotice()">＋</button><button class="iconBtn" title="Camera" onclick="chatCameraNotice()">📷</button><input id="messageInput" placeholder="Message लिखें..." oninput="typingInput()" onkeydown="if(event.key==='Enter')sendMessage()"><button class="sendBtn" onclick="sendMessage()">➤</button></div>
+<div id="emojiPanel" class="emojiPanel hidden"><button onclick="insertEmoji('😀')">😀</button><button onclick="insertEmoji('😂')">😂</button><button onclick="insertEmoji('😍')">😍</button><button onclick="insertEmoji('🥰')">🥰</button><button onclick="insertEmoji('👍')">👍</button><button onclick="insertEmoji('🙏')">🙏</button><button onclick="insertEmoji('❤️')">❤️</button><button onclick="insertEmoji('🎉')">🎉</button><button onclick="insertEmoji('🔥')">🔥</button></div><div class="chatInputBar"><div class="composerPill"><button class="composerIcon" title="Emoji" onclick="toggleEmojiPanel()">☺</button><input id="messageInput" placeholder="Message" oninput="typingInput();syncComposer()" onkeydown="if(event.key==='Enter')sendMessage()"><button class="composerIcon" title="Attachment" onclick="chatAttachmentNotice()">📎</button><button class="composerIcon" title="Camera" onclick="chatCameraNotice()">📷</button></div><button id="composerAction" class="composerSend voice" title="Voice message" onclick="composerAction()">🎤</button></div>
 <div id="chatStatus" class="status" style="padding:0 12px"></div>
 </div>
 
@@ -470,6 +474,10 @@ closeGroupInfo();status("homeStatus","आप Group से बाहर आ ग�
 function showTyping(name){$("typingName").textContent=name||"कोई लिख रहा है";$("typingIndicator").classList.remove("hidden");if(typingHideTimer)clearTimeout(typingHideTimer);typingHideTimer=setTimeout(()=>hideTyping(),TYPING_FRESH)}
 function hideTyping(){$("typingIndicator").classList.add("hidden");if(typingHideTimer){clearTimeout(typingHideTimer);typingHideTimer=null}}
 async function typingUpsert(value){if(!currentUser||!activeConversation)return;try{const {error}=await sb.from("typing_status").upsert({conversation_id:activeConversation,user_id:currentUser.id,is_typing:value,updated_at:new Date().toISOString()},{onConflict:"conversation_id,user_id"});if(error)console.warn("Typing update:",error.message)}catch(e){console.warn(e.message)}}
+function syncComposer(){const input=$("messageInput"),btn=$("composerAction");if(!input||!btn)return;const has=input.value.trim().length>0;btn.textContent=has?"➤":"🎤";btn.classList.toggle("voice",!has);btn.title=has?"Send message":"Voice message"}
+function composerAction(){if($("messageInput").value.trim())sendMessage();else chatCallNotice("voice-message")}
+function toggleEmojiPanel(){$("emojiPanel").classList.toggle("hidden")}
+function insertEmoji(emoji){const input=$("messageInput");input.value+=emoji;input.focus();typingInput();syncComposer()}
 function typingInput(){const input=$("messageInput");if(!input||!activeConversation)return;if(!input.value.trim()){stopTypingNow();return}typingUpsert(true);if(typingDebounce)clearTimeout(typingDebounce);typingDebounce=setTimeout(()=>stopTypingNow(),TYPING_DELAY)}
 function stopTypingNow(){if(typingDebounce){clearTimeout(typingDebounce);typingDebounce=null}hideTyping();typingUpsert(false)}
 async function subscribeTyping(){
@@ -557,13 +565,13 @@ $("chatMessages").innerHTML="";messages.forEach(renderMessage);scrollBottom();st
 function subscribeMessages(){if(messageChannel){sb.removeChannel(messageChannel);messageChannel=null}messageChannel=sb.channel("chat-"+activeConversation).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"conversation_id=eq."+activeConversation},async()=>{await loadMessages();scrollBottom();await getMyChatData()}).subscribe()}
 async function sendMessage(){
 if(sending)return;const text=$("messageInput").value.trim();if(!text||!activeConversation)return;
-stopTypingNow();sending=true;$("messageInput").value="";status("chatStatus","भेज रहे हैं...");
+stopTypingNow();sending=true;$("messageInput").value="";syncComposer();$("emojiPanel").classList.add("hidden");status("chatStatus","भेज रहे हैं...");
 try{
 const {error}=await sb.from("messages").insert({conversation_id:activeConversation,sender_id:currentUser.id,content:text,message_type:"text"});
 if(error)throw error;
 await loadMessages();scrollBottom();status("chatStatus","");await getMyChatData();
 }catch(e){$("messageInput").value=text;status("chatStatus","मैसेज नहीं भेजा गया: "+e.message)}
-finally{sending=false}
+finally{sending=false;syncComposer()}
 }
 async function editMessage(id){const node=document.querySelector(`[data-message-id="${id}"]`);const messageText=node?.querySelector(".msgContent")?.textContent;if(!node||!messageText)return;const edited=prompt("मैसेज एडिट करें:",messageText);if(edited===null)return;if(!edited.trim()){alert("खाली मैसेज नहीं भेज सकते");return}const {error}=await sb.from("messages").update({content:edited.trim()}).eq("id",id).eq("sender_id",currentUser.id);if(error){alert("Edit नहीं हुआ: "+error.message);return}await loadMessages()}
 async function deleteMessage(id){if(!confirm("मैसेज डिलीट करें? (डेटाबेस अनुमति के अनुसार सभी के लिए हट सकता है)"))return;const {error}=await sb.from("messages").delete().eq("id",id);if(error){alert("डिलीट नहीं हुआ: "+error.message);return}await loadMessages()}
