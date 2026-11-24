@@ -19,6 +19,10 @@ button{cursor:pointer}
 .headerTitle{font-size:19px;font-weight:bold}
 .headerSub{font-size:12px;opacity:.95;margin-top:3px}
 .headerRight{margin-left:auto;display:flex;gap:7px}
+/* Thin centered home title bar */
+#homePage>.header{height:32px;min-height:32px;padding:0 8px;justify-content:center;gap:0;box-shadow:none}
+#homePage>.header .logo,#homePage>.header .headerSub,#homePage>.header .headerRight{display:none!important}
+#homePage>.headerTitle{font-size:15px;font-weight:700;text-align:center;width:100%;line-height:32px;}
 .iconBtn{border:0;background:#ffffff25;color:white;border-radius:12px;padding:10px;font-size:18px}
 .main{max-width:720px;margin:auto;padding-bottom:25px}
 .panel{background:white;border:1px solid var(--border);border-radius:18px;padding:18px;margin:14px;box-shadow:0 4px 15px #5b35100a}
@@ -134,8 +138,7 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 
 <div id="homePage" class="page hidden">
 <div class="header">
-<div class="logo">💬</div><div><div class="headerTitle">Chat With Me</div><div class="headerSub">Connect • Chat • Share</div></div>
-<div class="headerRight"><button class="iconBtn" onclick="loadHome()">↻</button><button class="iconBtn" onclick="openMyProfile()">👤</button><button class="iconBtn" onclick="logout()">⏻</button></div>
+<div class="headerTitle">Chat With Me</div>
 </div>
 <div class="main">
 <div class="tabs"><button class="tab active" id="chatsTab" onclick="showTab('chats')">💬 Chats</button><button class="tab" id="usersTab" onclick="showTab('users')">👥 Users</button><button class="tab" id="statusTab" onclick="showTab('status')">🟠 Status</button></div>
