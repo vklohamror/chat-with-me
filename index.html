@@ -90,6 +90,15 @@ input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:0 
 .msgTicks{display:inline-block;margin-left:5px;font-size:14px;font-weight:bold;letter-spacing:-3px;padding-right:3px}
 .msgTicks.sent,.msgTicks.delivered{color:#9B9289}
 .msgTicks.read{color:#E87916}
+/* v1.5.5: media messages without enclosing bubbles */
+.msg.mediaMessage{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;max-width:min(78%,260px)!important;width:fit-content!important;border-radius:0!important}
+.msg.mediaMessage .msgContent{background:transparent!important;padding:0!important;margin:0!important}
+.msg.mediaMessage .msgTime{font-size:10px;color:#9c826a;margin-top:4px;padding:0 2px}
+.msg.mediaMessage img,.msg.mediaMessage video{max-width:min(250px,68vw)!important;max-height:220px!important;width:auto!important;height:auto!important;aspect-ratio:auto!important;object-fit:contain;border-radius:12px!important;background:transparent!important}
+.msg.mediaMessage video{width:min(250px,68vw)!important;aspect-ratio:16/9!important;object-fit:contain!important;background:#202020!important}
+.msg.mediaMessage .msgActions{margin-top:5px}
+.msg.attachmentMsg:not(.mediaMessage){max-width:76%;padding:7px 9px}
+
 .typingIndicator{background:#fff;color:var(--deep);font-size:13px;font-weight:bold;padding:8px 15px;border-bottom:1px solid var(--border);min-height:34px}
 .typingDots{display:inline-flex;gap:3px;margin-left:5px;vertical-align:middle}
 .typingDots span{width:5px;height:5px;border-radius:50%;background:var(--orange);animation:typingBounce 1s infinite ease-in-out}
@@ -605,11 +614,11 @@ async function hydrateAttachment(m,div){
   }else{
    const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";a.textContent="📄 "+(d.name||"दस्तावेज़ खोलें");a.style.cssText="color:inherit;text-decoration:underline;overflow-wrap:anywhere";body.appendChild(a);
   }
-  const meta=document.createElement("div");meta.textContent=(d.name||"फ़ाइल")+" · "+(d.size?((d.size/1024/1024).toFixed(2)+" MB"):"");meta.style.cssText="font-size:11px;opacity:.75;margin-top:5px";body.appendChild(meta);
+  const meta=document.createElement("div");meta.textContent=(d.name||"फ़ाइल")+" · "+(d.size?((d.size/1024/1024).toFixed(2)+" MB"):"");meta.style.cssText="font-size:10px;opacity:.72;margin-top:4px;overflow-wrap:anywhere";body.appendChild(meta);
  }catch(e){body.textContent="अटैचमेंट उपलब्ध नहीं: "+(e.message||"Access error")}
 }
 function renderMessage(m){
-const mine=m.sender_id===currentUser.id,div=document.createElement("div");div.className="msg "+(mine?"mine":"theirs");if(["image","video","file"].includes(m.message_type)&&attachmentData(m))div.classList.add("attachmentMsg");div.dataset.messageId=m.id;
+const mine=m.sender_id===currentUser.id,div=document.createElement("div");div.className="msg "+(mine?"mine":"theirs");if(["image","video","file"].includes(m.message_type)&&attachmentData(m)){div.classList.add("attachmentMsg");if(["image","video"].includes(m.message_type))div.classList.add("mediaMessage");}div.dataset.messageId=m.id;
 const r=receiptCache[m.id];let ticks="";
 if(mine){if(r?.read_at)ticks='<span class="msgTicks read">✓✓</span>';else if(r?.delivered_at)ticks='<span class="msgTicks delivered">✓✓</span>';else ticks='<span class="msgTicks sent">✓</span>'}
 const sender=activeGroup&&!mine?profiles.find(p=>p.id===m.sender_id):null;
