@@ -7,45 +7,49 @@
 <title>Chat With Me</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--orange:#E87916;--deep:#C45C0B;--bg:#FFF8F0;--white:#fff;--text:#30251B;--muted:#88796B;--border:#F0E2D3;--light:#FFE8CE;--green:#16a34a}
+:root{--orange:#E87916;--deep:#C45C0B;--bg:#F7F8FA;--white:#fff;--text:#202124;--muted:#7B818A;--border:#E9EAEE;--light:#FFF0E0;--green:#16a34a}
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
 button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
 .page{min-height:100vh}
-.header{background:linear-gradient(135deg,#E87916,#C45C0B);color:white;padding:15px;display:flex;align-items:center;gap:11px;position:sticky;top:0;z-index:10;box-shadow:0 3px 12px #c45c0b22}
-.logo{width:43px;height:43px;border-radius:50%;background:#fff3e3;color:var(--deep);display:grid;place-items:center;font-size:23px;font-weight:bold}
-.headerTitle{font-size:19px;font-weight:bold}
-.headerSub{font-size:12px;opacity:.95;margin-top:3px}
-.headerRight{margin-left:auto;display:flex;gap:7px}
-.iconBtn{border:0;background:#ffffff25;color:white;border-radius:12px;padding:10px;font-size:18px}
+.header{background:#fff;color:var(--text);padding:3px 10px;height:35px;min-height:35px;display:flex;align-items:center;gap:6px;position:sticky;top:0;z-index:10;box-shadow:0 1px 0 #E9EAEE}
+.logo{display:none!important}
+.headerTitle{font-size:13px;font-weight:600;letter-spacing:.1px}
+.headerSub{display:none!important}
+#homePage>.header{justify-content:center;gap:0}
+#homePage>.header>div:not(.headerTitle){display:none!important}
+#homePage>.header .headerTitle{font-size:13px;font-weight:600;text-align:center;line-height:29px}
+#homePage>.header .headerRight{display:none!important}
+.headerRight{margin-left:auto;display:flex;gap:4px}
+.iconBtn{border:0;background:#F3F4F6;color:#444;border-radius:50%;width:34px;height:34px;padding:0;font-size:17px;display:grid;place-items:center}
 .main{max-width:720px;margin:auto;padding-bottom:25px}
-.panel{background:white;border:1px solid var(--border);border-radius:18px;padding:18px;margin:14px;box-shadow:0 4px 15px #5b35100a}
-.authWrap{max-width:440px;margin:40px auto;padding:14px}
+.panel{background:white;border:1px solid var(--border);border-radius:16px;padding:16px;margin:12px;box-shadow:0 1px 3px #00000006}
+.authWrap{max-width:440px;margin:34px auto;padding:14px}
 .authLogo{text-align:center;margin:10px auto 25px}
-.authLogo .logo{width:75px;height:75px;font-size:36px;margin:auto;background:var(--orange);color:white}
+.authLogo .logo{display:grid!important;width:65px;height:65px;font-size:30px;margin:auto;background:var(--orange);color:white}
 .authLogo h1{margin:12px 0 5px}
 .authLogo p{color:var(--muted);margin:0}
 input,textarea,select{width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);outline:none;background:white;font-size:15px;margin:6px 0}
 textarea{resize:vertical;min-height:90px}
 input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:0 0 0 3px #e8791618}
-.primary{border:0;border-radius:12px;padding:14px;background:var(--orange);color:white;font-weight:bold;width:100%;margin-top:10px}
+.primary{border:0;border-radius:12px;padding:13px;background:var(--orange);color:white;font-weight:600;width:100%;margin-top:10px}
 .primary:active{background:var(--deep)}
 .secondary{border:1px solid var(--border);background:white;color:var(--deep);border-radius:12px;padding:11px}
 .danger{border:0;background:#fff0eb;color:#bd351d;border-radius:12px;padding:12px}
 .status{font-size:13px;margin:10px 0;color:var(--deep);white-space:pre-wrap}
 .authToggle{text-align:center;margin-top:15px;color:var(--muted)}
 .authToggle button{border:0;background:none;color:var(--deep);font-weight:bold}
-.tabs{display:flex;gap:7px;padding:12px;flex-wrap:wrap}
-.tab{flex:1;min-width:75px;padding:11px 6px;border:1px solid var(--border);background:white;border-radius:12px;color:var(--deep);font-weight:bold}
-.tab.active{background:var(--orange);color:white;border-color:var(--orange)}
-.searchBox{padding:12px 14px 0}
-.searchBox input{background:#fff9f3}
-.sectionTitle{font-weight:bold;color:var(--deep);padding:15px 16px 8px;display:flex;align-items:center;justify-content:space-between}
-.userRow{display:flex;align-items:center;gap:12px;padding:12px 15px;border-bottom:1px solid #f7eee5;cursor:pointer;background:white}
-.userRow:hover{background:#fffaf5}
-.avatar{width:48px;height:48px;flex-shrink:0;border-radius:50%;background:#FFE3C2;color:var(--deep);display:grid;place-items:center;font-weight:bold;font-size:18px;overflow:hidden}
+.tabs{display:flex;gap:7px;padding:10px 12px 7px;flex-wrap:nowrap}
+.tab{flex:1;min-width:65px;padding:9px 6px;border:0;background:transparent;border-radius:20px;color:#656B73;font-weight:600;font-size:13px}
+.tab.active{background:#FFF0E0;color:var(--deep);border:0}
+.searchBox{padding:8px 14px 0}
+.searchBox input{background:#F1F3F5;border:1px solid transparent;border-radius:24px;padding:12px 15px;margin:0}
+.sectionTitle{font-weight:600;color:var(--text);padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between;font-size:14px}
+.userRow{display:flex;align-items:center;gap:12px;padding:12px 15px;border-bottom:1px solid #F0F1F3;cursor:pointer;background:white}
+.userRow:hover{background:#F9FAFB}
+.avatar{width:46px;height:46px;flex-shrink:0;border-radius:50%;background:#FFF0E0;color:var(--deep);display:grid;place-items:center;font-weight:bold;font-size:18px;overflow:hidden}
 .avatar img{width:100%;height:100%;object-fit:cover}
 .userInfo{flex:1;min-width:0}
 .userName{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -55,6 +59,9 @@ input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:0 
 .onlineText{color:var(--green)!important;font-weight:bold}
 .offlineText{color:var(--muted)!important}
 .empty{text-align:center;padding:35px 20px;color:var(--muted)}
+#chatsSection>div[style*="padding:0 14px"]{padding:0 14px!important}
+#chatsSection>div[style*="padding:0 14px"] .primary{margin:4px 0 8px;border-radius:10px;font-size:14px}
+@media(max-width:420px){.tabs{gap:3px;padding-left:8px;padding-right:8px}.tab{font-size:12px;padding:9px 3px}.userRow{padding:11px 12px}.sectionTitle{padding-left:13px;padding-right:13px}}
 .chatHeader .back{font-size:23px}
 .chatArea{height:calc(100dvh - 190px);min-height:280px;overflow-y:auto;padding:15px;background:linear-gradient(#fff8f0e8,#fff8f0e8)}
 .msg{max-width:82%;padding:10px 12px;margin:8px 0;border-radius:15px;word-break:break-word;box-shadow:0 1px 3px #00000008}
@@ -113,7 +120,6 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 .groupActions{display:flex;gap:8px;flex-wrap:wrap}
 .groupActions button{flex:1}
 @media(min-width:700px){.panel{margin:20px}.authWrap{margin-top:60px}}
-.msgActions{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.msgActions button,.reactionBtn{border:0;background:#ffffff9c;color:#8a4b16;border-radius:8px;padding:5px 7px;font-size:12px}.msgReplyQuote{border-left:3px solid var(--orange);background:#fff6e9;padding:6px 8px;margin-bottom:6px;border-radius:6px;font-size:12px;color:#76502d}.msgMedia{max-width:100%;max-height:260px;border-radius:10px;display:block;margin:5px 0;object-fit:contain}.msgReactions{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}.chatTools{display:flex;gap:6px;padding:7px 10px;background:white;border-top:1px solid var(--border)}.chatTools input{margin:0;padding:9px;font-size:13px}.replyBar{display:flex;align-items:center;gap:8px;background:#fff4e6;border-top:1px solid #f4d6b5;padding:8px 12px}.replyBar .replyText{flex:1;font-size:12px;color:#85511f;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.replyBar button{border:0;background:transparent;color:#9b5615;font-size:18px}.chatInputBar .attachBtn{border:0;background:#fff0dc;color:var(--deep);border-radius:50%;width:43px;height:43px;font-size:20px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -172,10 +178,8 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 <div id="chatPage" class="page hidden">
 <div class="header chatHeader"><button class="iconBtn back" onclick="backHome()">‹</button><div class="avatar" id="chatAvatar">?</div><div style="min-width:0;flex:1"><div class="headerTitle" id="chatName">Chat</div><div class="headerSub" id="chatSub">Chat With Me</div></div><button class="iconBtn" onclick="openChatInfo()">ⓘ</button></div>
 <div id="typingIndicator" class="typingIndicator hidden"><span id="typingName">लिख रहा है</span><span class="typingDots"><span></span><span></span><span></span></span></div>
-<div class="chatTools"><input id="messageSearch" placeholder="🔎 इस चैट में मैसेज खोजें..." oninput="filterMessages()"><button class="secondary" onclick="clearMessageSearch()">✕</button></div>
 <div id="chatMessages" class="chatArea"></div>
-<div id="replyBar" class="replyBar hidden"><span id="replyPreview" class="replyText"></span><button onclick="cancelReply()">✕</button></div>
-<div class="chatInputBar"><input type="file" id="mediaFile" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.txt,.zip" onchange="sendMediaFile()"><button class="attachBtn" onclick="$('mediaFile').click()" title="फोटो/फ़ाइल">＋</button><input id="messageInput" placeholder="Message लिखें..." oninput="typingInput()" onkeydown="if(event.key==='Enter')sendMessage()"><button class="sendBtn" onclick="sendMessage()">➤</button></div>
+<div class="chatInputBar"><input id="messageInput" placeholder="Message लिखें..." oninput="typingInput()" onkeydown="if(event.key==='Enter')sendMessage()"><button class="sendBtn" onclick="sendMessage()">➤</button></div>
 <div id="chatStatus" class="status" style="padding:0 12px"></div>
 </div>
 
@@ -224,7 +228,6 @@ let presenceChannel=null,presenceHeartbeat=null,presenceCache={};
 let receiptCache={},receiptChannel=null,deliveryChannel=null;
 let typingChannel=null,typingDebounce=null,typingHideTimer=null;
 let activeGroup=false,activeGroupMembers=[],groupChoiceIds=new Set(),groupInfoData=null;
-let loadedMessages=[],replyToMessage=null,editingMessageId=null,messageReactions={},mediaSignedUrls={};
 const TYPING_DELAY=4000,TYPING_FRESH=5000,PRESENCE_INTERVAL=30000,PRESENCE_TIMEOUT=75000;
 
 function $(id){return document.getElementById(id)}
@@ -428,19 +431,11 @@ await loadMessages();subscribeMessages();subscribeTyping();$("messageInput").foc
 }
 function renderMessage(m){
 const mine=m.sender_id===currentUser.id,div=document.createElement("div");div.className="msg "+(mine?"mine":"theirs");div.dataset.messageId=m.id;
-const r=receiptCache[m.id];let ticks="";if(mine){if(r?.read_at)ticks='<span class="msgTicks read">✓✓</span>';else if(r?.delivered_at)ticks='<span class="msgTicks delivered">✓✓</span>';else ticks='<span class="msgTicks sent">✓</span>'}
+const r=receiptCache[m.id];let ticks="";
+if(mine){if(r?.read_at)ticks='<span class="msgTicks read">✓✓</span>';else if(r?.delivered_at)ticks='<span class="msgTicks delivered">✓✓</span>';else ticks='<span class="msgTicks sent">✓</span>'}
 const sender=activeGroup&&!mine?profiles.find(p=>p.id===m.sender_id):null;
-const parent=m.reply_to?loadedMessages.find(x=>String(x.id)===String(m.reply_to)):null;
-const quote=parent?`<div class="msgReplyQuote"><b>${escapeHTML(parent.sender_id===currentUser.id?"आप":displayName(profiles.find(x=>x.id===parent.sender_id)||{}))}</b><br>${escapeHTML(parent.content||parent.media_name||"Media")}</div>`:"";
-let body=escapeHTML(m.content||"");
-if(m.media_url){const url=m.media_url.startsWith("http")?m.media_url:(mediaSignedUrls[m.media_url]||"");const mt=m.media_type||"";
-if(mt.startsWith("image"))body+=`<a href="${escapeHTML(url)}" target="_blank"><img class="msgMedia" src="${escapeHTML(url)}" alt="फोटो"></a>`;
-else if(mt.startsWith("video"))body+=`<video class="msgMedia" controls src="${escapeHTML(url)}"></video>`;
-else body+=`<a href="${escapeHTML(url)}" target="_blank" rel="noopener">📎 ${escapeHTML(m.media_name||"फ़ाइल खोलें")}</a>`;}
-const reactions=messageReactions[m.id]||[];const reactHtml=reactions.length?`<div class="msgReactions">${reactions.map(x=>`<button class="reactionBtn" onclick="toggleReaction('${m.id}','${x.emoji}')">${escapeHTML(x.emoji)} ${x.count||1}</button>`).join("")}</div>`:"";
-const actions=`<div class="msgActions"><button onclick="setReply('${m.id}')">↩ Reply</button>${mine?`<button onclick="editMessage('${m.id}')">✏️ Edit</button><button onclick="deleteMessage('${m.id}')">🗑 Delete</button>`:""}<button onclick="toggleReaction('${m.id}','❤️')">❤️</button><button onclick="toggleReaction('${m.id}','👍')">👍</button><button onclick="toggleReaction('${m.id}','😂')">😂</button><button onclick="toggleReaction('${m.id}','😮')">😮</button></div>`;
-div.innerHTML=`${sender?`<div style="font-size:11px;color:var(--deep);font-weight:bold;margin-bottom:4px">${escapeHTML(displayName(sender))}</div>`:""}${quote}<div class="msgContent">${body}</div><div class="msgTime" data-created="${escapeHTML(m.created_at||"")}">${timeText(m.created_at)} ${m.edited_at?"· Edited":""} ${ticks}</div>${reactHtml}${actions}`;
-const query=$("messageSearch")?.value.trim().toLowerCase()||"";if(query&&!String(m.content||"").toLowerCase().includes(query))div.classList.add("hidden");$("chatMessages").appendChild(div);
+div.innerHTML=`${sender?`<div style="font-size:11px;color:var(--deep);font-weight:bold;margin-bottom:4px">${escapeHTML(displayName(sender))}</div>`:""}<div>${escapeHTML(m.content)}</div><div class="msgTime" data-created="${escapeHTML(m.created_at||"")}">${timeText(m.created_at)} ${ticks}</div>`;
+$("chatMessages").appendChild(div);
 }
 function scrollBottom(){const el=$("chatMessages");el.scrollTop=el.scrollHeight}
 async function loadReceipts(messages){receiptCache={};const ids=(messages||[]).filter(m=>m.sender_id===currentUser.id).map(m=>m.id);if(!ids.length)return;const {data,error}=await sb.from("message_receipts").select("message_id,delivered_at,read_at").in("message_id",ids);if(error){console.warn("Receipt load:",error.message);return}(data||[]).forEach(r=>{const old=receiptCache[r.message_id]||{};receiptCache[r.message_id]={delivered_at:old.delivered_at||r.delivered_at,read_at:old.read_at||r.read_at}})}
@@ -465,7 +460,7 @@ async function loadMessages(){
 if(!activeConversation)return;
 const {data,error}=await sb.from("messages").select("*").eq("conversation_id",activeConversation).order("created_at",{ascending:true});
 if(error){status("chatStatus","Messages लोड नहीं हुए: "+error.message);return}
-const messages=data||[];loadedMessages=messages;mediaSignedUrls={};for(const m of messages){if(m.media_url&&!m.media_url.startsWith("http")){try{const {data:sd}=await sb.storage.from("chat-media").createSignedUrl(m.media_url,3600);if(sd?.signedUrl)mediaSignedUrls[m.media_url]=sd.signedUrl}catch(e){console.warn("Media link",e.message)}}}await loadReceipts(messages);messageReactions={};try{const {data:rx}=await sb.from("message_reactions").select("message_id,emoji,user_id").in("message_id",messages.map(m=>m.id));(rx||[]).forEach(a=>{const arr=messageReactions[a.message_id]||(messageReactions[a.message_id]=[]);let item=arr.find(x=>x.emoji===a.emoji);if(!item){item={emoji:a.emoji,count:0};arr.push(item)}item.count++})}catch(e){console.warn("Reactions migration required",e.message)}
+const messages=data||[];await loadReceipts(messages);
 for(const m of messages){if(m.sender_id!==currentUser.id)await saveRead(m.id)}
 $("chatMessages").innerHTML="";messages.forEach(renderMessage);scrollBottom();status("chatStatus","");
 }
@@ -474,20 +469,12 @@ async function sendMessage(){
 if(sending)return;const text=$("messageInput").value.trim();if(!text||!activeConversation)return;
 stopTypingNow();sending=true;$("messageInput").value="";status("chatStatus","भेज रहे हैं...");
 try{
-const payload={conversation_id:activeConversation,sender_id:currentUser.id,content:text,message_type:"text"};if(replyToMessage)payload.reply_to=replyToMessage.id;const {error}=await sb.from("messages").insert(payload);
+const {error}=await sb.from("messages").insert({conversation_id:activeConversation,sender_id:currentUser.id,content:text,message_type:"text"});
 if(error)throw error;
-replyToMessage=null;cancelReply();editingMessageId=null;await loadMessages();scrollBottom();status("chatStatus","");await getMyChatData();
+await loadMessages();scrollBottom();status("chatStatus","");await getMyChatData();
 }catch(e){$("messageInput").value=text;status("chatStatus","मैसेज नहीं भेजा गया: "+e.message)}
 finally{sending=false}
 }
-function setReply(id){const m=loadedMessages.find(x=>String(x.id)===String(id));if(!m)return;replyToMessage=m;$("replyPreview").textContent="Reply: "+(m.content||m.media_name||"Media");$("replyBar").classList.remove("hidden");$("messageInput").focus()}
-function cancelReply(){replyToMessage=null;$("replyBar")?.classList.add("hidden")}
-function filterMessages(){const q=$("messageSearch").value.trim().toLowerCase();document.querySelectorAll("#chatMessages .msg").forEach(el=>{const m=loadedMessages.find(x=>String(x.id)===el.dataset.messageId);el.classList.toggle("hidden",!!q&&!String(m?.content||"").toLowerCase().includes(q))})}
-function clearMessageSearch(){$("messageSearch").value="";filterMessages()}
-async function editMessage(id){const m=loadedMessages.find(x=>String(x.id)===String(id));if(!m||m.sender_id!==currentUser.id)return;const edited=prompt("मैसेज एडिट करें:",m.content||"");if(edited===null)return;if(!edited.trim()){alert("खाली मैसेज सेव नहीं होगा");return}const {error}=await sb.from("messages").update({content:edited.trim(),edited_at:new Date().toISOString()}).eq("id",id).eq("sender_id",currentUser.id);if(error){alert("Edit नहीं हुआ: "+error.message);return}await loadMessages()}
-async function deleteMessage(id){if(!confirm("क्या यह मैसेज हटाएँ?"))return;const {error}=await sb.from("messages").delete().eq("id",id).eq("sender_id",currentUser.id);if(error){alert("Delete नहीं हुआ: "+error.message);return}await loadMessages()}
-async function toggleReaction(messageId,emoji){if(!currentUser)return;const {data:existing,error:lookup}=await sb.from("message_reactions").select("id").eq("message_id",messageId).eq("user_id",currentUser.id).eq("emoji",emoji).maybeSingle();if(lookup){alert("Reaction सुविधा के लिए SQL सेटअप करें: "+lookup.message);return}if(existing){const {error}=await sb.from("message_reactions").delete().eq("id",existing.id);if(error)alert(error.message)}else{const {error}=await sb.from("message_reactions").insert({message_id:messageId,user_id:currentUser.id,emoji});if(error)alert(error.message)}await loadMessages()}
-async function sendMediaFile(){const file=$("mediaFile").files?.[0];if(!file||!activeConversation)return;const limit=file.type.startsWith("video/")?40*1024*1024:15*1024*1024;if(file.size>limit){alert("चुनी फ़ाइल बड़ी है। वीडियो 40 MB और अन्य फ़ाइल 15 MB तक रखें।");$("mediaFile").value="";return}status("chatStatus","फ़ाइल अपलोड हो रही है...");try{const ext=(file.name.split(".").pop()||"file").toLowerCase().replace(/[^a-z0-9]/g,""),path=currentUser.id+"/"+activeConversation+"/"+Date.now()+"."+ext;const {error:up}=await sb.storage.from("chat-media").upload(path,file,{upsert:false,contentType:file.type||"application/octet-stream"});if(up)throw up;const type=file.type.startsWith("image/")?"image":file.type.startsWith("video/")?"video":"file";const payload={conversation_id:activeConversation,sender_id:currentUser.id,content:"",message_type:type,media_url:path,media_name:file.name,media_type:type};if(replyToMessage)payload.reply_to=replyToMessage.id;const {error}=await sb.from("messages").insert(payload);if(error)throw error;cancelReply();await loadMessages();scrollBottom();status("chatStatus","")}catch(e){status("chatStatus","फ़ाइल नहीं भेजी: "+e.message)}finally{$("mediaFile").value=""}}
 function startReceiptRealtime(){
 if(!currentUser)return;if(deliveryChannel)sb.removeChannel(deliveryChannel);if(receiptChannel)sb.removeChannel(receiptChannel);
 deliveryChannel=sb.channel("delivery-"+currentUser.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},async payload=>{const m=payload.new;if(!m||m.sender_id===currentUser.id)return;const {data:mine}=await sb.from("conversation_members").select("conversation_id").eq("conversation_id",m.conversation_id).eq("user_id",currentUser.id).maybeSingle();if(!mine)return;await saveDelivered(m.id);if(activeConversation===m.conversation_id)await saveRead(m.id)}).subscribe();
