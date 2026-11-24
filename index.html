@@ -19,10 +19,6 @@ button{cursor:pointer}
 .headerTitle{font-size:19px;font-weight:bold}
 .headerSub{font-size:12px;opacity:.95;margin-top:3px}
 .headerRight{margin-left:auto;display:flex;gap:7px}
-/* Thin centered home title bar */
-#homePage>.header{height:32px;min-height:32px;padding:0 8px;justify-content:center;gap:0;box-shadow:none}
-#homePage>.header .logo,#homePage>.header .headerSub,#homePage>.header .headerRight{display:none!important}
-#homePage>.headerTitle{font-size:15px;font-weight:700;text-align:center;width:100%;line-height:32px;}
 .iconBtn{border:0;background:#ffffff25;color:white;border-radius:12px;padding:10px;font-size:18px}
 .main{max-width:720px;margin:auto;padding-bottom:25px}
 .panel{background:white;border:1px solid var(--border);border-radius:18px;padding:18px;margin:14px;box-shadow:0 4px 15px #5b35100a}
@@ -117,6 +113,7 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 .groupActions{display:flex;gap:8px;flex-wrap:wrap}
 .groupActions button{flex:1}
 @media(min-width:700px){.panel{margin:20px}.authWrap{margin-top:60px}}
+.msgActions{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.msgActions button,.reactionBtn{border:0;background:#ffffff9c;color:#8a4b16;border-radius:8px;padding:5px 7px;font-size:12px}.msgReplyQuote{border-left:3px solid var(--orange);background:#fff6e9;padding:6px 8px;margin-bottom:6px;border-radius:6px;font-size:12px;color:#76502d}.msgMedia{max-width:100%;max-height:260px;border-radius:10px;display:block;margin:5px 0;object-fit:contain}.msgReactions{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}.chatTools{display:flex;gap:6px;padding:7px 10px;background:white;border-top:1px solid var(--border)}.chatTools input{margin:0;padding:9px;font-size:13px}.replyBar{display:flex;align-items:center;gap:8px;background:#fff4e6;border-top:1px solid #f4d6b5;padding:8px 12px}.replyBar .replyText{flex:1;font-size:12px;color:#85511f;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.replyBar button{border:0;background:transparent;color:#9b5615;font-size:18px}.chatInputBar .attachBtn{border:0;background:#fff0dc;color:var(--deep);border-radius:50%;width:43px;height:43px;font-size:20px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -138,7 +135,8 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 
 <div id="homePage" class="page hidden">
 <div class="header">
-<div class="headerTitle">Chat With Me</div>
+<div class="logo">💬</div><div><div class="headerTitle">Chat With Me</div><div class="headerSub">Connect • Chat • Share</div></div>
+<div class="headerRight"><button class="iconBtn" onclick="loadHome()">↻</button><button class="iconBtn" onclick="openMyProfile()">👤</button><button class="iconBtn" onclick="logout()">⏻</button></div>
 </div>
 <div class="main">
 <div class="tabs"><button class="tab active" id="chatsTab" onclick="showTab('chats')">💬 Chats</button><button class="tab" id="usersTab" onclick="showTab('users')">👥 Users</button><button class="tab" id="statusTab" onclick="showTab('status')">🟠 Status</button></div>
@@ -172,10 +170,12 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 </div>
 
 <div id="chatPage" class="page hidden">
-<div class="header chatHeader"><button class="iconBtn back" onclick="backHome()">‹</button><div class="avatar" id="chatAvatar">?</div><div style="min-width:0;flex:1"><div class="headerTitle" id="chatName" onclick="if(activeGroup)showGroupInfo()">Chat</div><div class="headerSub" id="chatSub">Chat With Me</div></div><button class="iconBtn" onclick="openChatInfo()">ⓘ</button></div>
+<div class="header chatHeader"><button class="iconBtn back" onclick="backHome()">‹</button><div class="avatar" id="chatAvatar">?</div><div style="min-width:0;flex:1"><div class="headerTitle" id="chatName">Chat</div><div class="headerSub" id="chatSub">Chat With Me</div></div><button class="iconBtn" onclick="openChatInfo()">ⓘ</button></div>
 <div id="typingIndicator" class="typingIndicator hidden"><span id="typingName">लिख रहा है</span><span class="typingDots"><span></span><span></span><span></span></span></div>
+<div class="chatTools"><input id="messageSearch" placeholder="🔎 इस चैट में मैसेज खोजें..." oninput="filterMessages()"><button class="secondary" onclick="clearMessageSearch()">✕</button></div>
 <div id="chatMessages" class="chatArea"></div>
-<div class="chatInputBar"><input id="messageInput" placeholder="Message लिखें..." oninput="typingInput()" onkeydown="if(event.key==='Enter')sendMessage()"><button class="sendBtn" onclick="sendMessage()">➤</button></div>
+<div id="replyBar" class="replyBar hidden"><span id="replyPreview" class="replyText"></span><button onclick="cancelReply()">✕</button></div>
+<div class="chatInputBar"><input type="file" id="mediaFile" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.txt,.zip" onchange="sendMediaFile()"><button class="attachBtn" onclick="$('mediaFile').click()" title="फोटो/फ़ाइल">＋</button><input id="messageInput" placeholder="Message लिखें..." oninput="typingInput()" onkeydown="if(event.key==='Enter')sendMessage()"><button class="sendBtn" onclick="sendMessage()">➤</button></div>
 <div id="chatStatus" class="status" style="padding:0 12px"></div>
 </div>
 
@@ -224,6 +224,7 @@ let presenceChannel=null,presenceHeartbeat=null,presenceCache={};
 let receiptCache={},receiptChannel=null,deliveryChannel=null;
 let typingChannel=null,typingDebounce=null,typingHideTimer=null;
 let activeGroup=false,activeGroupMembers=[],groupChoiceIds=new Set(),groupInfoData=null;
+let loadedMessages=[],replyToMessage=null,editingMessageId=null,messageReactions={},mediaSignedUrls={};
 const TYPING_DELAY=4000,TYPING_FRESH=5000,PRESENCE_INTERVAL=30000,PRESENCE_TIMEOUT=75000;
 
 function $(id){return document.getElementById(id)}
@@ -282,7 +283,7 @@ myChats.push({conversation:conv,peer,isGroup:false,lastMessage:latest?.[0]||null
 }
 myChats.sort((a,b)=>new Date(b.lastMessage?.created_at||b.conversation.created_at||0)-new Date(a.lastMessage?.created_at||a.conversation.created_at||0));
 }
-async function loadHome(){if(!currentUser)return;showPage("homePage");status("homeStatus","डेटा लोड हो रहा है...");try{await getProfiles();startPresence();await loadPresence();await getMyChatData();await loadStatuses();status("homeStatus","");renderCurrentTab()}catch(e){status("homeStatus","लोड नहीं हुआ: "+e.message)}}
+async function loadHome(){if(!currentUser)return;showPage("homePage");status("homeStatus","डेटा लोड हो रहा है...");try{await getProfiles();startPresence();startReceiptRealtime();await loadPresence();await getMyChatData();await loadStatuses();status("homeStatus","");renderCurrentTab()}catch(e){status("homeStatus","लोड नहीं हुआ: "+e.message)}}
 
 /* TABS */
 function showTab(tab){currentTab=tab;$("chatsTab").classList.toggle("active",tab==="chats");$("usersTab").classList.toggle("active",tab==="users");$("statusTab").classList.toggle("active",tab==="status");$("chatsSection").classList.toggle("hidden",tab!=="chats");$("usersSection").classList.toggle("hidden",tab!=="users");$("statusSection").classList.toggle("hidden",tab!=="status");if(tab==="status")loadStatuses();renderCurrentTab()}
@@ -342,76 +343,159 @@ finally{$("createGroupBtn").disabled=false}
 }
 
 /* GROUP OPEN AND INFO */
-function myGroupRole(){return activeGroupMembers.find(m=>m.user_id===currentUser.id)?.role||"member"}
-function isGroupAdmin(){return myGroupRole()==="admin"}
-function groupAvatarHTML(conv){return conv?.group_avatar_url?`<img src="${escapeHTML(conv.group_avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:"👥"}
 async function openGroupChat(convId){
 try{
 status("homeStatus","Group खोल रहे हैं...");
 const {data:conv,error}=await sb.from("conversations").select("*").eq("id",convId).single();if(error)throw error;
 const {data:members,error:me}=await sb.from("conversation_members").select("user_id,role,joined_at").eq("conversation_id",convId);if(me)throw me;
-if(!(members||[]).some(m=>m.user_id===currentUser.id))throw new Error("आप इस Group के Member नहीं हैं");
 activeGroup=true;activeConversation=convId;activeChat=null;activeGroupMembers=members||[];
-$("chatName").textContent=conv.title||"Group Chat";$("chatAvatar").innerHTML=groupAvatarHTML(conv);$("chatSub").textContent=activeGroupMembers.length+" Members • "+(isGroupAdmin()?"Admin":"Member");
+$("chatName").textContent=conv.title||"Group Chat";$("chatAvatar").textContent="👥";$("chatSub").textContent=activeGroupMembers.length+" Members";
 $("chatMessages").innerHTML="";status("chatStatus","Messages लोड हो रहे हैं...");showPage("chatPage");
 await loadMessages();subscribeMessages();subscribeTyping();$("messageInput").focus();
 }catch(e){status("homeStatus","Group नहीं खुला: "+e.message)}
 }
-async function openChatInfo(){if(activeGroup){await showGroupInfo();return}if(activeChat)openOtherProfile()}
+async function openChatInfo(){
+if(activeGroup){await showGroupInfo();return}
+if(activeChat)openOtherProfile();
+}
 async function showGroupInfo(){
 if(!activeGroup||!activeConversation)return;
-status("groupInfoStatus","Group जानकारी लोड हो रही है...");$("groupInfoModal").classList.remove("hidden");
+status("groupInfoStatus","Group जानकारी लोड हो रही है...");
+$("groupInfoModal").classList.remove("hidden");
 try{
 const {data:conv,error}=await sb.from("conversations").select("*").eq("id",activeConversation).single();if(error)throw error;
 const {data:members,error:me}=await sb.from("conversation_members").select("user_id,role,joined_at").eq("conversation_id",activeConversation);if(me)throw me;
-if(!(members||[]).some(m=>m.user_id===currentUser.id))throw new Error("आप इस Group के Member नहीं हैं");
-groupInfoData={conversation:conv,members:members||[]};activeGroupMembers=members||[];const admin=isGroupAdmin();
+groupInfoData={conversation:conv,members:members||[]};activeGroupMembers=members||[];
+const creator=conv.created_by===currentUser.id;
 const memberHtml=(members||[]).map(m=>{
 const p=profiles.find(x=>x.id===m.user_id)||{full_name:"User"};
-return `<div class="groupMember"><div class="avatar" onclick="closeGroupInfo();viewUserProfile('${m.user_id}')">${avatarHTML(p)}</div><div style="flex:1;min-width:0" onclick="closeGroupInfo();viewUserProfile('${m.user_id}')"><strong>${escapeHTML(displayName(p))}</strong><div class="small">${escapeHTML(p.username?"@"+p.username:"प्रोफाइल देखें")}${m.user_id===currentUser.id?" • आप":""}</div></div><span class="small">${m.role==="admin"?"👑 Admin":"Member"}</span>${admin&&m.role!=="admin"?`<button class="secondary" onclick="makeGroupAdmin('${m.user_id}')">Make Admin</button>`:""}</div>`;
+return `<div class="groupMember"><div class="avatar">${avatarHTML(p)}</div><div style="flex:1"><strong>${escapeHTML(displayName(p))}</strong><div class="small">${m.user_id===currentUser.id?"आप":""}</div></div><span class="small">${m.role==="admin"?"👑 Admin":"Member"}</span></div>`;
 }).join("");
-const nonMembers=profiles.filter(p=>!(members||[]).some(m=>m.user_id===p.id));
 $("groupInfoContent").innerHTML=`
-<div class="profileCard"><div class="avatar" style="width:76px;height:76px;margin:10px auto;font-size:28px" onclick="viewGroupPhoto()">${groupAvatarHTML(conv)}</div><h3>${escapeHTML(conv.title||"Group")}</h3><div class="small">${escapeHTML(conv.group_description||"कोई विवरण नहीं")}</div><div class="small" style="margin-top:8px">👥 कुल ${members.length} Members</div></div>
-${admin?`<div class="panel" style="margin:10px 0;padding:12px"><label class="formLabel">Group का नाम बदलें</label><input id="editGroupName" maxlength="60" value="${escapeHTML(conv.title||"")}"><label class="formLabel">Description बदलें</label><textarea id="editGroupDescription" maxlength="300">${escapeHTML(conv.group_description||"")}</textarea><label class="formLabel">Group Photo बदलें</label><input id="groupPhotoFile" type="file" accept="image/*"><button class="primary" onclick="saveGroupInfo()">💾 बदलाव सेव करें</button><hr><strong>नए Members जोड़ें</strong><div id="addMemberChoices">${nonMembers.length?nonMembers.map(p=>`<label class="groupMember"><input class="memberCheck addMemberCheck" type="checkbox" value="${p.id}"><div class="avatar">${avatarHTML(p)}</div><div><strong>${escapeHTML(displayName(p))}</strong><div class="small">${escapeHTML(p.username?"@"+p.username:"")}</div></div></label>`).join(""):"<div class='small'>सभी Users पहले से Group में हैं</div>"}</div><button class="primary" onclick="addGroupMembers()" ${nonMembers.length?"":"disabled"}>＋ Members जोड़ें</button></div>`:""}
-<hr><strong>Group Members (${members.length})</strong>${memberHtml}`;
-$("chatAvatar").innerHTML=groupAvatarHTML(conv);$("chatSub").textContent=members.length+" Members • "+(admin?"Admin":"Member");status("groupInfoStatus","");
+<div class="profileCard"><div class="avatar" style="width:70px;height:70px;margin:10px auto;font-size:28px">👥</div><h3>${escapeHTML(conv.title||"Group")}</h3><div class="small">${escapeHTML(conv.group_description||"कोई विवरण नहीं")}</div><div class="small" style="margin-top:8px">${members.length} Members</div></div>
+${creator?`<label class="formLabel">Group का नाम बदलें</label><input id="editGroupName" maxlength="60" value="${escapeHTML(conv.title||"")}"><label class="formLabel">Group विवरण</label><textarea id="editGroupDescription" maxlength="300">${escapeHTML(conv.group_description||"")}</textarea><button class="primary" onclick="saveGroupInfo()">Group जानकारी सेव करें</button>`:""}
+<hr><strong>Members</strong>${memberHtml}`;
+status("groupInfoStatus","");
 }catch(e){status("groupInfoStatus","जानकारी नहीं मिली: "+e.message)}
 }
-function viewGroupPhoto(){if(!groupInfoData?.conversation?.group_avatar_url)return;window.open(groupInfoData.conversation.group_avatar_url,"_blank")}
 function closeGroupInfo(){$("groupInfoModal").classList.add("hidden")}
 async function saveGroupInfo(){
-if(!groupInfoData||!isGroupAdmin()){status("groupInfoStatus","केवल Group Admin बदलाव कर सकता है");return}
-const title=$("editGroupName")?.value.trim(),description=$("editGroupDescription")?.value.trim()||"",file=$("groupPhotoFile")?.files?.[0];
+if(!groupInfoData||groupInfoData.conversation.created_by!==currentUser.id){status("groupInfoStatus","केवल Group Creator बदलाव कर सकता है");return}
+const title=$("editGroupName")?.value.trim(),description=$("editGroupDescription")?.value.trim()||"";
 if(!title){status("groupInfoStatus","Group का नाम खाली नहीं हो सकता");return}
-status("groupInfoStatus","सेव हो रहा है...");let updates={title,group_description:description};
-try{
-if(file){if(file.size>5*1024*1024)throw new Error("Group फोटो 5 MB से छोटी रखें");const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");const path=currentUser.id+"/groups/"+activeConversation+"/"+Date.now()+"."+ext;const {error:upErr}=await sb.storage.from("chat-avatars").upload(path,file,{upsert:true,contentType:file.type});if(upErr)throw upErr;updates.group_avatar_url=sb.storage.from("chat-avatars").getPublicUrl(path).data.publicUrl}
-const {data,error}=await sb.from("conversations").update(updates).eq("id",activeConversation).select().single();if(error)throw error;
-groupInfoData.conversation=data;$("chatName").textContent=data.title||"Group";$("chatAvatar").innerHTML=groupAvatarHTML(data);status("groupInfoStatus","Group जानकारी सेव हो गई ✅");await getMyChatData();
-}catch(e){status("groupInfoStatus","सेव नहीं हुआ: "+e.message)}
-}
-async function makeGroupAdmin(userId){
-if(!isGroupAdmin()){status("groupInfoStatus","केवल Admin यह कर सकता है");return}
-if(!confirm("क्या इस Member को Group Admin बनाना चाहते हैं?"))return;
-status("groupInfoStatus","Admin बनाया जा रहा है...");const {error}=await sb.from("conversation_members").update({role:"admin"}).eq("conversation_id",activeConversation).eq("user_id",userId);
-if(error){status("groupInfoStatus","Admin नहीं बना: "+error.message);return}
-await showGroupInfo();status("groupInfoStatus","नया Admin सफलतापूर्वक बना दिया गया 👑");
-}
-async function addGroupMembers(){
-if(!isGroupAdmin()){status("groupInfoStatus","केवल Admin नए Members जोड़ सकता है");return}
-const ids=[...document.querySelectorAll(".addMemberCheck:checked")].map(x=>x.value);if(!ids.length){status("groupInfoStatus","कम से कम एक User चुनें");return}
-status("groupInfoStatus","Members जोड़े जा रहे हैं...");const rows=ids.map(user_id=>({conversation_id:activeConversation,user_id,role:"member"}));const {error}=await sb.from("conversation_members").insert(rows);
-if(error){status("groupInfoStatus","Members नहीं जुड़े: "+error.message);return}
-await showGroupInfo();await getMyChatData();status("groupInfoStatus",ids.length+" नए Members जोड़ दिए गए ✅");
+status("groupInfoStatus","सेव हो रहा है...");
+const {data,error}=await sb.from("conversations").update({title,group_description:description}).eq("id",activeConversation).eq("created_by",currentUser.id).select().single();
+if(error){status("groupInfoStatus","सेव नहीं हुआ: "+error.message);return}
+$("chatName").textContent=title;groupInfoData.conversation=data;status("groupInfoStatus","Group जानकारी सेव हो गई");await getMyChatData();
 }
 async function leaveGroup(){
 if(!activeGroup||!activeConversation)return;
 if(!confirm("क्या आप इस Group को छोड़ना चाहते हैं?"))return;
-if(isGroupAdmin()&&activeGroupMembers.filter(m=>m.role==="admin").length===1&&activeGroupMembers.length>1){status("groupInfoStatus","पहले किसी दूसरे Member को Admin बनाएँ, फिर Group छोड़ें।");return}
-status("groupInfoStatus","Group छोड़ा जा रहा है...");const {error}=await sb.from("conversation_members").delete().eq("conversation_id",activeConversation).eq("user_id",currentUser.id);
+status("groupInfoStatus","Group छोड़ा जा रहा है...");
+const {error}=await sb.from("conversation_members").delete().eq("conversation_id",activeConversation).eq("user_id",currentUser.id);
 if(error){status("groupInfoStatus","Group नहीं छोड़ा: "+error.message);return}
 closeGroupInfo();status("homeStatus","आप Group से बाहर आ गए हैं");await backHome();
+}
+
+/* TYPING INDICATOR */
+function showTyping(name){$("typingName").textContent=name||"कोई लिख रहा है";$("typingIndicator").classList.remove("hidden");if(typingHideTimer)clearTimeout(typingHideTimer);typingHideTimer=setTimeout(()=>hideTyping(),TYPING_FRESH)}
+function hideTyping(){$("typingIndicator").classList.add("hidden");if(typingHideTimer){clearTimeout(typingHideTimer);typingHideTimer=null}}
+async function typingUpsert(value){if(!currentUser||!activeConversation)return;try{const {error}=await sb.from("typing_status").upsert({conversation_id:activeConversation,user_id:currentUser.id,is_typing:value,updated_at:new Date().toISOString()},{onConflict:"conversation_id,user_id"});if(error)console.warn("Typing update:",error.message)}catch(e){console.warn(e.message)}}
+function typingInput(){const input=$("messageInput");if(!input||!activeConversation)return;if(!input.value.trim()){stopTypingNow();return}typingUpsert(true);if(typingDebounce)clearTimeout(typingDebounce);typingDebounce=setTimeout(()=>stopTypingNow(),TYPING_DELAY)}
+function stopTypingNow(){if(typingDebounce){clearTimeout(typingDebounce);typingDebounce=null}hideTyping();typingUpsert(false)}
+async function subscribeTyping(){
+if(typingChannel){await sb.removeChannel(typingChannel);typingChannel=null}
+hideTyping();if(!currentUser||!activeConversation)return;
+const conv=activeConversation;
+async function updateTypingDisplay(){
+const {data,error}=await sb.from("typing_status").select("user_id,is_typing,updated_at").eq("conversation_id",conv);
+if(error)return;
+const active=(data||[]).filter(r=>r.user_id!==currentUser.id&&r.is_typing&&Date.now()-new Date(r.updated_at).getTime()<TYPING_FRESH);
+if(!active.length){hideTyping();return}
+const names=active.map(r=>displayName(profiles.find(p=>p.id===r.user_id)||{full_name:"कोई"}));
+showTyping(activeGroup?(names.length===1?names[0]+" लिख रहे हैं":names.length+" लोग लिख रहे हैं"):names[0]+" लिख रहा है");
+}
+typingChannel=sb.channel("typing-"+conv+"-"+currentUser.id).on("postgres_changes",{event:"*",schema:"public",table:"typing_status",filter:"conversation_id=eq."+conv},()=>updateTypingDisplay()).subscribe();
+await updateTypingDisplay();
+}
+
+/* MESSAGES AND RECEIPTS */
+async function openChat(peerId,convId){
+const peer=profiles.find(p=>p.id===peerId);if(!peer)return;
+stopTypingNow();activeGroup=false;activeGroupMembers=[];activeChat=peer;activeConversation=convId;
+$("chatName").textContent=displayName(peer);$("chatAvatar").innerHTML=avatarHTML(peer);$("chatSub").textContent=presenceLabel(peer.id);$("chatMessages").innerHTML="";status("chatStatus","Messages लोड हो रहे हैं...");showPage("chatPage");
+await loadMessages();subscribeMessages();subscribeTyping();$("messageInput").focus();
+}
+function renderMessage(m){
+const mine=m.sender_id===currentUser.id,div=document.createElement("div");div.className="msg "+(mine?"mine":"theirs");div.dataset.messageId=m.id;
+const r=receiptCache[m.id];let ticks="";if(mine){if(r?.read_at)ticks='<span class="msgTicks read">✓✓</span>';else if(r?.delivered_at)ticks='<span class="msgTicks delivered">✓✓</span>';else ticks='<span class="msgTicks sent">✓</span>'}
+const sender=activeGroup&&!mine?profiles.find(p=>p.id===m.sender_id):null;
+const parent=m.reply_to?loadedMessages.find(x=>String(x.id)===String(m.reply_to)):null;
+const quote=parent?`<div class="msgReplyQuote"><b>${escapeHTML(parent.sender_id===currentUser.id?"आप":displayName(profiles.find(x=>x.id===parent.sender_id)||{}))}</b><br>${escapeHTML(parent.content||parent.media_name||"Media")}</div>`:"";
+let body=escapeHTML(m.content||"");
+if(m.media_url){const url=m.media_url.startsWith("http")?m.media_url:(mediaSignedUrls[m.media_url]||"");const mt=m.media_type||"";
+if(mt.startsWith("image"))body+=`<a href="${escapeHTML(url)}" target="_blank"><img class="msgMedia" src="${escapeHTML(url)}" alt="फोटो"></a>`;
+else if(mt.startsWith("video"))body+=`<video class="msgMedia" controls src="${escapeHTML(url)}"></video>`;
+else body+=`<a href="${escapeHTML(url)}" target="_blank" rel="noopener">📎 ${escapeHTML(m.media_name||"फ़ाइल खोलें")}</a>`;}
+const reactions=messageReactions[m.id]||[];const reactHtml=reactions.length?`<div class="msgReactions">${reactions.map(x=>`<button class="reactionBtn" onclick="toggleReaction('${m.id}','${x.emoji}')">${escapeHTML(x.emoji)} ${x.count||1}</button>`).join("")}</div>`:"";
+const actions=`<div class="msgActions"><button onclick="setReply('${m.id}')">↩ Reply</button>${mine?`<button onclick="editMessage('${m.id}')">✏️ Edit</button><button onclick="deleteMessage('${m.id}')">🗑 Delete</button>`:""}<button onclick="toggleReaction('${m.id}','❤️')">❤️</button><button onclick="toggleReaction('${m.id}','👍')">👍</button><button onclick="toggleReaction('${m.id}','😂')">😂</button><button onclick="toggleReaction('${m.id}','😮')">😮</button></div>`;
+div.innerHTML=`${sender?`<div style="font-size:11px;color:var(--deep);font-weight:bold;margin-bottom:4px">${escapeHTML(displayName(sender))}</div>`:""}${quote}<div class="msgContent">${body}</div><div class="msgTime" data-created="${escapeHTML(m.created_at||"")}">${timeText(m.created_at)} ${m.edited_at?"· Edited":""} ${ticks}</div>${reactHtml}${actions}`;
+const query=$("messageSearch")?.value.trim().toLowerCase()||"";if(query&&!String(m.content||"").toLowerCase().includes(query))div.classList.add("hidden");$("chatMessages").appendChild(div);
+}
+function scrollBottom(){const el=$("chatMessages");el.scrollTop=el.scrollHeight}
+async function loadReceipts(messages){receiptCache={};const ids=(messages||[]).filter(m=>m.sender_id===currentUser.id).map(m=>m.id);if(!ids.length)return;const {data,error}=await sb.from("message_receipts").select("message_id,delivered_at,read_at").in("message_id",ids);if(error){console.warn("Receipt load:",error.message);return}(data||[]).forEach(r=>{const old=receiptCache[r.message_id]||{};receiptCache[r.message_id]={delivered_at:old.delivered_at||r.delivered_at,read_at:old.read_at||r.read_at}})}
+async function saveDelivered(messageId){
+if(!currentUser||!messageId)return;
+const now=new Date().toISOString();
+const {error:insertError}=await sb.from("message_receipts").insert({message_id:messageId,reader_id:currentUser.id,delivered_at:now});
+if(insertError&&insertError.code!=="23505")console.warn("Receipt insert:",insertError.message);
+const {data,error}=await sb.from("message_receipts").select("id,delivered_at,read_at").eq("message_id",messageId).eq("reader_id",currentUser.id).maybeSingle();
+if(error){console.warn("Receipt lookup:",error.message);return}
+if(data&&!data.delivered_at){const {error:updateError}=await sb.from("message_receipts").update({delivered_at:now}).eq("id",data.id);if(updateError)console.warn(updateError.message)}
+}
+async function saveRead(messageId){
+if(!currentUser||!messageId)return;await saveDelivered(messageId);
+const now=new Date().toISOString();
+const {data,error}=await sb.from("message_receipts").select("id,read_at,delivered_at").eq("message_id",messageId).eq("reader_id",currentUser.id).maybeSingle();
+if(error){console.warn("Read lookup:",error.message);return}
+if(data&&!data.read_at){const {error:updateError}=await sb.from("message_receipts").update({read_at:now}).eq("id",data.id);if(updateError)console.warn("Read update:",updateError.message)}
+}
+function refreshMessageTicks(messageId){const el=document.querySelector(`[data-message-id="${messageId}"]`);if(!el)return;const r=receiptCache[messageId];let html='<span class="msgTicks sent">✓</span>';if(r?.read_at)html='<span class="msgTicks read">✓✓</span>';else if(r?.delivered_at)html='<span class="msgTicks delivered">✓✓</span>';const time=el.querySelector(".msgTime");if(time){time.innerHTML=escapeHTML(timeText(time.dataset.created))+" "+html}}
+async function loadMessages(){
+if(!activeConversation)return;
+const {data,error}=await sb.from("messages").select("*").eq("conversation_id",activeConversation).order("created_at",{ascending:true});
+if(error){status("chatStatus","Messages लोड नहीं हुए: "+error.message);return}
+const messages=data||[];loadedMessages=messages;mediaSignedUrls={};for(const m of messages){if(m.media_url&&!m.media_url.startsWith("http")){try{const {data:sd}=await sb.storage.from("chat-media").createSignedUrl(m.media_url,3600);if(sd?.signedUrl)mediaSignedUrls[m.media_url]=sd.signedUrl}catch(e){console.warn("Media link",e.message)}}}await loadReceipts(messages);messageReactions={};try{const {data:rx}=await sb.from("message_reactions").select("message_id,emoji,user_id").in("message_id",messages.map(m=>m.id));(rx||[]).forEach(a=>{const arr=messageReactions[a.message_id]||(messageReactions[a.message_id]=[]);let item=arr.find(x=>x.emoji===a.emoji);if(!item){item={emoji:a.emoji,count:0};arr.push(item)}item.count++})}catch(e){console.warn("Reactions migration required",e.message)}
+for(const m of messages){if(m.sender_id!==currentUser.id)await saveRead(m.id)}
+$("chatMessages").innerHTML="";messages.forEach(renderMessage);scrollBottom();status("chatStatus","");
+}
+function subscribeMessages(){if(messageChannel){sb.removeChannel(messageChannel);messageChannel=null}messageChannel=sb.channel("chat-"+activeConversation).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"conversation_id=eq."+activeConversation},async()=>{await loadMessages();scrollBottom();await getMyChatData()}).subscribe()}
+async function sendMessage(){
+if(sending)return;const text=$("messageInput").value.trim();if(!text||!activeConversation)return;
+stopTypingNow();sending=true;$("messageInput").value="";status("chatStatus","भेज रहे हैं...");
+try{
+const payload={conversation_id:activeConversation,sender_id:currentUser.id,content:text,message_type:"text"};if(replyToMessage)payload.reply_to=replyToMessage.id;const {error}=await sb.from("messages").insert(payload);
+if(error)throw error;
+replyToMessage=null;cancelReply();editingMessageId=null;await loadMessages();scrollBottom();status("chatStatus","");await getMyChatData();
+}catch(e){$("messageInput").value=text;status("chatStatus","मैसेज नहीं भेजा गया: "+e.message)}
+finally{sending=false}
+}
+function setReply(id){const m=loadedMessages.find(x=>String(x.id)===String(id));if(!m)return;replyToMessage=m;$("replyPreview").textContent="Reply: "+(m.content||m.media_name||"Media");$("replyBar").classList.remove("hidden");$("messageInput").focus()}
+function cancelReply(){replyToMessage=null;$("replyBar")?.classList.add("hidden")}
+function filterMessages(){const q=$("messageSearch").value.trim().toLowerCase();document.querySelectorAll("#chatMessages .msg").forEach(el=>{const m=loadedMessages.find(x=>String(x.id)===el.dataset.messageId);el.classList.toggle("hidden",!!q&&!String(m?.content||"").toLowerCase().includes(q))})}
+function clearMessageSearch(){$("messageSearch").value="";filterMessages()}
+async function editMessage(id){const m=loadedMessages.find(x=>String(x.id)===String(id));if(!m||m.sender_id!==currentUser.id)return;const edited=prompt("मैसेज एडिट करें:",m.content||"");if(edited===null)return;if(!edited.trim()){alert("खाली मैसेज सेव नहीं होगा");return}const {error}=await sb.from("messages").update({content:edited.trim(),edited_at:new Date().toISOString()}).eq("id",id).eq("sender_id",currentUser.id);if(error){alert("Edit नहीं हुआ: "+error.message);return}await loadMessages()}
+async function deleteMessage(id){if(!confirm("क्या यह मैसेज हटाएँ?"))return;const {error}=await sb.from("messages").delete().eq("id",id).eq("sender_id",currentUser.id);if(error){alert("Delete नहीं हुआ: "+error.message);return}await loadMessages()}
+async function toggleReaction(messageId,emoji){if(!currentUser)return;const {data:existing,error:lookup}=await sb.from("message_reactions").select("id").eq("message_id",messageId).eq("user_id",currentUser.id).eq("emoji",emoji).maybeSingle();if(lookup){alert("Reaction सुविधा के लिए SQL सेटअप करें: "+lookup.message);return}if(existing){const {error}=await sb.from("message_reactions").delete().eq("id",existing.id);if(error)alert(error.message)}else{const {error}=await sb.from("message_reactions").insert({message_id:messageId,user_id:currentUser.id,emoji});if(error)alert(error.message)}await loadMessages()}
+async function sendMediaFile(){const file=$("mediaFile").files?.[0];if(!file||!activeConversation)return;const limit=file.type.startsWith("video/")?40*1024*1024:15*1024*1024;if(file.size>limit){alert("चुनी फ़ाइल बड़ी है। वीडियो 40 MB और अन्य फ़ाइल 15 MB तक रखें।");$("mediaFile").value="";return}status("chatStatus","फ़ाइल अपलोड हो रही है...");try{const ext=(file.name.split(".").pop()||"file").toLowerCase().replace(/[^a-z0-9]/g,""),path=currentUser.id+"/"+activeConversation+"/"+Date.now()+"."+ext;const {error:up}=await sb.storage.from("chat-media").upload(path,file,{upsert:false,contentType:file.type||"application/octet-stream"});if(up)throw up;const type=file.type.startsWith("image/")?"image":file.type.startsWith("video/")?"video":"file";const payload={conversation_id:activeConversation,sender_id:currentUser.id,content:"",message_type:type,media_url:path,media_name:file.name,media_type:type};if(replyToMessage)payload.reply_to=replyToMessage.id;const {error}=await sb.from("messages").insert(payload);if(error)throw error;cancelReply();await loadMessages();scrollBottom();status("chatStatus","")}catch(e){status("chatStatus","फ़ाइल नहीं भेजी: "+e.message)}finally{$("mediaFile").value=""}}
+function startReceiptRealtime(){
+if(!currentUser)return;if(deliveryChannel)sb.removeChannel(deliveryChannel);if(receiptChannel)sb.removeChannel(receiptChannel);
+deliveryChannel=sb.channel("delivery-"+currentUser.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},async payload=>{const m=payload.new;if(!m||m.sender_id===currentUser.id)return;const {data:mine}=await sb.from("conversation_members").select("conversation_id").eq("conversation_id",m.conversation_id).eq("user_id",currentUser.id).maybeSingle();if(!mine)return;await saveDelivered(m.id);if(activeConversation===m.conversation_id)await saveRead(m.id)}).subscribe();
+receiptChannel=sb.channel("receipt-updates-"+currentUser.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"message_receipts"},payload=>{const r=payload.new;if(!r)return;receiptCache[r.message_id]={delivered_at:r.delivered_at,read_at:r.read_at};refreshMessageTicks(r.message_id)}).on("postgres_changes",{event:"UPDATE",schema:"public",table:"message_receipts"},payload=>{const r=payload.new;if(!r)return;receiptCache[r.message_id]={delivered_at:r.delivered_at,read_at:r.read_at};refreshMessageTicks(r.message_id)}).subscribe();
+}
+async function backHome(){
+stopTypingNow();if(typingChannel){await sb.removeChannel(typingChannel);typingChannel=null}if(messageChannel){await sb.removeChannel(messageChannel);messageChannel=null}
+activeChat=null;activeConversation=null;activeGroup=false;activeGroupMembers=[];receiptCache={};await loadHome();
 }
 
 /* MY PROFILE */
