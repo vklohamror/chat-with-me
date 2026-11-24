@@ -206,10 +206,10 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 </div>
 
 <div id="chatPage" class="page hidden">
-<div class="header chatHeader"><button class="iconBtn back" onclick="backHome()">‹</button><div class="avatar" id="chatAvatar">?</div><div style="min-width:0;flex:1"><div class="headerTitle" id="chatName">Chat</div><div class="headerSub" id="chatSub">Chat With Me</div></div><button class="iconBtn" onclick="openChatInfo()">ⓘ</button></div>
+<div class="header chatHeader"><button class="iconBtn back" onclick="backHome()">‹</button><div class="avatar" id="chatAvatar">?</div><div style="min-width:0;flex:1"><div class="headerTitle" id="chatName">Chat</div><div class="headerSub" id="chatSub">Chat With Me</div></div><button class="iconBtn" title="Voice Call" onclick="chatCallNotice('voice')">📞</button><button class="iconBtn" title="Video Call" onclick="chatCallNotice('video')">🎥</button><button class="iconBtn" title="Chat options" onclick="openChatOptions()">⋮</button></div>
 <div id="typingIndicator" class="typingIndicator hidden"><span id="typingName">लिख रहा है</span><span class="typingDots"><span></span><span></span><span></span></span></div>
 <div id="chatMessages" class="chatArea"></div>
-<div class="chatInputBar"><input id="messageInput" placeholder="Message लिखें..." oninput="typingInput()" onkeydown="if(event.key==='Enter')sendMessage()"><button class="sendBtn" onclick="sendMessage()">➤</button></div>
+<div class="chatInputBar"><button class="iconBtn" title="Attachment" onclick="chatAttachmentNotice()">＋</button><button class="iconBtn" title="Camera" onclick="chatCameraNotice()">📷</button><input id="messageInput" placeholder="Message लिखें..." oninput="typingInput()" onkeydown="if(event.key==='Enter')sendMessage()"><button class="sendBtn" onclick="sendMessage()">➤</button></div>
 <div id="chatStatus" class="status" style="padding:0 12px"></div>
 </div>
 
@@ -420,7 +420,7 @@ const {data:members,error:me}=await sb.from("conversation_members").select("user
 activeGroup=true;activeConversation=convId;activeChat=null;activeGroupMembers=members||[];
 $("chatName").textContent=conv.title||"Group Chat";$("chatAvatar").textContent="👥";$("chatSub").textContent=activeGroupMembers.length+" Members";
 $("chatMessages").innerHTML="";status("chatStatus","Messages लोड हो रहे हैं...");showPage("chatPage");
-await loadMessages();subscribeMessages();subscribeTyping();$("messageInput").focus();
+await loadMessages();applyChatTheme();subscribeMessages();subscribeTyping();$("messageInput").focus();
 }catch(e){status("homeStatus","Group नहीं खुला: "+e.message)}
 }
 async function openChatInfo(){
@@ -488,13 +488,36 @@ typingChannel=sb.channel("typing-"+conv+"-"+currentUser.id).on("postgres_changes
 await updateTypingDisplay();
 }
 
+/* CHAT OPTIONS MENU: device-local controls + safe messaging utilities */
+function chatLocalPrefs(){try{return JSON.parse(localStorage.getItem("cwmChatOptionsV1")||"{}")}catch(e){return {}}}
+function saveChatLocalPrefs(p){localStorage.setItem("cwmChatOptionsV1",JSON.stringify(p))}
+function chatPref(){return chatLocalPrefs()[activeConversation]||{muted:false,disappearing:"off",theme:"default",blocked:false}}
+function updateChatPref(patch){const all=chatLocalPrefs(),old=all[activeConversation]||{};all[activeConversation]={...old,...patch};saveChatLocalPrefs(all)}
+function chatCallNotice(kind){alert((kind==="voice"?"Voice Call":"Video Call")+" का UI जोड़ा गया है, लेकिन वास्तविक कॉल के लिए WebRTC/signaling server अभी सेट नहीं है।")}
+function chatAttachmentNotice(){alert("Attachment चयन UI अगला चरण है। अभी इस संस्करण में फोटो/फाइल अपलोड और संदेश के रूप में भेजना समर्थित नहीं है।")}
+function chatCameraNotice(){alert("Camera से फोटो लेना/भेजना अभी समर्थित नहीं है।")}
+function openChatOptions(){if(!activeConversation)return;const p=chatPref(),title=$("quickMenuTitle"),content=$("quickMenuContent");title.textContent="Chat विकल्प";content.innerHTML=`<button class="secondary" style="width:100%" onclick="chatViewContact()">👤 View contact / group info</button><button class="secondary" style="width:100%" onclick="chatSearchMessages()">🔎 Search messages</button><button class="secondary" style="width:100%" onclick="chatMediaLinks()">🖼️ Media, links, and docs</button><button class="secondary" style="width:100%" onclick="chatMuteToggle()">🔕 ${p.muted?"Unmute notifications":"Mute notifications"}</button><button class="secondary" style="width:100%" onclick="chatDisappearingMenu()">⏳ Disappearing messages: ${escapeHTML(p.disappearing||"off")}</button><button class="secondary" style="width:100%" onclick="chatThemeMenu()">🎨 Chat theme</button><button class="secondary" style="width:100%" onclick="chatMoreMenu()">⋮ More</button>`;$('quickMenuModal').classList.remove('hidden')}
+function chatViewContact(){closeQuickMenu();openChatInfo()}
+function chatMuteToggle(){const p=chatPref();updateChatPref({muted:!p.muted});openChatOptions();alert(p.muted?"Notifications unmute setting इस डिवाइस पर सेव हुआ।":"Notifications mute setting इस डिवाइस पर सेव हुआ।")}
+function chatDisappearingMenu(){const choice=prompt("Disappearing messages चुनें:\n0 = Off\n1 = 24 घंटे\n2 = 7 दिन\n3 = 90 दिन", "0");if(choice===null)return;const vals={"0":"off","1":"24 hours","2":"7 days","3":"90 days"};if(!vals[choice]){alert("कृपया 0, 1, 2 या 3 चुनें");return}updateChatPref({disappearing:vals[choice]});openChatOptions();alert("Setting केवल इस डिवाइस पर सेव हुई; messages स्वतः delete करने का server rule अभी नहीं है।")}
+function chatThemeMenu(){const choice=prompt("Chat theme चुनें:\n1 Default\n2 Mint\n3 Lavender\n4 Sand", "1");if(choice===null)return;const themes={"1":"default","2":"mint","3":"lavender","4":"sand"};if(!themes[choice])return;updateChatPref({theme:themes[choice]});applyChatTheme();openChatOptions()}
+function applyChatTheme(){const area=$("chatMessages"),bar=document.querySelector(".chatInputBar");if(!area)return;const theme=chatPref().theme||"default",colors={default:"",mint:"#e7f7ef",lavender:"#f0eaff",sand:"#fff1dc"};area.style.background=colors[theme]||"";if(bar)bar.style.background=colors[theme]||""}
+function chatSearchMessages(){closeQuickMenu();const q=prompt("इस चैट में संदेश खोजें:");if(q===null||!q.trim())return;const nodes=[...document.querySelectorAll("#chatMessages .msg")],found=nodes.filter(n=>(n.querySelector(".msgContent")?.textContent||"").toLowerCase().includes(q.trim().toLowerCase()));alert(found.length?found.map(n=>n.querySelector(".msgContent")?.textContent).slice(0,20).join("\n---\n"):`“${q}” नहीं मिला। केवल लोड हुए संदेशों में खोज हुई।`)}
+function chatMediaLinks(){closeQuickMenu();const texts=[...document.querySelectorAll("#chatMessages .msgContent")].map(n=>n.textContent||""),links=texts.filter(t=>/https?:\/\//i.test(t));alert("Loaded chat messages में लिंक: "+links.length+"\n\n"+(links.length?links.join("\n"):"कोई लिंक नहीं मिला।")+"\n\nMedia/documents के लिए upload सुविधा अभी नहीं जोड़ी गई है।")}
+function chatMoreMenu(){const title=$("quickMenuTitle"),content=$("quickMenuContent");title.textContent="More";content.innerHTML=`<button class="secondary" style="width:100%" onclick="chatReport()">🚩 Report</button><button class="secondary" style="width:100%" onclick="chatBlockToggle()">⛔ ${chatPref().blocked?"Unblock":"Block"}</button><button class="secondary" style="width:100%" onclick="chatClearOwnMessages()">🗑️ Clear chat (मेरे भेजे संदेश)</button><button class="secondary" style="width:100%" onclick="chatExport()">📤 Export chat</button><button class="secondary" style="width:100%" onclick="chatShortcut()">📌 Add shortcut</button><button class="secondary" style="width:100%" onclick="chatAddToList()">📂 Add to list</button><button class="secondary" style="width:100%" onclick="openChatOptions()">↩️ वापस</button>`}
+function chatReport(){const reason=prompt("Report का कारण लिखें (यह केवल इस डिवाइस पर रिकॉर्ड होगा):");if(reason===null||!reason.trim())return;const reports=JSON.parse(localStorage.getItem("cwmReportsV1")||"[]");reports.push({conversation:activeConversation,reason:reason.trim(),time:new Date().toISOString()});localStorage.setItem("cwmReportsV1",JSON.stringify(reports));alert("Report इस डिवाइस पर सेव हुई। Supabase moderation/report backend अभी नहीं है।")}
+function chatBlockToggle(){const blocked=!chatPref().blocked;updateChatPref({blocked});alert(blocked?"Block preference स्थानीय रूप से सेव हुई। Server-level blocking अभी लागू नहीं है।":"Unblock preference स्थानीय रूप से सेव हुई।");chatMoreMenu()}
+async function chatClearOwnMessages(){if(!confirm("इस चैट में आपके भेजे हुए संदेश delete करने का प्रयास करें? दूसरे लोगों के संदेश नहीं हटेंगे।"))return;try{const {error}=await sb.from("messages").delete().eq("conversation_id",activeConversation).eq("sender_id",currentUser.id);if(error)throw error;await loadMessages();alert("आपके संदेश हटाने का अनुरोध सफल हुआ।")}catch(e){alert("Delete नहीं हो सका: "+e.message)} }
+function chatExport(){const name=activeGroup?($("chatName").textContent||"Group"):($("chatName").textContent||"Chat"),msgs=[...document.querySelectorAll("#chatMessages .msg")].map(n=>{const content=n.querySelector(".msgContent")?.textContent||"",time=n.querySelector(".msgTime")?.dataset.created||"";return `${new Date(time).toLocaleString()} | ${n.classList.contains("mine")?"आप":"दूसरा"}: ${content}`}).join("\n");const blob=new Blob([`Chat With Me Export\n${name}\n\n${msgs}`],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`chat-export-${Date.now()}.txt`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);alert("Loaded messages का text export डाउनलोड शुरू हुआ।")}
+function chatShortcut(){const title=$("chatName").textContent||"Chat With Me";if("share" in navigator){navigator.share({title,text:"Chat shortcut: "+title,url:location.href}).catch(()=>{})}else alert("इस browser में shortcut सुविधा उपलब्ध नहीं है। Chrome में browser menu → Add to Home screen इस्तेमाल करें।")}
+function chatAddToList(){closeQuickMenu();const choice=prompt("इस चैट को किस list में जोड़ें?\n1 Personal\n2 Work\n3 Favorites\n4 Private", "1");const map={"1":"personal","2":"work","3":"favorites","4":"private"};if(!map[choice])return;const all=getChatMeta(),entry=normalizedMeta(all[activeConversation]);if(!entry.categories.includes(map[choice]))entry.categories.push(map[choice]);all[activeConversation]=entry;saveChatMeta(all);if(map[choice]==="private"&&!localStorage.getItem(PRIVATE_PIN_KEY)){openPrivatePinSetup();return}alert("List में जोड़ दिया (स्थानीय श्रेणी)।")}
 /* MESSAGES AND RECEIPTS */
 async function openChat(peerId,convId){
 const peer=profiles.find(p=>p.id===peerId);if(!peer)return;
 chatOriginTab=currentTab;if(mobileBackReady)history.pushState({cwmScreen:"chat",tab:chatOriginTab,group:false},"");
 stopTypingNow();activeGroup=false;activeGroupMembers=[];activeChat=peer;activeConversation=convId;
 $("chatName").textContent=displayName(peer);$("chatAvatar").innerHTML=avatarHTML(peer);$("chatSub").textContent=presenceLabel(peer.id);$("chatMessages").innerHTML="";status("chatStatus","Messages लोड हो रहे हैं...");showPage("chatPage");
-await loadMessages();subscribeMessages();subscribeTyping();$("messageInput").focus();
+await loadMessages();applyChatTheme();subscribeMessages();subscribeTyping();$("messageInput").focus();
 }
 function renderMessage(m){
 const mine=m.sender_id===currentUser.id,div=document.createElement("div");div.className="msg "+(mine?"mine":"theirs");div.dataset.messageId=m.id;
