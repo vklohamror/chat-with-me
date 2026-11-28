@@ -84,15 +84,15 @@ input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:0 
 .msg.attachmentMsg .msgContent{font-size:12px;line-height:1.25}
 .msg.attachmentMsg .msgTime{font-size:9px;margin-top:3px}
 .msgContent img,.msgContent video{display:block;width:auto;height:auto;max-width:min(220px,68vw);max-height:180px;aspect-ratio:auto;object-fit:contain;border-radius:10px;background:transparent}
-.msg.mine{margin-left:auto;background:#FFE2BE;border-bottom-right-radius:4px}
-.msg.theirs{margin-right:auto;background:white;border:1px solid #f2e8dd;border-bottom-left-radius:4px}
+.msg.mine{margin-left:auto;background:#FFE2BE;border-bottom-right-radius:4px;color:#8b4707}
+.msg.theirs{margin-right:auto;background:#DDF7E7;border:1px solid #c5eed4;border-bottom-left-radius:4px;color:#146b3c}
 .msgTime{text-align:right;font-size:10px;color:#9c826a;margin-top:5px}.msgActions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.msgActions button{font-size:11px;padding:5px 8px;border:1px solid #e9eaee;border-radius:8px;background:#fff;color:#444}.msgActions button:disabled{display:none}
 .msgTicks{display:inline-block;margin-left:5px;font-size:14px;font-weight:bold;letter-spacing:-3px;padding-right:3px}
 .msgTicks.sent,.msgTicks.delivered{color:#9B9289}
 .msgTicks.read{color:#E87916}
 /* v1.5.5: media messages without enclosing bubbles */
 .msg:not(.attachmentMsg):not(.mediaMessage){background:transparent!important;border:0!important;box-shadow:none!important;padding:3px 1px!important;border-radius:0!important}
-.msg:not(.attachmentMsg):not(.mediaMessage) .msgContent{font-size:15px;line-height:1.45;color:#282522}
+.msg:not(.attachmentMsg):not(.mediaMessage) .msgContent{font-size:15px;line-height:1.45;color:inherit}
 .msg:not(.attachmentMsg):not(.mediaMessage) .msgTime{margin-top:2px;font-size:10px;color:#a08b78}
 .msg.mediaMessage{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;max-width:min(78%,260px)!important;width:fit-content!important;border-radius:0!important}
 .msg.mediaMessage .msgContent{background:transparent!important;padding:0!important;margin:0!important}
@@ -100,6 +100,10 @@ input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:0 
 .msg.mediaMessage img,.msg.mediaMessage video{max-width:min(250px,68vw)!important;max-height:220px!important;width:auto!important;height:auto!important;aspect-ratio:auto!important;object-fit:contain;border-radius:12px!important;background:transparent!important}
 .msg.mediaMessage video{width:auto!important;height:auto!important;max-width:min(250px,68vw)!important;max-height:280px!important;aspect-ratio:auto!important;object-fit:contain!important;background:transparent!important}
 .msg.mediaMessage .msgActions{margin-top:5px}
+.msg.mine.mediaMessage .msgTime,.msg.mine.mediaMessage .msgActions{color:#b85e08!important}
+.msg.theirs.mediaMessage .msgTime,.msg.theirs.mediaMessage .msgActions{color:#16834b!important}
+.msg.mine.mediaMessage .msgActions button{color:#b85e08;border-color:#ffd5a6}
+.msg.theirs.mediaMessage .msgActions button{color:#16834b;border-color:#c6eed7}
 .msg.attachmentMsg:not(.mediaMessage){max-width:76%;padding:7px 9px}
 
 .typingIndicator{background:#fff;color:var(--deep);font-size:13px;font-weight:bold;padding:8px 15px;border-bottom:1px solid var(--border);min-height:34px}
@@ -179,6 +183,12 @@ hr{border:0;border-top:1px solid var(--border);margin:15px 0}
 .videoOverlayControls .videoMute,.videoOverlayControls .videoFullscreen{position:absolute;bottom:6px;width:28px;height:28px;font-size:13px;background:#0006}
 .videoOverlayControls .videoMute{right:6px}.videoOverlayControls .videoFullscreen{left:6px}
 .videoInlineWrap video::-webkit-media-controls{display:none!important}
+.videoInlineWrap:fullscreen{width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;background:#000!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:0!important}
+.videoInlineWrap:fullscreen video{width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;object-fit:contain!important;border-radius:0!important}
+.videoInlineWrap:fullscreen .videoOverlayControls{position:fixed!important;inset:0!important}
+.videoInlineWrap:fullscreen .videoOverlayControls button{width:42px;height:42px;font-size:20px}
+.videoInlineWrap video:fullscreen{width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;object-fit:contain!important;background:#000!important}
+.videoInlineWrap video:-webkit-full-screen{width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;object-fit:contain!important;background:#000!important}
 </style>
 <!-- Version 1.5.8: hide attachment storage paths from chat list previews -->
 </head>
@@ -303,7 +313,7 @@ let currentUser=null,profiles=[],myChats=[],currentTab="chats",activeChat=null,a
 let chatFilter="all";const CHAT_META_KEY="cwmChatMetaV1";function getChatMeta(){try{return JSON.parse(localStorage.getItem(CHAT_META_KEY)||"{}")}catch(e){return {}}}function saveChatMeta(meta){localStorage.setItem(CHAT_META_KEY,JSON.stringify(meta))}function chatMetaFor(chat){const key=chat.conversation.id;const meta=getChatMeta();return meta[key]||{category:"personal",favorite:false}}
 let presenceChannel=null,presenceHeartbeat=null,presenceCache={};
 let receiptCache={},receiptChannel=null,deliveryChannel=null;
-let typingChannel=null,typingDebounce=null,typingHideTimer=null;
+let typingChannel=null,typingDebounce=null,typingHideTimer=null,chatPollTimer=null,homeRefreshTimer=null;
 let activeGroup=false,activeGroupMembers=[],groupChoiceIds=new Set(),groupInfoData=null;
 let chatOriginTab="chats",mobileBackReady=false;
 const TYPING_DELAY=4000,TYPING_FRESH=5000,PRESENCE_INTERVAL=30000,PRESENCE_TIMEOUT=75000;
@@ -364,7 +374,7 @@ myChats.push({conversation:conv,peer,isGroup:false,lastMessage:latest?.[0]||null
 }
 myChats.sort((a,b)=>new Date(b.lastMessage?.created_at||b.conversation.created_at||0)-new Date(a.lastMessage?.created_at||a.conversation.created_at||0));
 }
-async function loadHome(){if(!currentUser)return;showPage("homePage");status("homeStatus","डेटा लोड हो रहा है...");try{await getProfiles();startPresence();startReceiptRealtime();await loadPresence();await getMyChatData();await loadStatuses();status("homeStatus","");renderCurrentTab()}catch(e){status("homeStatus","लोड नहीं हुआ: "+e.message)}}
+async function loadHome(){if(!currentUser)return;showPage("homePage");status("homeStatus","डेटा लोड हो रहा है...");try{await getProfiles();startPresence();startReceiptRealtime();await loadPresence();await getMyChatData();await loadStatuses();status("homeStatus","");renderCurrentTab();if(homeRefreshTimer)clearInterval(homeRefreshTimer);homeRefreshTimer=setInterval(async()=>{if(currentUser&&$("homePage")&&!$("homePage").classList.contains("hidden")){try{await getMyChatData();renderCurrentTab()}catch(e){console.warn("Background chat refresh",e)}}},10000)}catch(e){status("homeStatus","लोड नहीं हुआ: "+e.message)}}
 
 /* TABS */
 function showTab(tab,fromBack=false){
@@ -469,7 +479,7 @@ finally{$("createGroupBtn").disabled=false}
 }
 
 /* GROUP OPEN AND INFO */
-async function openGroupChat(convId){
+async function openGroupChat(convId){if(chatPollTimer){clearInterval(chatPollTimer);chatPollTimer=null}
 chatOriginTab=currentTab;if(mobileBackReady)history.pushState({cwmScreen:"chat",tab:chatOriginTab,group:true},"");
 try{
 status("homeStatus","Group खोल रहे हैं...");
@@ -478,7 +488,7 @@ const {data:members,error:me}=await sb.from("conversation_members").select("user
 activeGroup=true;activeConversation=convId;activeChat=null;activeGroupMembers=members||[];
 $("chatName").textContent=conv.title||"Group Chat";$("chatAvatar").textContent="👥";$("chatSub").textContent=activeGroupMembers.length+" Members";
 $("chatMessages").innerHTML="";status("chatStatus","Messages लोड हो रहे हैं...");showPage("chatPage");
-await loadMessages();applyChatTheme();subscribeMessages();subscribeTyping();$("messageInput").focus();
+await loadMessages();applyChatTheme();subscribeMessages();subscribeTyping();chatPollTimer=setInterval(()=>{if(activeConversation===convId&&!$("chatPage").classList.contains("hidden"))pollActiveChat(convId)},3500);$("messageInput").focus();
 }catch(e){status("homeStatus","Group नहीं खुला: "+e.message)}
 }
 async function openChatInfo(){
@@ -588,6 +598,7 @@ const isImage=type.startsWith("image/"),isVideo=type.startsWith("video/");
 const allowed= isImage||isVideo||["application/pdf","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","text/plain","application/zip"].includes(type);
 if(!allowed){alert("यह फ़ाइल प्रकार chat-media bucket में अनुमति प्राप्त नहीं है। फोटो, वीडियो, PDF, DOC, DOCX, TXT या ZIP चुनें।");return}
 const safeName=(file.name||"attachment").normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"_").slice(-90)||"attachment";
+const caption=$("messageInput").value.trim();
 const path=activeConversation+"/"+currentUser.id+"/"+Date.now()+"_"+safeName;
 const action=$("composerAction");if(action)action.disabled=true;
 status("chatStatus","फ़ाइल अपलोड हो रही है…");
@@ -595,9 +606,10 @@ try{
  const {error:uploadError}=await sb.storage.from("chat-media").upload(path,file,{upsert:false,contentType:type});
  if(uploadError)throw uploadError;
  const kind=isImage?"image":isVideo?"video":"file";
- const payload=JSON.stringify({path,name:file.name||safeName,mime:type,size:file.size});
+ const payload=JSON.stringify({path,name:file.name||safeName,mime:type,size:file.size,caption});
  const {error:messageError}=await sb.from("messages").insert({conversation_id:activeConversation,sender_id:currentUser.id,content:payload,message_type:kind});
  if(messageError){await sb.storage.from("chat-media").remove([path]);throw messageError}
+ if(caption){$("messageInput").value="";syncComposer();stopTypingNow();}
  await loadMessages();scrollBottom();status("chatStatus","फ़ाइल भेज दी गई ✓");await getMyChatData();
 }catch(e){console.error("Attachment send:",e);status("chatStatus","फ़ाइल नहीं भेजी गई: "+(e.message||"Upload error"));alert("फ़ाइल नहीं भेजी गई:\n"+(e.message||"Upload error")+"\n\nकृपया Storage policy और chat-media bucket जाँचें।")}
 finally{if(action)action.disabled=false;setTimeout(()=>{if($("chatStatus")?.textContent==="फ़ाइल भेज दी गई ✓")status("chatStatus","")},3500)}
@@ -620,12 +632,12 @@ function chatExport(){const name=activeGroup?($("chatName").textContent||"Group"
 function chatShortcut(){const title=$("chatName").textContent||"Chat With Me";if("share" in navigator){navigator.share({title,text:"Chat shortcut: "+title,url:location.href}).catch(()=>{})}else alert("इस browser में shortcut सुविधा उपलब्ध नहीं है। Chrome में browser menu → Add to Home screen इस्तेमाल करें।")}
 function chatAddToList(){closeQuickMenu();const choice=prompt("इस चैट को किस list में जोड़ें?\n1 Personal\n2 Work\n3 Favorites\n4 Private", "1");const map={"1":"personal","2":"work","3":"favorites","4":"private"};if(!map[choice])return;const all=getChatMeta(),entry=normalizedMeta(all[activeConversation]);if(!entry.categories.includes(map[choice]))entry.categories.push(map[choice]);all[activeConversation]=entry;saveChatMeta(all);if(map[choice]==="private"&&!localStorage.getItem(PRIVATE_PIN_KEY)){openPrivatePinSetup();return}alert("List में जोड़ दिया (स्थानीय श्रेणी)।")}
 /* MESSAGES AND RECEIPTS */
-async function openChat(peerId,convId){
+async function openChat(peerId,convId){if(chatPollTimer){clearInterval(chatPollTimer);chatPollTimer=null}
 const peer=profiles.find(p=>p.id===peerId);if(!peer)return;
 chatOriginTab=currentTab;if(mobileBackReady)history.pushState({cwmScreen:"chat",tab:chatOriginTab,group:false},"");
 stopTypingNow();activeGroup=false;activeGroupMembers=[];activeChat=peer;activeConversation=convId;
 $("chatName").textContent=displayName(peer);$("chatAvatar").innerHTML=avatarHTML(peer);$("chatSub").textContent=presenceLabel(peer.id);$("chatMessages").innerHTML="";status("chatStatus","Messages लोड हो रहे हैं...");showPage("chatPage");
-await loadMessages();applyChatTheme();subscribeMessages();subscribeTyping();$("messageInput").focus();
+await loadMessages();applyChatTheme();subscribeMessages();subscribeTyping();chatPollTimer=setInterval(()=>{if(activeConversation===convId&&!$("chatPage").classList.contains("hidden"))pollActiveChat(convId)},3500);$("messageInput").focus();
 }
 function attachmentData(m){try{const d=JSON.parse(m.content||"{}");return d&&typeof d.path==="string"?d:null}catch{return null}}
 async function hydrateAttachment(m,div){
@@ -640,10 +652,11 @@ async function hydrateAttachment(m,div){
   if(m.message_type==="image"){
    const img=document.createElement("img");img.src=url;img.alt=d.name||"Chat image";img.loading="lazy";img.style.cssText="display:block;max-width:min(240px,65vw);max-height:320px;border-radius:12px;object-fit:contain";img.onclick=()=>window.open(url,"_blank","noopener");body.appendChild(img);
   }else if(m.message_type==="video"){
-   const wrap=document.createElement("div");wrap.className="videoInlineWrap";const video=document.createElement("video");video.src=url;video.controls=false;video.playsInline=true;video.preload="metadata";video.style.cssText="display:block;width:auto;height:auto;max-width:min(250px,68vw);max-height:280px;aspect-ratio:auto;object-fit:contain;background:transparent;border-radius:10px";video.addEventListener("loadedmetadata",()=>{if(video.videoWidth&&video.videoHeight){video.style.aspectRatio=video.videoWidth+" / "+video.videoHeight;video.style.height="auto";}});const controls=document.createElement("div");controls.className="videoOverlayControls";const play=document.createElement("button");play.className="videoPlay";play.textContent="▶";play.title="चलाएँ / रोकें";play.onclick=e=>{e.stopPropagation();if(video.paused){video.play().catch(()=>{});play.textContent="❚❚";}else{video.pause();play.textContent="▶";}};video.addEventListener("play",()=>play.textContent="❚❚");video.addEventListener("pause",()=>play.textContent="▶");const mute=document.createElement("button");mute.className="videoMute";mute.textContent="🔊";mute.title="आवाज़ बंद / चालू";mute.onclick=e=>{e.stopPropagation();video.muted=!video.muted;mute.textContent=video.muted?"🔇":"🔊";};const full=document.createElement("button");full.className="videoFullscreen";full.textContent="⛶";full.title="पूरा स्क्रीन";full.onclick=e=>{e.stopPropagation();if(wrap.requestFullscreen)wrap.requestFullscreen().catch(()=>{});else if(video.webkitEnterFullscreen)video.webkitEnterFullscreen();};controls.append(play,mute,full);wrap.append(video,controls);video.onclick=e=>{e.stopPropagation();if(video.paused){video.play().catch(()=>{});}else video.pause();};body.appendChild(wrap);
+   const wrap=document.createElement("div");wrap.className="videoInlineWrap";const video=document.createElement("video");video.src=url;video.controls=false;video.playsInline=true;video.preload="metadata";video.style.cssText="display:block;width:auto;height:auto;max-width:min(250px,68vw);max-height:280px;aspect-ratio:auto;object-fit:contain;background:transparent;border-radius:10px";video.addEventListener("loadedmetadata",()=>{if(video.videoWidth&&video.videoHeight){video.style.aspectRatio=video.videoWidth+" / "+video.videoHeight;video.style.height="auto";}});const controls=document.createElement("div");controls.className="videoOverlayControls";const play=document.createElement("button");play.className="videoPlay";play.textContent="▶";play.title="चलाएँ / रोकें";play.onclick=e=>{e.stopPropagation();if(video.paused){video.play().catch(()=>{});play.textContent="❚❚";}else{video.pause();play.textContent="▶";}};video.addEventListener("play",()=>play.textContent="❚❚");video.addEventListener("pause",()=>play.textContent="▶");const mute=document.createElement("button");mute.className="videoMute";mute.textContent="🔊";mute.title="आवाज़ बंद / चालू";mute.onclick=e=>{e.stopPropagation();video.muted=!video.muted;mute.textContent=video.muted?"🔇":"🔊";};const full=document.createElement("button");full.className="videoFullscreen";full.textContent="⛶";full.title="पूरा स्क्रीन";full.onclick=e=>{e.stopPropagation();try{if(wrap.requestFullscreen){wrap.requestFullscreen().catch(()=>{if(video.webkitEnterFullscreen)video.webkitEnterFullscreen();});}else if(video.webkitEnterFullscreen){video.webkitEnterFullscreen();}}catch(err){console.warn("Fullscreen unavailable",err)}};controls.append(play,mute,full);wrap.append(video,controls);video.onclick=e=>{e.stopPropagation();if(video.paused){video.play().catch(()=>{});}else video.pause();};body.appendChild(wrap);
   }else{
    const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";a.textContent="📄 "+(d.name||"दस्तावेज़ खोलें");a.style.cssText="color:inherit;text-decoration:underline;overflow-wrap:anywhere";body.appendChild(a);
   }
+  if(d.caption){const captionNode=document.createElement("div");captionNode.className="attachmentCaption";captionNode.textContent=d.caption;captionNode.style.cssText="font-size:14px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:6px";body.appendChild(captionNode);}
   if(m.message_type!=="video"){const meta=document.createElement("div");meta.textContent=(d.name||"फ़ाइल")+" · "+(d.size?((d.size/1024/1024).toFixed(2)+" MB"):"");meta.style.cssText="font-size:10px;opacity:.72;margin-top:4px;overflow-wrap:anywhere";body.appendChild(meta);}
  }catch(e){body.textContent="अटैचमेंट उपलब्ध नहीं: "+(e.message||"Access error")}
 }
@@ -685,7 +698,8 @@ const messages=data||[];await loadReceipts(messages);
 for(const m of messages){if(m.sender_id!==currentUser.id)await saveRead(m.id)}
 $("chatMessages").innerHTML="";messages.forEach(renderMessage);scrollBottom();status("chatStatus","");
 }
-function subscribeMessages(){if(messageChannel){sb.removeChannel(messageChannel);messageChannel=null}messageChannel=sb.channel("chat-"+activeConversation).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"conversation_id=eq."+activeConversation},async()=>{await loadMessages();scrollBottom();await getMyChatData()}).subscribe()}
+async function pollActiveChat(convId){if(!activeConversation||activeConversation!==convId)return;try{const {data,error}=await sb.from("messages").select("id,created_at").eq("conversation_id",convId).order("created_at",{ascending:false}).limit(1);if(error)throw error;const latest=data?.[0]?.id||null;const nodes=$("chatMessages").querySelectorAll(".msg");const shown=nodes.length?nodes[nodes.length-1].dataset.messageId:null;if(latest&&latest!==shown){await loadMessages();scrollBottom();await getMyChatData()}}catch(e){console.warn("Chat refresh fallback",e.message)}}
+function subscribeMessages(){if(messageChannel){sb.removeChannel(messageChannel);messageChannel=null}messageChannel=sb.channel("chat-"+activeConversation).on("postgres_changes",{event:"*",schema:"public",table:"messages",filter:"conversation_id=eq."+activeConversation},async()=>{await loadMessages();scrollBottom();await getMyChatData()}).subscribe()}
 async function sendMessage(){
 if(sending)return;const text=$("messageInput").value.trim();if(!text||!activeConversation)return;
 stopTypingNow();sending=true;$("messageInput").value="";syncComposer();$("emojiPanel").classList.add("hidden");status("chatStatus","भेज रहे हैं...");
@@ -705,6 +719,7 @@ deliveryChannel=sb.channel("delivery-"+currentUser.id).on("postgres_changes",{ev
 receiptChannel=sb.channel("receipt-updates-"+currentUser.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"message_receipts"},payload=>{const r=payload.new;if(!r)return;receiptCache[r.message_id]={delivered_at:r.delivered_at,read_at:r.read_at};refreshMessageTicks(r.message_id)}).on("postgres_changes",{event:"UPDATE",schema:"public",table:"message_receipts"},payload=>{const r=payload.new;if(!r)return;receiptCache[r.message_id]={delivered_at:r.delivered_at,read_at:r.read_at};refreshMessageTicks(r.message_id)}).subscribe();
 }
 async function backHome(){
+if(chatPollTimer){clearInterval(chatPollTimer);chatPollTimer=null}
 stopTypingNow();if(typingChannel){await sb.removeChannel(typingChannel);typingChannel=null}if(messageChannel){await sb.removeChannel(messageChannel);messageChannel=null}
 activeChat=null;activeConversation=null;activeGroup=false;activeGroupMembers=[];receiptCache={};await loadHome();showTab(chatOriginTab||"chats",true);
 }
